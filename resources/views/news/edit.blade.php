@@ -3,6 +3,9 @@
 @section('title', 'Edit News')
 
 @section('content')
+@php
+$relativeDir = file_exists(base_path('../assets')) ? 'img/news' : 'news';
+@endphp
 <div class="container">
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
@@ -90,7 +93,7 @@
                                     <input type="file" name="image1" id="image1" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image1)
-                                            Current: <a href="{{ $record->image1 }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url('assets/' . $relativeDir . '/' . $record->image1) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -106,7 +109,7 @@
                                     <input type="file" name="image2" id="image2" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image2)
-                                            Current: <a href="{{ $record->image2 }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url('assets/' . $relativeDir . '/' . $record->image2) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -124,7 +127,7 @@
                                     <input type="file" name="image3" id="image3" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image3)
-                                            Current: <a href="{{ $record->image3 }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url('assets/' . $relativeDir . '/' . $record->image3) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -140,7 +143,7 @@
                                     <input type="file" name="image4" id="image4" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image4)
-                                            Current: <a href="{{ $record->image4 }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url('assets/' . $relativeDir . '/' . $record->image4) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif

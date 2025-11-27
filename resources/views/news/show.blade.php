@@ -3,6 +3,9 @@
 @section('title', 'View News')
 
 @section('content')
+@php
+$relativeDir = file_exists(base_path('../assets')) ? 'img/news' : 'news';
+@endphp
 <div class="container">
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
@@ -46,7 +49,7 @@
                                 @if($record->image1)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ $record->image1 }}" alt="Image 1" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url('assets/' . $relativeDir . '/' . $record->image1) }}" alt="Image 1" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 1</small>
                                         </div>
@@ -57,7 +60,7 @@
                                 @if($record->image2)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ $record->image2 }}" alt="Image 2" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url('assets/' . $relativeDir . '/' . $record->image2) }}" alt="Image 2" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 2</small>
                                         </div>
@@ -68,7 +71,7 @@
                                 @if($record->image3)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ $record->image3 }}" alt="Image 3" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url('assets/' . $relativeDir . '/' . $record->image3) }}" alt="Image 3" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 3</small>
                                         </div>
@@ -79,7 +82,7 @@
                                 @if($record->image4)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ $record->image4 }}" alt="Image 4" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url('assets/' . $relativeDir . '/' . $record->image4) }}" alt="Image 4" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 4</small>
                                         </div>

@@ -18,7 +18,7 @@
                             <label class="d-block mb-2" style="font-weight:bold;">لوگو اپلوڈ کریں</label>
                             <div class="mb-2 text-right" id="logoArea">
                                 @if($setting && $setting->logo_path)
-                                    <img id="logoDisplay" src="{{ url('public/storage/logo/' . basename($setting->logo_path)) }}" alt="Logo" style="max-height:100px; border:2px solid #bbb; background:#fff; padding:6px; border-radius:8px;">
+                                    <img id="logoDisplay" src="{{ url('assets/logo/' . $setting->logo_path) }}" alt="Logo" style="max-height:100px; border:2px solid #bbb; background:#fff; padding:6px; border-radius:8px;">
                                     <div id="logoLabel" style="font-size:13px; color:#888; margin-top:4px;">پچھلا لوگو</div>
                                 @else
                                     <img id="logoDisplay" src="https://via.placeholder.com/120x100?text=Logo" alt="Logo" style="max-height:100px; border:2px dashed #bbb; background:#fff; padding:6px; border-radius:8px;">
@@ -32,7 +32,7 @@
                             <input type="file" name="logo" id="logoInput" class="form-control mt-2" style="max-width:300px; text-align:right; display:none;" onchange="previewLogo(event)">
                         </div>
                         <!-- Hidden inputs to store original logo and label for JS -->
-                        <input type="hidden" id="originalLogo" value="{{ $setting && $setting->logo_path ? url('public/storage/logo/' . basename($setting->logo_path)) : 'https://via.placeholder.com/120x100?text=Logo' }}">
+                        <input type="hidden" id="originalLogo" value="{{ $setting && $setting->logo_path ? url('assets/logo/' . $setting->logo_path) : 'https://via.placeholder.com/120x100?text=Logo' }}">
                         <input type="hidden" id="originalLabel" value="{{ $setting && $setting->logo_path ? 'پچھلا لوگو' : 'نیا لوگو' }}">
                         <script>
                         function previewLogo(event) {

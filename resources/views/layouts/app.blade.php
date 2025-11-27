@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Land Record System')</title>
-    <link rel="shortcut icon" type="image/x-icon" href="@if($setting && $setting->logo_path){{ url('public/storage/logo/' . basename($setting->logo_path)) }}@else{{ url('public/notika/img/logo/logo.png') }}@endif">
+    <link rel="shortcut icon" type="image/x-icon" href="@if($setting && $setting->logo_path){{ url('assets/logo/' . $setting->logo_path) }}@else{{ url('public/notika/img/logo/logo.png') }}@endif">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
@@ -146,7 +146,7 @@ ul.notika-menu-wrap li a {
 
     </style>
 
-    }
+    
 </head>
 
 <body>
@@ -163,7 +163,7 @@ ul.notika-menu-wrap li a {
                     <div class="logo-area" style="padding:0">
                         <a href="#">
                             @if($setting && $setting->logo_path)
-                                <img src="{{ url('public/storage/logo/' . basename($setting->logo_path)) }}" alt="Logo" style="max-height:60px;" />
+                                <img src="{{ url('assets/logo/' . $setting->logo_path) }}" alt="Logo" style="max-height:60px;" />
                             @else
                                 <img src="{{ url('public/notika/img/logo/logo.png') }}" alt="Logo" style="max-height:60px;" />
                             @endif

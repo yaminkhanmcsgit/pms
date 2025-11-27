@@ -242,6 +242,14 @@ class GrievanceController extends Controller
 
     public function destroy($id)
     {
+        $grievance = DB::table('grievances')->where('id', $id)->first();
+        if ($grievance && $grievance->tehsildar_signature) {
+            $fullPath = base_path('assets/img/' . $grievance->tehsildar_signature);
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+        }
+
         DB::table('grievances')->where('id', $id)->delete();
         return redirect()->route('grievances.index')->with('success', 'Grievance deleted successfully.');
     }
@@ -294,17 +302,29 @@ class GrievanceController extends Controller
             'signature_file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        $uploadDir = base_path('assets/img');
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $grievance = DB::table('grievances')->where('id', $id)->first();
+        if (!$grievance) {
+            return response()->json(['success' => false, 'message' => 'Grievance not found.']);
+        }
+
         if ($request->hasFile('signature_file')) {
+            // Delete old signature if exists
+            if ($grievance->tehsildar_signature) {
+                $fullPath = base_path('assets/img/' . $grievance->tehsildar_signature);
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+            }
+
             $file = $request->file('signature_file');
             $filename = time() . '_' . $id . '.' . $file->getClientOriginalExtension();
 
-            // Create signatures directory if it doesn't exist
-            $path = public_path('storage/signatures');
-            if (!file_exists($path)) {
-                mkdir($path, 0755, true);
-            }
-
-            $file->move($path, $filename);
+            $file->move($uploadDir, $filename);
 
             DB::table('grievances')
                 ->where('id', $id)

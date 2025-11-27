@@ -15,15 +15,29 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
+        $uploadDir = base_path('assets/logo');
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
         $data = [
             'footer_text' => $request->footer_text,
         ];
-        if ($request->hasFile('logo')) {
-            $logo = $request->file('logo');
-            $path = $logo->store('public/logo');
-            $data['logo_path'] = str_replace('public/', 'storage/', $path);
-        }
         $setting = DB::table('settings')->first();
+        if ($request->hasFile('logo')) {
+            // Delete old logo if exists
+            if ($setting && $setting->logo_path) {
+                $fullPath = base_path('assets/logo/' . $setting->logo_path);
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+            }
+
+            $logo = $request->file('logo');
+            $filename = time() . '.' . $logo->getClientOriginalExtension();
+            $logo->move($uploadDir, $filename);
+            $data['logo_path'] = $filename;
+        }
         if ($setting) {
             DB::table('settings')->where('id', $setting->id)->update($data);
         } else {

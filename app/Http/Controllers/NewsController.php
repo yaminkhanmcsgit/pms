@@ -54,8 +54,9 @@ class NewsController extends Controller
         $slug = Str::slug($validated['title']) . '-' . rand(10, 100);
 
         $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
-        $webPath = file_exists(base_path('../assets')) ? '/assets/img/news/' : '/pms/assets/news/';
-        mkdir($uploadDir . '/' . $slug, 0755, true);
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
 
         // Handle file uploads
         $imagePaths = [];
@@ -64,8 +65,8 @@ class NewsController extends Controller
             if ($request->hasFile($fieldName)) {
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
-                $file->move($uploadDir . '/' . $slug, $filename);
-                $imagePaths[$fieldName] = $webPath . $slug . '/' . $filename;
+                $file->move($uploadDir, $filename);
+                $imagePaths[$fieldName] = $filename;
             } else {
                 $imagePaths[$fieldName] = '';
             }
@@ -146,8 +147,10 @@ class NewsController extends Controller
         $slug = Str::slug($validated['title']) . '-' . rand(10, 100);
 
         $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
-        $webPath = file_exists(base_path('../assets')) ? '/assets/img/news/' : '/pms/assets/news/';
-        mkdir($uploadDir . '/' . $slug, 0755, true);
+        $relativeDir = file_exists(base_path('../assets')) ? 'img/news' : 'news';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
 
         // Handle file uploads
         $imagePaths = [];
@@ -156,8 +159,7 @@ class NewsController extends Controller
             if ($request->hasFile($fieldName)) {
                 // Delete old file if exists
                 if ($record->{'image' . $i}) {
-                    $relativePath = str_replace($webPath, '', $record->{'image' . $i});
-                    $fullPath = $uploadDir . '/' . $relativePath;
+                    $fullPath = base_path('assets/' . $relativeDir . '/' . $record->{'image' . $i});
                     if (file_exists($fullPath)) {
                         unlink($fullPath);
                     }
@@ -165,8 +167,8 @@ class NewsController extends Controller
 
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
-                $file->move($uploadDir . '/' . $slug, $filename);
-                $imagePaths[$fieldName] = $webPath . $slug . '/' . $filename;
+                $file->move($uploadDir, $filename);
+                $imagePaths[$fieldName] = $filename;
             } else {
                 $imagePaths[$fieldName] = $record->{'image' . $i};
             }
@@ -200,14 +202,12 @@ class NewsController extends Controller
             return redirect()->route('news.index')->with('error', 'News not found.');
         }
 
-        $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
-        $webPath = file_exists(base_path('../assets')) ? '/assets/img/news/' : '/pms/assets/news/';
+        $relativeDir = file_exists(base_path('../assets')) ? 'img/news' : 'news';
 
         // Delete associated images
         for ($i = 1; $i <= 4; $i++) {
             if ($record->{'image' . $i}) {
-                $relativePath = str_replace($webPath, '', $record->{'image' . $i});
-                $fullPath = $uploadDir . '/' . $relativePath;
+                $fullPath = base_path('assets/' . $relativeDir . '/' . $record->{'image' . $i});
                 if (file_exists($fullPath)) {
                     unlink($fullPath);
                 }

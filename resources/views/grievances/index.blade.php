@@ -363,7 +363,7 @@ function updateSignature(grievanceId, currentSignature) {
     // Show current signature if exists
     const currentSignatureDiv = document.getElementById('currentSignature');
     if (currentSignature) {
-        currentSignatureDiv.innerHTML = `<img src="{{ url('public/storage/signatures') }}/${currentSignature}" alt="Current Signature" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd;">`;
+        currentSignatureDiv.innerHTML = `<img src="{{ url('assets/img') }}/${currentSignature}" alt="Current Signature" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd;">`;
     } else {
         currentSignatureDiv.innerHTML = '<p class="text-muted">No signature uploaded yet.</p>';
     }
@@ -550,7 +550,7 @@ function displayGrievanceDetails(grievance, types, statuses) {
 
         <div class="row" style="margin-top:10px;">
             <div class="col-md-12">
-                <strong>Tehsildar Signature:</strong> ${grievance.tehsildar_signature ? '<img src="' + '{{ url("public/storage/signatures") }}' + '/' + grievance.tehsildar_signature + '" alt="Signature" style="max-width: 60px; max-height: 100px; border: 1px solid #ddd;">' : 'No signature'}
+                <strong>Tehsildar Signature:</strong> ${grievance.tehsildar_signature ? '<img src="' + '{{ url("assets/img") }}' + '/' + grievance.tehsildar_signature + '" alt="Signature" style="max-width: 60px; max-height: 100px; border: 1px solid #ddd;">' : 'No signature'}
             </div>
         </div>
     `;
