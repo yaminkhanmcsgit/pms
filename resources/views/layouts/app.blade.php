@@ -653,7 +653,7 @@ function populateDropdown(dropdown, items, valueKey, textKey, selectedValue) {
     });
    
    
-}
+}    
     var districtDropdown = document.getElementById('zila_id');
     var tehsilDropdown = document.getElementById('tehsil_id');
     var mozaDropdown = document.getElementById('moza_id');
