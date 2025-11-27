@@ -50,8 +50,8 @@
                                     <label for="colorder">
                                         <i class="fa fa-columns"></i> Column Count <span class="text-danger">*</span>
                                     </label>
-                                    <input type="number" name="colorder" id="colorder" class="form-control" value="2" min="1" max="4" required>
-                                    <span class="help-block">Number of columns for layout (1-4)</span>
+                                    <input type="number" name="colorder" id="colorder" class="form-control" value="2" min="1" max="12" required>
+                                    <span class="help-block">Number of columns for layout (1-12)</span>
                                 </div>
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                                     <label for="detail">
                                         <i class="fa fa-file-text"></i> Detail <span class="text-danger">*</span>
                                     </label>
-                                    <textarea name="detail" id="detail" class="form-control" rows="10" placeholder="Enter news content here..." required></textarea>
+                                    <textarea name="detail" id="detail" class="form-control" rows="10" placeholder="Enter news content here..."></textarea>
                                     <span class="help-block">Write the detailed news content</span>
                                 </div>
                             </div>

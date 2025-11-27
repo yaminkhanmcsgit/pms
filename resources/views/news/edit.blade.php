@@ -51,8 +51,8 @@
                                     <label for="colorder">
                                         <i class="fa fa-columns"></i> Column Count <span class="text-danger">*</span>
                                     </label>
-                                    <input type="number" name="colorder" id="colorder" class="form-control" value="{{ $record->colorder }}" min="1" max="4" required>
-                                    <span class="help-block">Number of columns for layout (1-4)</span>
+                                    <input type="number" name="colorder" id="colorder" class="form-control" value="{{ $record->colorder }}" min="1" max="12" required>
+                                    <span class="help-block">Number of columns for layout (1-12)</span>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +75,7 @@
                                     <label for="detail">
                                         <i class="fa fa-file-text"></i> Detail <span class="text-danger">*</span>
                                     </label>
-                                    <textarea name="detail" id="detail" class="form-control" rows="10" placeholder="Enter news content here..." required>{{ $record->detail }}</textarea>
+                                    <textarea name="detail" id="detail" class="form-control" rows="10" placeholder="Enter news content here...">{{ $record->detail }}</textarea>
                                     <span class="help-block">Write the detailed news content</span>
                                 </div>
                             </div>
@@ -90,7 +90,7 @@
                                     <input type="file" name="image1" id="image1" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image1)
-                                            Current: <a href="{{ asset($record->image1) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ $record->image1 }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -106,7 +106,7 @@
                                     <input type="file" name="image2" id="image2" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image2)
-                                            Current: <a href="{{ asset($record->image2) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ $record->image2 }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -124,7 +124,7 @@
                                     <input type="file" name="image3" id="image3" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image3)
-                                            Current: <a href="{{ asset($record->image3) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ $record->image3 }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -140,7 +140,7 @@
                                     <input type="file" name="image4" id="image4" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image4)
-                                            Current: <a href="{{ asset($record->image4) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ $record->image4 }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif

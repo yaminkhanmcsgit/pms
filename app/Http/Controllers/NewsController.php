@@ -43,7 +43,7 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'detail' => 'required|string',
             'created_at' => 'required|date',
-            'colorder' => 'required|integer|min:1|max:4',
+            'colorder' => 'required|integer|min:1|max:12',
             'image1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -53,6 +53,10 @@ class NewsController extends Controller
         // Generate slug
         $slug = Str::slug($validated['title']) . '-' . rand(10, 100);
 
+        $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
+        $webPath = file_exists(base_path('../assets')) ? '/assets/img/news/' : '/pms/assets/news/';
+        mkdir($uploadDir . '/' . $slug, 0755, true);
+
         // Handle file uploads
         $imagePaths = [];
         for ($i = 1; $i <= 4; $i++) {
@@ -60,8 +64,8 @@ class NewsController extends Controller
             if ($request->hasFile($fieldName)) {
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('news/' . $slug, $filename, 'public');
-                $imagePaths[$fieldName] = 'storage/' . $path;
+                $file->move($uploadDir . '/' . $slug, $filename);
+                $imagePaths[$fieldName] = $webPath . $slug . '/' . $filename;
             } else {
                 $imagePaths[$fieldName] = '';
             }
@@ -126,7 +130,7 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'detail' => 'required|string',
             'created_at' => 'required|date',
-            'colorder' => 'required|integer|min:1|max:4',
+            'colorder' => 'required|integer|min:1|max:12',
             'image1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -141,6 +145,10 @@ class NewsController extends Controller
         // Generate slug
         $slug = Str::slug($validated['title']) . '-' . rand(10, 100);
 
+        $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
+        $webPath = file_exists(base_path('../assets')) ? '/assets/img/news/' : '/pms/assets/news/';
+        mkdir($uploadDir . '/' . $slug, 0755, true);
+
         // Handle file uploads
         $imagePaths = [];
         for ($i = 1; $i <= 4; $i++) {
@@ -148,13 +156,17 @@ class NewsController extends Controller
             if ($request->hasFile($fieldName)) {
                 // Delete old file if exists
                 if ($record->{'image' . $i}) {
-                    Storage::disk('public')->delete(str_replace('storage/', '', $record->{'image' . $i}));
+                    $relativePath = str_replace($webPath, '', $record->{'image' . $i});
+                    $fullPath = $uploadDir . '/' . $relativePath;
+                    if (file_exists($fullPath)) {
+                        unlink($fullPath);
+                    }
                 }
 
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('news/' . $slug, $filename, 'public');
-                $imagePaths[$fieldName] = 'storage/' . $path;
+                $file->move($uploadDir . '/' . $slug, $filename);
+                $imagePaths[$fieldName] = $webPath . $slug . '/' . $filename;
             } else {
                 $imagePaths[$fieldName] = $record->{'image' . $i};
             }
@@ -188,10 +200,17 @@ class NewsController extends Controller
             return redirect()->route('news.index')->with('error', 'News not found.');
         }
 
+        $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
+        $webPath = file_exists(base_path('../assets')) ? '/assets/img/news/' : '/pms/assets/news/';
+
         // Delete associated images
         for ($i = 1; $i <= 4; $i++) {
             if ($record->{'image' . $i}) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $record->{'image' . $i}));
+                $relativePath = str_replace($webPath, '', $record->{'image' . $i});
+                $fullPath = $uploadDir . '/' . $relativePath;
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
             }
         }
 
