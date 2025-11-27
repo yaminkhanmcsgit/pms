@@ -651,7 +651,7 @@ function populateDropdown(dropdown, items, valueKey, textKey, selectedValue) {
         }
         dropdown.innerHTML += `<option value="${item[valueKey]}" ${selected}>${item[textKey]}</option>`;
     });
-
+   
    
 }
     var districtDropdown = document.getElementById('zila_id');
