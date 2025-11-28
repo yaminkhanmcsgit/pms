@@ -235,6 +235,12 @@ tr:hover { background-color: #f1f1f1; }
                         <option value="">تمام</option>
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label>ملازم</label>
+                    <select id="completion_employee_id" class="form-control">
+                        <option value="">تمام</option>
+                    </select>
+                </div>
                 <div class="col-md-2" style="padding-left:0;padding-right:0">
                     <br>
                     <button id="completion_filter" class="btn btn-primary btn-sm">فلٹر</button>
@@ -409,6 +415,7 @@ $(document).ready(function() {
     loadPartalReports();
     loadCompletionReports();
     loadGrievancesReports();
+    loadCompletionEmployees();
 
     // Load moza options for role_id 2
     if ($('#partal_tehsil_id').is('input:hidden')) {
@@ -448,12 +455,23 @@ $(document).ready(function() {
 
 });
 
+function loadCompletionEmployees() {
+    $.get('{{ url("api/employees") }}?role_id={{ session("role_id") }}&zila_id={{ session("zila_id") }}&tehsil_id={{ session("tehsil_id") }}', function(data) {
+        var select = $('#completion_employee_id');
+        select.empty();
+        select.append('<option value="">تمام</option>');
+        data.forEach(function(item) {
+            select.append(`<option value="${item.id}">${item.nam}</option>`);
+        });
+    });
+}
+
 function getPartalFilters() {
     return 'from_date=' + $('#partal_from_date').val() + '&to_date=' + $('#partal_to_date').val() + '&district_id=' + $('#partal_district_id').val() + '&tehsil_id=' + $('#partal_tehsil_id').val() + '&moza_id=' + $('#partal_moza_id').val();
 }
 
 function getCompletionFilters() {
-    return 'from_date=' + $('#completion_from_date').val() + '&to_date=' + $('#completion_to_date').val() + '&district_id=' + $('#completion_district_id').val() + '&tehsil_id=' + $('#completion_tehsil_id').val() + '&moza_id=' + $('#completion_moza_id').val();
+    return 'from_date=' + $('#completion_from_date').val() + '&to_date=' + $('#completion_to_date').val() + '&district_id=' + $('#completion_district_id').val() + '&tehsil_id=' + $('#completion_tehsil_id').val() + '&moza_id=' + $('#completion_moza_id').val() + '&employee_id=' + $('#completion_employee_id').val();
 }
 
 function getGrievancesFilters() {
@@ -475,7 +493,39 @@ function loadCompletionReports() {
     $.get('{{ route("reports.completion_process") }}', getCompletionFilters(), function(data) {
         let html = '<table><thead><tr><th>نمبر شمار</th><th>نام ضلع</th><th>نام تحصیل</th><th>نام موضع</th><th>نام اہلکار</th><th>میزان کھاتہ دار/کھتونی</th><th>پختہ کھتونی درانڈکس خسرہ</th><th>درستی بدرات</th><th>تحریر نقل شجرہ نسب</th><th>تحریر شجرہ نسب مالکان قبضہ</th><th>پختہ کھاتاجات</th><th>خام کھاتہ جات در شجرہ نسب</th><th>تحریر مشترکہ کھاتہ</th><th>پختہ نمبرواں در کھتونی</th><th>خام نمبرواں در کھتونی</th><th>تصدیق آخیر</th><th>متفرق کام</th><th>از تاریخ</th><th>تا تاریخ</th></tr></thead><tbody>';
         data.forEach(function(item, index) {
-            html += '<tr><td>' + (index + 1) + '</td><td>' + item.districtNameUrdu + '</td><td>' + item.tehsilNameUrdu + '</td><td>' + item.mozaNameUrdu + '</td><td>' + item.employee_name + (item.employee_type_title ? ' <small>(' + item.employee_type_title + ')</small>' : '') + '</td><td class="' + (item.mizan_khata_dar_khatoni > 0 ? 'value-cell' : '') + '">' + (item.mizan_khata_dar_khatoni == 0 ? '-' : item.mizan_khata_dar_khatoni) + '</td><td class="' + (item.pukhta_khatoni_drandkas_khasra > 0 ? 'value-cell' : '') + '">' + (item.pukhta_khatoni_drandkas_khasra == 0 ? '-' : item.pukhta_khatoni_drandkas_khasra) + '</td><td class="' + (item.durusti_badrat > 0 ? 'value-cell' : '') + '">' + (item.durusti_badrat == 0 ? '-' : item.durusti_badrat) + '</td><td class="' + (item.tehreer_naqal_shajra_nasab > 0 ? 'value-cell' : '') + '">' + (item.tehreer_naqal_shajra_nasab == 0 ? '-' : item.tehreer_naqal_shajra_nasab) + '</td><td class="' + (item.tehreer_shajra_nasab_malkan_qabza > 0 ? 'value-cell' : '') + '">' + (item.tehreer_shajra_nasab_malkan_qabza == 0 ? '-' : item.tehreer_shajra_nasab_malkan_qabza) + '</td><td class="' + (item.pukhta_khatajat > 0 ? 'value-cell' : '') + '">' + (item.pukhta_khatajat == 0 ? '-' : item.pukhta_khatajat) + '</td><td class="' + (item.kham_khatajat_dar_shajra_nasab > 0 ? 'value-cell' : '') + '">' + (item.kham_khatajat_dar_shajra_nasab == 0 ? '-' : item.kham_khatajat_dar_shajra_nasab) + '</td><td class="' + (item.tehreer_mushtarka_khata > 0 ? 'value-cell' : '') + '">' + (item.tehreer_mushtarka_khata == 0 ? '-' : item.tehreer_mushtarka_khata) + '</td><td class="' + (item.pukhta_numberwan_dar_khatoni > 0 ? 'value-cell' : '') + '">' + (item.pukhta_numberwan_dar_khatoni == 0 ? '-' : item.pukhta_numberwan_dar_khatoni) + '</td><td class="' + (item.kham_numberwan_dar_khatoni > 0 ? 'value-cell' : '') + '">' + (item.kham_numberwan_dar_khatoni == 0 ? '-' : item.kham_numberwan_dar_khatoni) + '</td><td class="' + (item.tasdeeq_akhir > 0 ? 'value-cell' : '') + '">' + (item.tasdeeq_akhir == 0 ? '-' : item.tasdeeq_akhir) + '</td><td class="' + (item.mutafarriq_kaam > 0 ? 'value-cell' : '') + '">' + (item.mutafarriq_kaam == 0 ? '-' : item.mutafarriq_kaam) + '</td><td>' + $('#completion_from_date').val() + '</td><td>' + $('#completion_to_date').val() + '</td></tr>';
+            function getCell(value, target) {
+                if (value == 0) return '<td>-</td>';
+
+                console.log('Value:', value, 'Target:', target);
+                var targetVal = target || 0;
+                var text = targetVal + ' / ' + value;
+                var cls = '';
+                if (targetVal==0) {
+                    cls += 'bg-warning';
+                }
+                else  if (value >= targetVal) {
+                    cls += 'bg-success';
+                }
+                
+                 else {
+                    cls += 'bg-danger';
+                }
+                return '<td class="' + cls + '">' + text + '</td>';
+            }
+            html += '<tr><td>' + (index + 1) + '</td><td>' + item.districtNameUrdu + '</td><td>' + item.tehsilNameUrdu + '</td><td>' + item.mozaNameUrdu + '</td><td>' + item.employee_name + (item.employee_type_title ? ' <small>(' + item.employee_type_title + ')</small>' : '') + '</td>' +
+                getCell(item.mizan_khata_dar_khatoni, item.target_mizan_khata_dar_khatoni) +
+                getCell(item.pukhta_khatoni_drandkas_khasra, item.target_pukhta_khatoni_drandkas_khasra) +
+                getCell(item.durusti_badrat, item.target_durusti_badrat) +
+                getCell(item.tehreer_naqal_shajra_nasab, item.target_tehreer_naqal_shajra_nasab) +
+                getCell(item.tehreer_shajra_nasab_malkan_qabza, item.target_tehreer_shajra_nasab_malkan_qabza) +
+                getCell(item.pukhta_khatajat, item.target_pukhta_khatajat) +
+                getCell(item.kham_khatajat_dar_shajra_nasab, item.target_kham_khatajat_dar_shajra_nasab) +
+                getCell(item.tehreer_mushtarka_khata, item.target_tehreer_mushtarka_khata) +
+                getCell(item.pukhta_numberwan_dar_khatoni, item.target_pukhta_numberwan_dar_khatoni) +
+                getCell(item.kham_numberwan_dar_khatoni, item.target_kham_numberwan_dar_khatoni) +
+                getCell(item.tasdeeq_akhir, item.target_tasdeeq_akhir) +
+                getCell(item.mutafarriq_kaam, item.target_mutafarriq_kaam) +
+                '<td>' + $('#completion_from_date').val() + '</td><td>' + $('#completion_to_date').val() + '</td></tr>';
         });
         html += '</tbody></table>';
         $('#completion_table_container').html(html);

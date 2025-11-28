@@ -128,7 +128,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="modal_tehsil_id">تحصیل</label>
-                                <select id="modal_zila_id" name="tehsil_id" id="modal_tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'modal_moza_id')">
+                                <select name="tehsil_id" id="modal_tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'modal_moza_id')">
                                     <option value="">منتخب کریں</option>
                                 </select>
                             </div>

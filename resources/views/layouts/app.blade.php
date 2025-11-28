@@ -642,18 +642,24 @@ ul.notika-menu-wrap li a {
 <script>
 // Helper: Populate a dropdown with options
 function populateDropdown(dropdown, items, valueKey, textKey, selectedValue) {
-    console.log('Populating dropdown:', dropdown.id, 'with', items.length, 'items. Selected value:', selectedValue);
+    if (!dropdown) {
+        console.error('Dropdown element not found');
+        return;
+    }
+    console.log('Populating dropdown:', dropdown.id, 'with', items ? items.length : 0, 'items. Selected value:', selectedValue);
     dropdown.innerHTML = '<option value="">منتخب کریں</option>';
-    items.forEach(function(item) {
-        var selected = selectedValue && item[valueKey] == selectedValue ? 'selected' : '';
-        if (selected) {
-            console.log('Pre-selected:', dropdown.id, 'value:', item[valueKey], 'text:', item[textKey]);
-        }
-        dropdown.innerHTML += `<option value="${item[valueKey]}" ${selected}>${item[textKey]}</option>`;
-    });
-   
-   
-}    
+    if (items && Array.isArray(items)) {
+        items.forEach(function(item) {
+            var selected = selectedValue && item[valueKey] == selectedValue ? 'selected' : '';
+            if (selected) {
+                console.log('Pre-selected:', dropdown.id, 'value:', item[valueKey], 'text:', item[textKey]);
+            }
+            dropdown.innerHTML += `<option value="${item[valueKey]}" ${selected}>${item[textKey]}</option>`;
+        });
+    }
+
+
+}
     var districtDropdown = document.getElementById('zila_id');
     var tehsilDropdown = document.getElementById('tehsil_id');
     var mozaDropdown = document.getElementById('moza_id');
@@ -681,7 +687,8 @@ function onDistrictChange(districtId, tehsilDropdownId, selectedTehsilId) {
             populateDropdown(tehsilDropdown, data, 'tehsil_id', 'tehsilNameUrdu', selectedTehsilId);
             // Optionally trigger tehsil change if editing
             if (typeof onTehsilChange === 'function') {
-                onTehsilChange(tehsilDropdown.value, 'moza_id');
+                var mozaId = tehsilDropdownId.replace('tehsil', 'moza');
+                onTehsilChange(tehsilDropdown.value, mozaId);
             }
         });
 }
