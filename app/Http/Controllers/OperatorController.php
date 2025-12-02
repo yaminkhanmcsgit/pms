@@ -38,8 +38,7 @@ class OperatorController extends Controller
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
         $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
     }
-    $roles     = DB::table('roles')->orderBy('role_id')->get();
-    return view('operators.create', compact('districts', 'tehsils', 'roles', 'role_id'));
+    return view('operators.create', compact('districts', 'tehsils', 'role_id'));
     }
 
     public function store(Request $request) {
@@ -49,7 +48,6 @@ class OperatorController extends Controller
             'username' => 'required|string|max:100|unique:operators',
             'password' => 'required|string|min:6',
             'full_name' => 'nullable|string|max:150',
-            'role_id' => 'nullable|integer',
         ]);
 
         DB::table('operators')->insert([
@@ -58,7 +56,7 @@ class OperatorController extends Controller
             'username' => $request->username,
             'password' => $request->password, // WARNING: Plain text, not secure
             'full_name' => $request->full_name,
-            'role_id' => $request->role_id,
+            'role_id' => 2,
             'created_at' => now(),
         ]);
 
@@ -80,8 +78,7 @@ class OperatorController extends Controller
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
         $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
     }
-    $roles    = DB::table('roles')->orderBy('role_id')->get();
-    return view('operators.edit', compact('operator', 'districts', 'tehsils', 'roles', 'role_id'));
+    return view('operators.edit', compact('operator', 'districts', 'tehsils', 'role_id'));
     }
 
     public function update(Request $request, $id) {
@@ -91,7 +88,6 @@ class OperatorController extends Controller
             'username' => 'required|string|max:100|unique:operators,username,'.$id,
             'password' => 'nullable|string|min:6',
             'full_name' => 'nullable|string|max:150',
-            'role_id' => 'nullable|integer',
         ]);
 
         $data = [
@@ -99,7 +95,7 @@ class OperatorController extends Controller
             'tehsil_id' => $request->tehsil_id,
             'username' => $request->username,
             'full_name' => $request->full_name,
-            'role_id' => $request->role_id,
+            'role_id' => 2,
         ];
 
         if(!empty($request->password)) {

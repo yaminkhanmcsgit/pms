@@ -3,7 +3,7 @@
 @section('title', 'Add New Grievance')
 
 @section('content')
-<div class="container" dir="ltr" style="max-width: 800px;margin: 0 auto;background: #fff;">
+<div class="container" dir="ltr" style="max-width: 800px;margin: 0 auto;">
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -22,14 +22,19 @@
         float: left;width:100%;
     }
 </style>
-    <div class="text-center" style="margin-bottom:20px;">
-        <h4><strong>GOVERNMENT OF KHYBER PAKHTUNKHWA</strong></h4>
-        <h5>BOARD OF REVENUE KHYBER PAKHTUNKHWA</h5>
-        <h5>SETTLEMENT OF LAND RECORDS DIR/KALAM PROJECT</h5>
-    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Add New Grievance</h3>
+        </div>
+        <div class="panel-body">
+            <div class="text-center" style="margin-bottom:20px;">
+                <h4><strong>GOVERNMENT OF KHYBER PAKHTUNKHWA</strong></h4>
+                <h5>BOARD OF REVENUE KHYBER PAKHTUNKHWA</h5>
+                <h5>SETTLEMENT OF LAND RECORDS DIR/KALAM PROJECT</h5>
+            </div>
 
-    <form action="{{ route('grievances.store') }}" method="POST" class="form-modern">
-        @csrf
+            <form action="{{ route('grievances.store') }}" method="POST" class="form-modern">
+                @csrf
 
         <div class="row" style="margin-bottom:20px;">
             @if($role_id == 1)
@@ -141,10 +146,12 @@
             </select>
         </div>
 
-        <div class="text-center">
-            <button type="submit" class="btn btn-success btn-lg">Submit Grievance</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success btn-lg">Submit Grievance</button>
+            </div>
+        </form>
         </div>
-    </form>
+    </div>
 </div>
 @push('scripts')
 <script src="{{ url('public/js/urdutextbox.js') }}"></script>

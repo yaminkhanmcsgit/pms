@@ -84,6 +84,8 @@ class CompletionProcessController extends Controller
             'operator_id' => 'nullable|integer',
         ]);
 
+        $validated['operator_id'] = session('operator_id');
+
         DB::table($this->table)->insert($validated);
 
         return redirect()->route('completion_process.index')->with('success', 'Record added successfully.');
@@ -128,6 +130,8 @@ class CompletionProcessController extends Controller
             'tabsara' => 'nullable|string',
             'operator_id' => 'nullable|integer',
         ]);
+
+        $validated['operator_id'] = session('operator_id');
 
         DB::table($this->table)->where('id', $id)->update($validated);
 
@@ -310,7 +314,7 @@ class CompletionProcessController extends Controller
                     'kham_numberwan_dar_khatoni' => '',
                     'tasdeeq_akhir' => '',
                     'mutafarriq_kaam' => '',
-                    'actions' => '<a href="' . route('completion_process.edit', $record->id) . '" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> ترمیم</a>'
+                    'actions' => ($record->operator_id == session('operator_id')) ? '<a href="' . route('completion_process.edit', $record->id) . '" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> ترمیم</a>' : ''
                 ];
             }
 

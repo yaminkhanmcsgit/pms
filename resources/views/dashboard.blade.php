@@ -5,48 +5,56 @@
 @section('content')
 <div class="container " dir="rtl" >
    
-    <div class=" dashboard-panels" style="display: flex !important; justify-content: space-around;">
-        <div style="flex: 1; margin: 5px;">
-            <div class="panel panel-success">
-                <div class="panel-heading">صارفین</div>
-                <div class="panel-body text-center">
-                    <a href="{{ route('operators.index') }}" class="btn btn-success">صارفین دیکھیں</a>
-                </div>
-            </div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="panel panel-info">
-                <div class="panel-heading">ملازمین</div>
-                <div class="panel-body text-center">
-                    <a href="{{ route('employees.index') }}" class="btn btn-primary">ملازمین دیکھیں</a>
-                </div>
-            </div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="panel panel-warning">
-                <div class="panel-heading">تکمیلی عمل</div>
-                <div class="panel-body text-center">
-                    <a href="{{ route('completion_process.index') }}" class="btn btn-warning">تکمیلی عمل دیکھیں</a>
-                </div>
-            </div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="panel panel-danger">
-                <div class="panel-heading">پڑتال</div>
-                <div class="panel-body text-center">
-                    <a href="{{ route('partal.index') }}" class="btn btn-danger">پڑتال دیکھیں</a>
-                </div>
-            </div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="panel panel-default">
-                <div class="panel-heading">ترتیبات</div>
-                <div class="panel-body text-center">
-                    <a href="{{ route('settings.edit') }}" class="btn btn-default">ترتیبات دیکھیں</a>
-                </div>
-            </div>
-        </div>
-    </div>
+   <div class="row dashboard-panels">
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
+           <div class="panel panel-success">
+               <div class="panel-heading">صارفین</div>
+               <div class="panel-body text-center">
+                   <a href="{{ route('operators.index') }}" class="btn btn-success">صارفین دیکھیں</a>
+               </div>
+           </div>
+       </div>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
+           <div class="panel panel-info">
+               <div class="panel-heading">ملازمین</div>
+               <div class="panel-body text-center">
+                   <a href="{{ route('employees.index') }}" class="btn btn-primary">ملازمین دیکھیں</a>
+               </div>
+           </div>
+       </div>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
+           <div class="panel panel-warning">
+               <div class="panel-heading">تکمیلی عمل</div>
+               <div class="panel-body text-center">
+                   <a href="{{ route('completion_process.index') }}" class="btn btn-warning">تکمیلی عمل دیکھیں</a>
+               </div>
+           </div>
+       </div>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
+           <div class="panel panel-danger">
+               <div class="panel-heading">پڑتال</div>
+               <div class="panel-body text-center">
+                   <a href="{{ route('partal.index') }}" class="btn btn-danger">پڑتال دیکھیں</a>
+               </div>
+           </div>
+       </div>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
+           <div class="panel panel-primary">
+               <div class="panel-heading">شکایات</div>
+               <div class="panel-body text-center">
+                   <a href="{{ route('grievances.index') }}" class="btn btn-primary">شکایات دیکھیں</a>
+               </div>
+           </div>
+       </div>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
+           <div class="panel panel-default">
+               <div class="panel-heading">ترتیبات</div>
+               <div class="panel-body text-center">
+                   <a href="{{ route('settings.edit') }}" class="btn btn-default">ترتیبات دیکھیں</a>
+               </div>
+           </div>
+       </div>
+   </div>
     <!-- گوشوارہ پڑتال رپورٹ section with table -->
     <div>
         <div class="">

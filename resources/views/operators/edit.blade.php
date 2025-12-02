@@ -4,10 +4,14 @@
 
 @section('content')
 <div class="container" dir="rtl">
-    <center><legend><h3>صارف ترمیم کریں</h3></legend></center>
-    <form action="{{ route('operators.update', $operator->id) }}" method="POST" class="form-modern">
-        @csrf
-        @method('PUT')
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">صارف ترمیم کریں</h3>
+        </div>
+        <div class="panel-body">
+            <form action="{{ route('operators.update', $operator->id) }}" method="POST" class="form-modern">
+                @csrf
+                @method('PUT')
         <div class="row">
             <div class="form-group col-md-4 col-12">
                 <label>مکمل نام</label>
@@ -52,21 +56,11 @@
                 @endif
             </div>
         </div>
-        <div class="row">
-           
-            <div class="form-group col-md-6 col-xs-12">
-                <label class="control-label" style="float: right; text-align: right;">رول</label>
-                <select name="role_id" class="form-control" style="direction: rtl; text-align: right;">
-                    <option value="">منتخب کریں</option>
-                    @foreach($roles as $role)
-                        <option value="{{ $role->role_id }}" @if($operator->role_id == $role->role_id) selected @endif>{{ $role->title }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
         <br>
-        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>
-        <a href="{{ route('operators.index') }}" class="btn btn-secondary">واپس</a>
-    </form>
+            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>
+            <a href="{{ route('operators.index') }}" class="btn btn-secondary">واپس</a>
+        </form>
+        </div>
+    </div>
 </div>
 @endsection

@@ -4,9 +4,13 @@
 
 @section('content')
 <div class="container" dir="rtl">
-    <center><legend><h3>نیا تکمیلی عمل شامل کریں</h3></legend></center>
-    <form action="{{ route('completion_process.store') }}" method="POST" class="form-modern">
-        @csrf
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">نیا تکمیلی عمل شامل کریں</h3>
+        </div>
+        <div class="panel-body">
+            <form action="{{ route('completion_process.store') }}" method="POST" class="form-modern">
+                @csrf
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
                 <label>ضلع</label>
@@ -82,10 +86,12 @@
                 <input type="date" name="tareekh" class="form-control">
             </div>
         </div>
-        <!-- Add other fields as needed, following the same form-group/col format -->
-        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>
-        <a href="{{ route('completion_process.index') }}" class="btn btn-secondary">واپس</a>
-    </form>
+            <!-- Add other fields as needed, following the same form-group/col format -->
+            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>
+            <a href="{{ route('completion_process.index') }}" class="btn btn-secondary">واپس</a>
+        </form>
+        </div>
+    </div>
 </div>
 @endsection
 

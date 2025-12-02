@@ -4,10 +4,14 @@
 
 @section('content')
 <div class="container" dir="rtl">
-    <center><legend><h3>پڑتال ریکارڈ ترمیم کریں</h3></legend></center>
-    <form action="{{ route('partal.update', $record->id) }}" method="POST" class="form-modern">
-        @csrf
-        @method('PUT')
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">پڑتال ریکارڈ ترمیم کریں</h3>
+        </div>
+        <div class="panel-body">
+            <form action="{{ route('partal.update', $record->id) }}" method="POST" class="form-modern">
+                @csrf
+                @method('PUT')
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
                 <label>نام ضلع</label>
@@ -117,8 +121,10 @@
                 <input type="text" name="tabsara" class="form-control" value="{{ $record->tabsara }}">
             </div>
         </div>
-        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>
-        <a href="{{ route('partal.index') }}" class="btn btn-secondary">واپس</a>
-    </form>
+            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>
+            <a href="{{ route('partal.index') }}" class="btn btn-secondary">واپس</a>
+        </form>
+        </div>
+    </div>
 </div>
 @endsection

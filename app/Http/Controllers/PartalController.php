@@ -87,6 +87,8 @@ class PartalController extends Controller
         $validated['moza_nam'] = $validated['moza_id'];
         unset($validated['zila_id'], $validated['tehsil_id'], $validated['moza_id']);
 
+        $validated['operator_id'] = session('operator_id');
+
         DB::table($this->table)->insert($validated);
 
         return redirect()->route('partal.index')
@@ -149,6 +151,8 @@ class PartalController extends Controller
         $validated['tehsil_nam'] = $validated['tehsil_id'];
         $validated['moza_nam'] = $validated['moza_id'];
         unset($validated['zila_id'], $validated['tehsil_id'], $validated['moza_id']);
+
+        $validated['operator_id'] = session('operator_id');
 
         DB::table($this->table)->where('id', $id)->update($validated);
 
@@ -260,7 +264,7 @@ class PartalController extends Controller
                 'muqabala_khatoni_chomanda' => $record->muqabala_khatoni_chomanda ?? '',
                 'muqabala_khatoni_chomanda_badrat' => $record->muqabala_khatoni_chomanda_badrat ?? '',
                 'tabsara' => $record->tabsara ?? '',
-                'actions' => '<a href="' . route('partal.edit', $record->id) . '" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> ترمیم</a>'
+                'actions' => ($record->operator_id == session('operator_id')) ? '<a href="' . route('partal.edit', $record->id) . '" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> ترمیم</a>' : ''
             ];
         }
 

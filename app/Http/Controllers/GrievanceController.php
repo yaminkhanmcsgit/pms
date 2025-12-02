@@ -67,6 +67,7 @@ class GrievanceController extends Controller
             'application_date' => 'required|date',
             'grievance_type_id' => 'required|integer',
             'status_id' => 'required|integer',
+            'operator_id' => 'nullable|integer',
         ]);
 
         DB::table('grievances')->insert([
@@ -82,6 +83,7 @@ class GrievanceController extends Controller
             'grievance_description' => $request->grievance_description,
             'status_id' => $request->status_id,
             'application_date' => $request->application_date,
+            'operator_id' => session('operator_id'),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -164,6 +166,7 @@ class GrievanceController extends Controller
             'application_date' => 'required|date',
             'grievance_type_id' => 'required|integer',
             'status_id' => 'required|integer',
+            'operator_id' => 'nullable|integer',
         ]);
 
         DB::table('grievances')->where('id', $id)->update([
@@ -179,6 +182,7 @@ class GrievanceController extends Controller
             'grievance_description' => $request->grievance_description,
             'status_id' => $request->status_id,
             'application_date' => $request->application_date,
+            'operator_id' => session('operator_id'),
             'updated_at' => now(),
         ]);
 
@@ -209,7 +213,8 @@ class GrievanceController extends Controller
             'decision' => 'nullable|string',
             'disposal_date' => 'nullable|date',
             'tehsildar_signature' => 'nullable|string|max:100',
-            'assistant_remarks' => 'nullable|string'
+            'assistant_remarks' => 'nullable|string',
+            'operator_id' => 'nullable|integer'
         ]);
 
         DB::table('grievances')->where('id', $id)->update([
@@ -234,6 +239,7 @@ class GrievanceController extends Controller
             'disposal_date' => $request->disposal_date,
             'tehsildar_signature' => $request->tehsildar_signature,
             'assistant_remarks' => $request->assistant_remarks,
+            'operator_id' => session('operator_id'),
             'updated_at' => now(),
         ]);
 
@@ -410,13 +416,14 @@ class GrievanceController extends Controller
 
         $data = [];
         foreach ($records as $record) {
+            $editLi = ($record->operator_id == session('operator_id')) ? '<li><a href="' . route('grievances.edit', $record->id) . '"><i class="fa fa-edit"></i> Edit</a></li>' : '';
             $actions = '<div class="dropdown">
                 <button class="btn btn-sm btn-default dropdown-toggle actions-dropdown-btn" type="button" data-toggle="dropdown" data-grievance-id="' . $record->id . '">
                     <i class="fa fa-ellipsis-v"></i>
                 </button>
                 <ul class="dropdown-menu actions-dropdown-menu">
                     <li><a href="#" onclick="viewGrievance(' . $record->id . ')"><i class="fa fa-eye"></i> View</a></li>
-                    <li><a href="' . route('grievances.edit', $record->id) . '"><i class="fa fa-edit"></i> Edit</a></li>
+                    ' . $editLi . '
                     <li><a href="#" onclick="updateField(' . $record->id . ', \'forwarded_by\', \'' . addslashes($record->forwarded_by) . '\')"><i class="fa fa-user"></i> Forwarded By</a></li>
                     <li><a href="#" onclick="updateField(' . $record->id . ', \'received_by_tehsildar_date\', \'' . $record->received_by_tehsildar_date . '\')"><i class="fa fa-calendar"></i> Receipt Date</a></li>
                     <li><a href="#" onclick="updateField(' . $record->id . ', \'field_verification_date\', \'' . $record->field_verification_date . '\')"><i class="fa fa-search"></i> Field Verification</a></li>
