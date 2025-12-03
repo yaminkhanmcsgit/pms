@@ -1,5 +1,7 @@
-<?php 
+<?php
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OperatorController;
@@ -103,4 +105,31 @@ Route::middleware(['operator'])->group(function () {
     // Settings
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+    // Notifications
+    Route::get('/api/notifications', function () {
+        $role_id = session('role_id');
+        $zila_id = session('zila_id');
+        $tehsil_id = session('tehsil_id');
+
+        $partal_query = DB::table('partal')->whereBetween('created_at', [now()->subDays(7), now()]);
+        $completion_query = DB::table('completion_process')->whereBetween('created_at', [now()->subDays(7), now()]);
+        $grievances_query = DB::table('grievances')->whereBetween('created_at', [now()->subDays(7), now()]);
+        $pending_grievances_query = DB::table('grievances')->where('status_id', '=', 1);
+
+        if ($role_id != 1) {
+            $partal_query->where('zila_nam', $zila_id)->where('tehsil_nam', $tehsil_id);
+            $completion_query->where('zila_id', $zila_id)->where('tehsil_id', $tehsil_id);
+            $grievances_query->where('district', $zila_id)->where('tehsil', $tehsil_id);
+            $pending_grievances_query->where('district', $zila_id)->where('tehsil', $tehsil_id);
+        }
+
+        $notifications = [
+            'recent_partal' => $partal_query->count(),
+            'recent_completion_process' => $completion_query->count(),
+            'recent_grievances' => $grievances_query->count(),
+            'pending_grievances' => $pending_grievances_query->count(),
+        ];
+        return response()->json($notifications);
+    })->name('api.notifications');
 });

@@ -149,7 +149,64 @@ class HomeController extends Controller
             ->get();
         $completion_process = $cp_query;
 
-       
+        // Grievances from last 7 days
+        $grievances_query = DB::table('grievances')
+            ->leftJoin('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+            ->leftJoin('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+            ->leftJoin('districts', 'grievances.district', '=', 'districts.districtId')
+            ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
+            ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId')
+            ->when($selected_district, function($q) use ($selected_district) { $q->where('districts.districtId', $selected_district); })
+            ->when($selected_tehsil, function($q) use ($selected_tehsil) { $q->where('tehsils.tehsilId', $selected_tehsil); })
+            ->whereBetween('grievances.application_date', [$from_date, $to_date])
+            ->select(
+                'grievances.*',
+                'grievance_types.name as grievance_type_name',
+                'grievance_statuses.name as status_name',
+                'grievance_statuses.color_class as status_color',
+                'districts.districtNameUrdu as district_name',
+                'tehsils.tehsilNameUrdu as tehsil_name',
+                'mozas.mozaNameUrdu as moza_name'
+            )
+            ->orderBy('grievances.application_date', 'desc')
+            ->get();
+
+        $grievances = $grievances_query;
+
+        // Chart data
+        $current_year = date('Y');
+        $chart_data = [
+            'grievances' => [
+                'current_year' => $this->addTotalToData(DB::table('grievances')
+                    ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+                    ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
+                    ->whereYear('grievances.created_at', $current_year)
+                    ->groupBy('grievance_statuses.name')
+                    ->pluck('count', 'status_name')->toArray()),
+                'last_30_days' => $this->addTotalToData(DB::table('grievances')
+                    ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+                    ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
+                    ->whereBetween('grievances.created_at', [now()->subDays(30), now()])
+                    ->groupBy('grievance_statuses.name')
+                    ->pluck('count', 'status_name')->toArray()),
+                'last_7_days' => $this->addTotalToData(DB::table('grievances')
+                    ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+                    ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
+                    ->whereBetween('grievances.created_at', [now()->subDays(7), now()])
+                    ->groupBy('grievance_statuses.name')
+                    ->pluck('count', 'status_name')->toArray()),
+            ],
+            'completion_process' => [
+                DB::table('completion_process')->whereYear('created_at', $current_year)->count(),
+                DB::table('completion_process')->whereBetween('created_at', [now()->subDays(30), now()])->count(),
+                DB::table('completion_process')->whereBetween('created_at', [now()->subDays(7), now()])->count(),
+            ],
+            'partal' => [
+                DB::table('partal')->whereYear('created_at', $current_year)->count(),
+                DB::table('partal')->whereBetween('created_at', [now()->subDays(30), now()])->count(),
+                DB::table('partal')->whereBetween('created_at', [now()->subDays(7), now()])->count(),
+            ],
+        ];
 
         $role_id = session('role_id');
         $assigned_district_name = '';
@@ -158,7 +215,13 @@ class HomeController extends Controller
             $assigned_district_name = DB::table('districts')->where('districtId', session('zila_id'))->value('districtNameUrdu');
             $assigned_tehsil_name = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->value('tehsilNameUrdu');
         }
-        return view('dashboard', compact('district', 'report_date', 'records', 'completion_process', 'districts', 'tehsils', 'selected_district', 'selected_tehsil', 'from_date', 'to_date', 'role_id', 'assigned_district_name', 'assigned_tehsil_name'));
+        return view('dashboard', compact('district', 'report_date', 'records', 'completion_process', 'grievances', 'chart_data', 'districts', 'tehsils', 'selected_district', 'selected_tehsil', 'from_date', 'to_date', 'role_id', 'assigned_district_name', 'assigned_tehsil_name'));
+    }
+
+    private function addTotalToData($data)
+    {
+        $data['Total'] = array_sum($data);
+        return $data;
     }
 
     public function reports()
@@ -485,3 +548,4 @@ class HomeController extends Controller
         return response()->json($query);
     }
 }
+

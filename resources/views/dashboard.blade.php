@@ -55,6 +55,43 @@
            </div>
        </div>
    </div>
+
+   <!-- Charts Section -->
+   <div class="row">
+       <div class="col-md-12">
+           <div class="dashboard-header">
+               <h3>ڈیٹا چارٹس</h3>
+           </div>
+           <div class="row">
+               <!-- Grievances Charts -->
+               <div class="col-md-4">
+                   <h4>شکایات - موجودہ سال</h4>
+                   <canvas id="grievancesCurrentYearChart"></canvas>
+               </div>
+               <div class="col-md-4">
+                   <h4>شکایات - آخری 30 دن</h4>
+                   <canvas id="grievancesLast30DaysChart"></canvas>
+               </div>
+               <div class="col-md-4">
+                   <h4>شکایات - آخری 7 دن</h4>
+                   <canvas id="grievancesLast7DaysChart"></canvas>
+               </div>
+           </div>
+           <div class="row">
+               <!-- Completion Process Chart -->
+               <div class="col-md-6">
+                   <h4>تکمیلی کام</h4>
+                   <canvas id="completionProcessChart" style="max-width: 300px; max-height: 300px;"></canvas>
+               </div>
+               <!-- Partal Chart -->
+               <div class="col-md-6">
+                   <h4>پڑتال</h4>
+                   <canvas id="partalChart" style="max-width: 300px; max-height: 300px;"></canvas>
+               </div>
+           </div>
+       </div>
+   </div>
+
     <!-- گوشوارہ پڑتال رپورٹ section with table -->
     <div>
         <div class="">
@@ -70,7 +107,7 @@
                 .filter-form { margin-bottom: 20px; }
                 .value-cell { background-color: #d4edda !important; }
             </style>
-            <div class="text-center">
+            <div class="text-center" style="display:none;">
             <form method="GET" action="{{ route('dashboard') }}" class="filter-form form-inline" style="display: block; margin: 0 auto; width: fit-content;">
                 <div class="form-group">
                     <label for="district_id">ضلع:</label>
@@ -234,12 +271,178 @@
         </div>
     </div>
 
+    <!-- شکایات رپورٹ section with table -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="dashboard-header">
+                <h3>شکایات خلاصہ ({{ $from_date ? date('d-m-Y', strtotime($from_date)) : '' }} تا {{ $to_date ? date('d-m-Y', strtotime($to_date)) : '' }})</h3>
+            </div>
+            <div class="report-container">
+                <table id="grievancesTable">
+                    <thead>
+                        <tr>
+                            <th>نمبر شمار</th>
+                            <th>نام ضلع</th>
+                            <th>نام تحصیل</th>
+                            <th>نام موضع</th>
+                            <th>شکایت کنندہ کا نام</th>
+                            <th>والد کا نام</th>
+                            <th>شناختی کارڈ نمبر</th>
+                            <th>شکایت کی قسم</th>
+                            <th>حیثیت</th>
+                            <th>تاریخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($grievances as $index => $grievance)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $grievance->district_name }}</td>
+                            <td>{{ $grievance->tehsil_name }}</td>
+                            <td>{{ $grievance->moza_name }}</td>
+                            <td>{{ $grievance->applicant_name }}</td>
+                            <td>{{ $grievance->father_name }}</td>
+                            <td>{{ $grievance->cnic }}</td>
+                            <td>{{ $grievance->grievance_type_name }}</td>
+                            <td><span class="label label-{{ $grievance->status_color }}">{{ $grievance->status_name }}</span></td>
+                            <td>{{ $grievance->application_date ? date('d-m-Y', strtotime($grievance->application_date)) : '' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var districtSelect = document.getElementById('district_id');
             var selectedDistrict = districtSelect.value;
             if (selectedDistrict) {
                 onDistrictChange(selectedDistrict, 'tehsil_id', '{{ request("tehsil_id") }}');
+            }
+
+            // Chart.js code
+            const chartData = @json($chart_data);
+
+            console.log(chartData);
+
+            // Grievances Charts
+            createBarChart('grievancesCurrentYearChart', 'شکایات موجودہ سال', chartData.grievances.current_year);
+            createBarChart('grievancesLast30DaysChart', 'شکایات آخری 30 دن', chartData.grievances.last_30_days);
+            createBarChart('grievancesLast7DaysChart', 'شکایات آخری 7 دن', chartData.grievances.last_7_days);
+
+            // Completion Process Chart
+            createDoughnutChart('completionProcessChart', 'تکمیلی کام', ['موجودہ سال', 'آخری 30 دن', 'آخری 7 دن'], chartData.completion_process);
+
+            // Partal Chart
+            createDoughnutChart('partalChart', 'پڑتال', ['موجودہ سال', 'آخری 30 دن', 'آخری 7 دن'], chartData.partal);
+
+            function createBarChart(canvasId, title, data) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                const colors = [
+                    'rgba(76, 175, 80, 0.6)',
+                    'rgba(33, 150, 243, 0.6)',
+                    'rgba(255, 193, 7, 0.6)',
+                    'rgba(156, 39, 176, 0.6)',
+                    'rgba(255, 87, 34, 0.6)',
+                    'rgba(0, 188, 212, 0.6)'
+                ];
+                const borderColors = [
+                    'rgba(76, 175, 80, 1)',
+                    'rgba(33, 150, 243, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(156, 39, 176, 1)',
+                    'rgba(255, 87, 34, 1)',
+                    'rgba(0, 188, 212, 1)'
+                ];
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: title,
+                            data: Object.values(data),
+                            backgroundColor: colors.slice(0, Object.keys(data).length),
+                            borderColor: borderColors.slice(0, Object.keys(data).length),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return Number(value).toFixed(0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function createLineChart(canvasId, title, labels, data) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: title,
+                            data: data,
+                            backgroundColor: 'rgba(45, 125, 45, 0.2)',
+                            borderColor: 'rgba(45, 125, 45, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            function createDoughnutChart(canvasId, title, labels, data) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: title,
+                            data: data,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.8)',
+                                'rgba(54, 162, 235, 0.8)',
+                                'rgba(255, 205, 86, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 205, 86, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
             }
         });
     </script>

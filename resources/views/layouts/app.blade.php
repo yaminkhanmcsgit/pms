@@ -240,29 +240,17 @@ ul.notika-menu-wrap li a {
                                 <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
                                     <span><i class="notika-icon notika-alarm"></i></span>
                                     <div class="spinner4 spinner-4" style="top:-2px;left:32px;"></div>
-                                    <div class="ntd-ctn" style="top:3px;left:39px;"><span>3</span></div>
+                                    <div class="ntd-ctn" style="top:3px;left:39px;"><span id="notification-count">0</span></div>
                                 </a>
                                 <div role="menu" class="dropdown-menu message-dd notification-dd animated zoomIn">
                                     <div class="hd-mg-tt">
-                                        <h2>Notification</h2>
+                                        <h2>اطلاعات</h2>
                                     </div>
-                                    <div class="hd-message-info">
-                                        <!-- Notifications list -->
-                                        <a href="#">
-                                            <div class="hd-message-sn">
-                                                <div class="hd-message-img">
-                                                    <img src="{{ url('public/notika/img/post/1.jpg') }}" alt="" />
-                                                </div>
-                                                <div class="hd-mg-ctn">
-                                                    <h3>David Belle</h3>
-                                                    <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        <!-- More notifications -->
+                                    <div class="hd-message-info" id="notification-list">
+                                        <!-- Notifications will be loaded here -->
                                     </div>
                                     <div class="hd-mg-va">
-                                        <a href="#">View All</a>
+                                        <a href="{{ route('dashboard') }}">تمام دیکھیں</a>
                                     </div>
                                 </div>
                             </li>
@@ -531,6 +519,8 @@ ul.notika-menu-wrap li a {
     <script src="{{ url('public/notika/js/main.js') }}"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- tawk chat JS -->
 
     <!-- Global AJAX Loading Overlay -->
@@ -639,6 +629,91 @@ ul.notika-menu-wrap li a {
     </script>
 
     @stack('scripts')
+<script>
+    // Function to fetch and update notifications
+    function fetchNotifications() {
+        fetch("{{ url('api/notifications') }}")
+            .then(response => response.json())
+            .then(data => {
+                let total = data.recent_partal + data.recent_completion_process + data.recent_grievances + data.pending_grievances;
+                document.getElementById('notification-count').textContent = total;
+
+                let listHtml = '';
+                if (data.recent_partal > 0) {
+                    listHtml += `
+                        <a href="{{ route('partal.index') }}">
+                            <div class="hd-message-sn">
+                                <div class="hd-message-img">
+                                    <i class="notika-icon notika-form" style="font-size: 24px; color: #337ab7;"></i>
+                                </div>
+                                <div class="hd-mg-ctn">
+                                    <h3>نئے پڑتال اندراجات</h3>
+                                    <p>آخری 7 دنوں میں ${data.recent_partal} نئے اندراجات</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }
+                if (data.recent_completion_process > 0) {
+                    listHtml += `
+                        <a href="{{ route('completion_process.index') }}">
+                            <div class="hd-message-sn">
+                                <div class="hd-message-img">
+                                    <i class="notika-icon notika-edit" style="font-size: 24px; color: #5cb85c;"></i>
+                                </div>
+                                <div class="hd-mg-ctn">
+                                    <h3>نئے تکمیلی کام اندراجات</h3>
+                                    <p>آخری 7 دنوں میں ${data.recent_completion_process} نئے اندراجات</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }
+                if (data.recent_grievances > 0) {
+                    listHtml += `
+                        <a href="{{ route('grievances.index') }}">
+                            <div class="hd-message-sn">
+                                <div class="hd-message-img">
+                                    <i class="notika-icon notika-flag" style="font-size: 24px; color: #f0ad4e;"></i>
+                                </div>
+                                <div class="hd-mg-ctn">
+                                    <h3>نئے شکایات اندراجات</h3>
+                                    <p>آخری 7 دنوں میں ${data.recent_grievances} نئی شکایات</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }
+                if (data.pending_grievances > 0) {
+                    listHtml += `
+                        <a href="{{ route('grievances.index') }}">
+                            <div class="hd-message-sn">
+                                <div class="hd-message-img">
+                                    <i class="notika-icon notika-alert" style="font-size: 24px; color: #d9534f;"></i>
+                                </div>
+                                <div class="hd-mg-ctn">
+                                    <h3>زیر التواء شکایات</h3>
+                                    <p>${data.pending_grievances} شکایات زیر التواء ہیں</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }
+                if (listHtml === '') {
+                    listHtml = '<div class="text-center" style="padding: 20px;">کوئی نئی اطلاع نہیں</div>';
+                }
+                document.getElementById('notification-list').innerHTML = listHtml;
+            })
+            .catch(error => console.error('Error fetching notifications:', error));
+    }
+
+    // Fetch notifications on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchNotifications();
+        // Fetch every 30 seconds
+        setInterval(fetchNotifications, 30000);
+    });
+</script>
 <script>
 // Helper: Populate a dropdown with options
 function populateDropdown(dropdown, items, valueKey, textKey, selectedValue) {
