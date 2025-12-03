@@ -63,31 +63,82 @@
                <h3>ڈیٹا چارٹس</h3>
            </div>
            <div class="row">
-               <!-- Grievances Charts -->
-               <div class="col-md-4">
-                   <h4>شکایات - موجودہ سال</h4>
-                   <canvas id="grievancesCurrentYearChart"></canvas>
+               <!-- Grievances Chart -->
+               <div class="col-md-6">
+                   <div class="panel panel-default">
+                       <div class="panel-heading">
+                           <h4>شکایات</h4>
+                       </div>
+                       <div class="panel-body">
+                           <select id="grievancesPeriod" class="form-control" style="width: auto; display: inline-block; margin-bottom: 10px;">
+                               <option value="current_year">موجودہ سال</option>
+                               <option value="last_year">گذشتہ سال</option>
+                               <option value="current_month">موجودہ مہینہ</option>
+                               <option value="last_month">گذشتہ مہینہ</option>
+                               <option value="current_week">موجودہ ہفتہ</option>
+                               <option value="last_week">گذشتہ ہفتہ</option>
+                           </select>
+                           <canvas id="grievancesChart" ></canvas>
+                       </div>
+                   </div>
                </div>
-               <div class="col-md-4">
-                   <h4>شکایات - آخری 30 دن</h4>
-                   <canvas id="grievancesLast30DaysChart"></canvas>
-               </div>
-               <div class="col-md-4">
-                   <h4>شکایات - آخری 7 دن</h4>
-                   <canvas id="grievancesLast7DaysChart"></canvas>
-               </div>
-           </div>
-           <Br>
-           <div class="row">
+
+                <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>شکایات کی اقسام</h3>
+                </div>
+                <div class="panel-body">
+                    <select id="grievancesByTypePeriod" class="form-control" style="width: auto; display: inline-block; margin-bottom: 10px;">
+                        <option value="current_year">موجودہ سال</option>
+                        <option value="last_year">گذشتہ سال</option>
+                        <option value="current_month">موجودہ مہینہ</option>
+                        <option value="last_month">گذشتہ مہینہ</option>
+                        <option value="current_week">موجودہ ہفتہ</option>
+                        <option value="last_week">گذشتہ ہفتہ</option>
+                    </select>
+                    <canvas id="grievancesByTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
                <!-- Completion Process Chart -->
                <div class="col-md-6">
-                   <h4>تکمیلی کام</h4>
-                   <canvas id="completionProcessChart" style="max-width: 300px; max-height: 300px;"></canvas>
+                   <div class="panel panel-default">
+                       <div class="panel-heading">
+                           <h4>تکمیلی کام</h4>
+                       </div>
+                       <div class="panel-body">
+                           <select id="completionProcessPeriod" class="form-control" style="width: auto; display: inline-block; margin-bottom: 10px;">
+                               <option value="current_year">موجودہ سال</option>
+                               <option value="last_year">گذشتہ سال</option>
+                               <option value="current_month">موجودہ مہینہ</option>
+                               <option value="last_month">گذشتہ مہینہ</option>
+                               <option value="current_week">موجودہ ہفتہ</option>
+                               <option value="last_week">گذشتہ ہفتہ</option>
+                           </select>
+                           <canvas id="completionProcessChart" style="max-width: 300px; max-height: 300px; display: block; margin: 0 auto;"></canvas>
+                       </div>
+                   </div>
                </div>
                <!-- Partal Chart -->
                <div class="col-md-6">
-                   <h4>پڑتال</h4>
-                   <canvas id="partalChart" style="max-width: 300px; max-height: 300px;"></canvas>
+                   <div class="panel panel-default">
+                       <div class="panel-heading">
+                           <h4>پڑتال</h4>
+                       </div>
+                       <div class="panel-body">
+                           <select id="partalPeriod" class="form-control" style="width: auto; display: inline-block; margin-bottom: 10px;">
+                               <option value="current_year">موجودہ سال</option>
+                               <option value="last_year">گذشتہ سال</option>
+                               <option value="current_month">موجودہ مہینہ</option>
+                               <option value="last_month">گذشتہ مہینہ</option>
+                               <option value="current_week">موجودہ ہفتہ</option>
+                               <option value="last_week">گذشتہ ہفتہ</option>
+                           </select>
+                           <canvas id="partalChart" style="max-width: 300px; max-height: 300px; display: block; margin: 0 auto;"></canvas>
+                       </div>
+                   </div>
                </div>
            </div>
        </div>
@@ -146,174 +197,52 @@
                 <button type="submit" class="btn btn-info" style="margin-right:5px;">فلٹر کریں</button>
             </form>
             </div>
+            </div>
+</div>
             <div class="clearfix"></div>
  <div class="row">
-    <div class="col-md-12">
-            <div class="dashboard-header">
-             <h3>گوشوارہ پڑتال خلاصہ ({{ $from_date ? date('d-m-Y', strtotime($from_date)) : '' }} تا {{ $to_date ? date('d-m-Y', strtotime($to_date)) : '' }})</h3>
-            </div>
-            <div class="report-container">
-                <table id="reportTable">
-                    <thead>
-                        <tr>
-                            <th rowspan="2">سیریل نمبر</th>
-                            <th colspan="7">بنیادی معلومات</th>
-                            <th colspan="2">پڑتال پیمائش موقع</th>
-                            <th colspan="2">تصدیق آخیر ملکیت وغیرہ بر موقع</th>
-                            <th colspan="2">تصدیق آخیر شجرہ نسب</th>
-                            <th colspan="2">تصدیق ملکیت و قبضہ کاشت وغیرہ</th>
-                            <th rowspan="2">تبصرہ</th>
-                        </tr>
-                        <tr>
-                            <th>ضلع نام</th>
-                            <th>تحصیل نام</th>
-                            <th>موضع نام</th>
-                            <th>پٹواری نام</th>
-                            <th>اہلکار نام</th>
-                            <th>از تاریخ</th>
-                            <th>تا تاریخ</th>
-                            <th>تصدیق ملکیت/پیمود شدہ نمبرات خسرہ</th>
-                            <th>تعداد برامدہ بدرات</th>
-                            <th>تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ</th>
-                            <th>تعداد برامدہ بدرات</th>
-                            <th>تعداد گھری</th>
-                            <th>تعداد برامدہ بدرات</th>
-                            <th>مقابلہ کھتونی ہمراہ کاپی چومنڈہ</th>
-                            <th>تعداد برامدہ بدرات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($records as $index => $rec)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $rec->districtNameUrdu }}</td>
-                            <td>{{ $rec->tehsilNameUrdu }}</td>
-                            <td>{{ $rec->mozaNameUrdu }}</td>
-                            <td>{{ $rec->patwari_nam }}</td>
-                            <td>{{ $rec->ahalkar_nam }}</td>
-                            <td >{{ $from_date ? date('d-m-Y', strtotime($from_date)) : '' }}</td>
-                            <td >{{ $to_date ? date('d-m-Y', strtotime($to_date)) : '' }}</td>
-                            <td class="{{ $rec->tasdeeq_milkiat_pemuda_khasra > 0 ? 'value-cell' : '' }}">{{ $rec->tasdeeq_milkiat_pemuda_khasra == 0 ? '-' : $rec->tasdeeq_milkiat_pemuda_khasra }}</td>
-                            <td class="{{ $rec->tasdeeq_milkiat_pemuda_khasra_badrat > 0 ? 'value-cell' : '' }}">{{ $rec->tasdeeq_milkiat_pemuda_khasra_badrat == 0 ? '-' : $rec->tasdeeq_milkiat_pemuda_khasra_badrat }}</td>
-                            <td class="{{ $rec->tasdeeq_milkiat_qabza_kasht_khasra > 0 ? 'value-cell' : '' }}">{{ $rec->tasdeeq_milkiat_qabza_kasht_khasra == 0 ? '-' : $rec->tasdeeq_milkiat_qabza_kasht_khasra }}</td>
-                            <td class="{{ $rec->tasdeeq_milkiat_qabza_kasht_badrat > 0 ? 'value-cell' : '' }}">{{ $rec->tasdeeq_milkiat_qabza_kasht_badrat == 0 ? '-' : $rec->tasdeeq_milkiat_qabza_kasht_badrat }}</td>
-                            <td class="{{ $rec->tasdeeq_shajra_nasab_guri > 0 ? 'value-cell' : '' }}">{{ $rec->tasdeeq_shajra_nasab_guri == 0 ? '-' : $rec->tasdeeq_shajra_nasab_guri }}</td>
-                            <td class="{{ $rec->tasdeeq_shajra_nasab_badrat > 0 ? 'value-cell' : '' }}">{{ $rec->tasdeeq_shajra_nasab_badrat == 0 ? '-' : $rec->tasdeeq_shajra_nasab_badrat }}</td>
-                            <td class="{{ $rec->muqabala_khatoni_chomanda > 0 ? 'value-cell' : '' }}">{{ $rec->muqabala_khatoni_chomanda == 0 ? '-' : $rec->muqabala_khatoni_chomanda }}</td>
-                            <td class="{{ $rec->muqabala_khatoni_chomanda_badrat > 0 ? 'value-cell' : '' }}">{{ $rec->muqabala_khatoni_chomanda_badrat == 0 ? '-' : $rec->muqabala_khatoni_chomanda_badrat }}</td>
-                            <td>{{ $rec->tabsara }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-    <!-- تکمیلی عمل رپورٹ section with table -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="dashboard-header">
-            <h3>تکمیلی عمل خلاصہ ({{ $from_date ? date('d-m-Y', strtotime($from_date)) : '' }} تا {{ $to_date ? date('d-m-Y', strtotime($to_date)) : '' }})</h3>
-            </div>
-            <div class="report-container">
-                <table id="completionProcessTable">
-                    <thead>
-                        <tr>
-                            <th>نمبر شمار</th>
-                            <th>نام ضلع</th>
-                            <th>نام تحصیل</th>
-                            <th>نام موضع</th>
-                            <th>نام اہلکار</th>
-                            <th>میزان کھاتہ دار/کھتونی</th>
-                            <th>پختہ کھتونی درانڈکس خسرہ</th>
-                            <th>درستی بدرات</th>
-                            <th>تحریر نقل شجرہ نسب</th>
-                            <th>تحریر شجرہ نسب مالکان قبضہ</th>
-                            <th>پختہ کھاتاجات</th>
-                            <th>خام کھاتہ جات در شجرہ نسب</th>
-                            <th>تحریر مشترکہ کھاتہ</th>
-                            <th>پختہ نمبرواں در کھتونی</th>
-                            <th>خام نمبرواں در کھتونی</th>
-                            <th>تصدیق آخیر</th>
-                            <th>متفرق کام</th>
-                            <th>از تاریخ</th>
-                            <th>تا تاریخ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($completion_process as $index => $cp)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $cp->districtNameUrdu }}</td>
-                            <td>{{ $cp->tehsilNameUrdu }}</td>
-                            <td>{{ $cp->mozaNameUrdu }}</td>
-                            <td>{{ $cp->employee_name }} @if(!empty($cp->employee_type_title))<small>({{ $cp->employee_type_title }})</small>@endif</td>
-                            <td class="{{ $cp->mizan_khata_dar_khatoni > 0 ? 'value-cell' : '' }}">{{ $cp->mizan_khata_dar_khatoni == 0 ? '-' : $cp->mizan_khata_dar_khatoni }}</td>
-                            <td class="{{ $cp->pukhta_khatoni_drandkas_khasra > 0 ? 'value-cell' : '' }}">{{ $cp->pukhta_khatoni_drandkas_khasra == 0 ? '-' : $cp->pukhta_khatoni_drandkas_khasra }}</td>
-                            <td class="{{ $cp->durusti_badrat > 0 ? 'value-cell' : '' }}">{{ $cp->durusti_badrat == 0 ? '-' : $cp->durusti_badrat }}</td>
-                            <td class="{{ $cp->tehreer_naqal_shajra_nasab > 0 ? 'value-cell' : '' }}">{{ $cp->tehreer_naqal_shajra_nasab == 0 ? '-' : $cp->tehreer_naqal_shajra_nasab }}</td>
-                            <td class="{{ $cp->tehreer_shajra_nasab_malkan_qabza > 0 ? 'value-cell' : '' }}">{{ $cp->tehreer_shajra_nasab_malkan_qabza == 0 ? '-' : $cp->tehreer_shajra_nasab_malkan_qabza }}</td>
-                            <td class="{{ $cp->pukhta_khatajat > 0 ? 'value-cell' : '' }}">{{ $cp->pukhta_khatajat == 0 ? '-' : $cp->pukhta_khatajat }}</td>
-                            <td class="{{ $cp->kham_khatajat_dar_shajra_nasab > 0 ? 'value-cell' : '' }}">{{ $cp->kham_khatajat_dar_shajra_nasab == 0 ? '-' : $cp->kham_khatajat_dar_shajra_nasab }}</td>
-                            <td class="{{ $cp->tehreer_mushtarka_khata > 0 ? 'value-cell' : '' }}">{{ $cp->tehreer_mushtarka_khata == 0 ? '-' : $cp->tehreer_mushtarka_khata }}</td>
-                            <td class="{{ $cp->pukhta_numberwan_dar_khatoni > 0 ? 'value-cell' : '' }}">{{ $cp->pukhta_numberwan_dar_khatoni == 0 ? '-' : $cp->pukhta_numberwan_dar_khatoni }}</td>
-                            <td class="{{ $cp->kham_numberwan_dar_khatoni > 0 ? 'value-cell' : '' }}">{{ $cp->kham_numberwan_dar_khatoni == 0 ? '-' : $cp->kham_numberwan_dar_khatoni }}</td>
-                            <td class="{{ $cp->tasdeeq_akhir > 0 ? 'value-cell' : '' }}">{{ $cp->tasdeeq_akhir == 0 ? '-' : $cp->tasdeeq_akhir }}</td>
-                            <td class="{{ $cp->mutafarriq_kaam > 0 ? 'value-cell' : '' }}">{{ $cp->mutafarriq_kaam == 0 ? '-' : $cp->mutafarriq_kaam }}</td>
-                            <td>{{ $from_date ? date('d-m-Y', strtotime($from_date)) : '' }}</td>
-                            <td>{{ $to_date ? date('d-m-Y', strtotime($to_date)) : '' }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+     <div class="col-md-6">
+         <div class="panel panel-default">
+             <div class="panel-heading">
+                 <h3>گوشوارہ پڑتال خلاصہ</h3>
+             </div>
+             <div class="panel-body">
+                 <select id="partalSummaryPeriod" class="form-control" style="width: auto; display: inline-block; margin-bottom: 10px;">
+                     <option value="current_year">موجودہ سال</option>
+                     <option value="last_year">گذشتہ سال</option>
+                     <option value="current_month">موجودہ مہینہ</option>
+                     <option value="last_month">گذشتہ مہینہ</option>
+                     <option value="current_week">موجودہ ہفتہ</option>
+                     <option value="last_week">گذشتہ ہفتہ</option>
+                 </select>
+                 <canvas id="partalSummaryChart"></canvas>
+             </div>
+         </div>
+     </div>
+     
+
+  
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>تکمیلی عمل خلاصہ</h3>
+                </div>
+                <div class="panel-body">
+                    <select id="completionProcessSummaryPeriod" class="form-control" style="width: auto; display: inline-block; margin-bottom: 10px;">
+                        <option value="current_year">موجودہ سال</option>
+                        <option value="last_year">گذشتہ سال</option>
+                        <option value="current_month">موجودہ مہینہ</option>
+                        <option value="last_month">گذشتہ مہینہ</option>
+                        <option value="current_week">موجودہ ہفتہ</option>
+                        <option value="last_week">گذشتہ ہفتہ</option>
+                    </select>
+                    <canvas id="completionProcessSummaryChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- شکایات رپورٹ section with table -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="dashboard-header">
-                <h3>شکایات خلاصہ ({{ $from_date ? date('d-m-Y', strtotime($from_date)) : '' }} تا {{ $to_date ? date('d-m-Y', strtotime($to_date)) : '' }})</h3>
-            </div>
-            <div class="report-container">
-                <table id="grievancesTable">
-                    <thead>
-                        <tr>
-                            <th>نمبر شمار</th>
-                            <th>نام ضلع</th>
-                            <th>نام تحصیل</th>
-                            <th>نام موضع</th>
-                            <th>شکایت کنندہ کا نام</th>
-                            <th>والد کا نام</th>
-                            <th>شناختی کارڈ نمبر</th>
-                            <th>شکایت کی قسم</th>
-                            <th>حیثیت</th>
-                            <th>تاریخ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($grievances as $index => $grievance)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $grievance->district_name }}</td>
-                            <td>{{ $grievance->tehsil_name }}</td>
-                            <td>{{ $grievance->moza_name }}</td>
-                            <td>{{ $grievance->applicant_name }}</td>
-                            <td>{{ $grievance->father_name }}</td>
-                            <td>{{ $grievance->cnic }}</td>
-                            <td>{{ $grievance->grievance_type_name }}</td>
-                            <td><span class="label label-{{ $grievance->status_color }}">{{ $grievance->status_name }}</span></td>
-                            <td>{{ $grievance->application_date ? date('d-m-Y', strtotime($grievance->application_date)) : '' }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -328,36 +257,171 @@
 
             console.log(chartData);
 
-            // Grievances Charts
-            createBarChart('grievancesCurrentYearChart', 'شکایات موجودہ سال', chartData.grievances.current_year);
-            createBarChart('grievancesLast30DaysChart', 'شکایات آخری 30 دن', chartData.grievances.last_30_days);
-            createBarChart('grievancesLast7DaysChart', 'شکایات آخری 7 دن', chartData.grievances.last_7_days);
+            // Grievances Chart
+            let grievancesChart = createBarChart('grievancesChart', 'شکایات', chartData.grievances.current_year);
+
+            // Handle period change
+            document.getElementById('grievancesPeriod').addEventListener('change', function() {
+                const selectedPeriod = this.value;
+                const data = chartData.grievances[selectedPeriod];
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                const colors = [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 205, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
+                ];
+                const borderColors = [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ];
+                grievancesChart.data.labels = labels;
+                grievancesChart.data.datasets[0].data = values;
+                grievancesChart.data.datasets[0].backgroundColor = colors.slice(0, labels.length);
+                grievancesChart.data.datasets[0].borderColor = borderColors.slice(0, labels.length);
+                grievancesChart.update();
+            });
 
             // Completion Process Chart
-            createDoughnutChart('completionProcessChart', 'تکمیلی کام', ['موجودہ سال', 'آخری 30 دن', 'آخری 7 دن'], chartData.completion_process);
+            let completionProcessChart = createDoughnutChart('completionProcessChart', 'تکمیلی کام', Object.keys(chartData.completion_process.current_year), Object.values(chartData.completion_process.current_year), [
+                'rgba(45, 125, 45, 0.8)',    // Dark Green
+                'rgba(54, 162, 235, 0.8)',   // Blue
+                'rgba(255, 205, 86, 0.8)',   // Yellow
+                'rgba(75, 192, 192, 0.8)',   // Teal
+                'rgba(153, 102, 255, 0.8)',  // Purple
+                'rgba(255, 159, 64, 0.8)',   // Orange
+                'rgba(199, 199, 199, 0.8)',  // Grey
+                'rgba(83, 102, 255, 0.8)',   // Indigo
+                'rgba(255, 99, 255, 0.8)',   // Pink
+                'rgba(99, 255, 132, 0.8)'    // Light Green
+            ], [
+                'rgba(45, 125, 45, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 205, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(199, 199, 199, 1)',
+                'rgba(83, 102, 255, 1)',
+                'rgba(255, 99, 255, 1)',
+                'rgba(99, 255, 132, 1)'
+            ]);
+
+            // Handle completion process period change
+            document.getElementById('completionProcessPeriod').addEventListener('change', function() {
+                const selectedPeriod = this.value;
+                const data = chartData.completion_process[selectedPeriod];
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                completionProcessChart.data.labels = labels;
+                completionProcessChart.data.datasets[0].data = values;
+                completionProcessChart.update();
+            });
 
             // Partal Chart
-            createDoughnutChart('partalChart', 'پڑتال', ['موجودہ سال', 'آخری 30 دن', 'آخری 7 دن'], chartData.partal);
+            let partalChart = createDoughnutChart('partalChart', 'پڑتال', Object.keys(chartData.partal.current_year), Object.values(chartData.partal.current_year), [
+                'rgba(255, 87, 34, 0.8)',    // Deep Orange
+                'rgba(156, 39, 176, 0.8)',   // Deep Purple
+                'rgba(0, 150, 136, 0.8)',    // Teal
+                'rgba(255, 193, 7, 0.8)',    // Amber
+                'rgba(33, 150, 243, 0.8)',   // Blue
+                'rgba(96, 125, 139, 0.8)',   // Blue Grey
+                'rgba(63, 81, 181, 0.8)',    // Indigo
+                'rgba(233, 30, 99, 0.8)',    // Pink
+                'rgba(76, 175, 80, 0.8)',    // Green
+                'rgba(121, 85, 72, 0.8)'     // Brown
+            ], [
+                'rgba(255, 87, 34, 1)',
+                'rgba(156, 39, 176, 1)',
+                'rgba(0, 150, 136, 1)',
+                'rgba(255, 193, 7, 1)',
+                'rgba(33, 150, 243, 1)',
+                'rgba(96, 125, 139, 1)',
+                'rgba(63, 81, 181, 1)',
+                'rgba(233, 30, 99, 1)',
+                'rgba(76, 175, 80, 1)',
+                'rgba(121, 85, 72, 1)'
+            ]);
+
+            // Handle partal period change
+            document.getElementById('partalPeriod').addEventListener('change', function() {
+                const selectedPeriod = this.value;
+                const data = chartData.partal[selectedPeriod];
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                partalChart.data.labels = labels;
+                partalChart.data.datasets[0].data = values;
+                partalChart.update();
+            });
+
+            // Partal Summary Chart
+            let partalSummaryChart = createBarChart('partalSummaryChart', 'گوشوارہ پڑتال خلاصہ', @json($partal_sums['current_year']));
+
+            // Handle partal summary period change
+            document.getElementById('partalSummaryPeriod').addEventListener('change', function() {
+                const selectedPeriod = this.value;
+                const data = @json($partal_sums)[selectedPeriod];
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                partalSummaryChart.data.labels = labels;
+                partalSummaryChart.data.datasets[0].data = values;
+                partalSummaryChart.update();
+            });
+
+            // Completion Process Summary Chart
+            let completionProcessSummaryChart = createBarChart('completionProcessSummaryChart', 'تکمیلی عمل خلاصہ', @json($completion_process_sums['current_year']));
+
+            // Handle completion process summary period change
+            document.getElementById('completionProcessSummaryPeriod').addEventListener('change', function() {
+                const selectedPeriod = this.value;
+                const data = @json($completion_process_sums)[selectedPeriod];
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                completionProcessSummaryChart.data.labels = labels;
+                completionProcessSummaryChart.data.datasets[0].data = values;
+                completionProcessSummaryChart.update();
+            });
+
+            // Grievances by Type Chart
+            let grievancesByTypeChart = createBarChart('grievancesByTypeChart', 'شکایات کی اقسام', @json($grievances_by_type['current_year']));
+
+            // Handle grievances by type period change
+            document.getElementById('grievancesByTypePeriod').addEventListener('change', function() {
+                const selectedPeriod = this.value;
+                const data = @json($grievances_by_type)[selectedPeriod];
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                grievancesByTypeChart.data.labels = labels;
+                grievancesByTypeChart.data.datasets[0].data = values;
+                grievancesByTypeChart.update();
+            });
 
             function createBarChart(canvasId, title, data) {
                 const ctx = document.getElementById(canvasId).getContext('2d');
                 const colors = [
-                    'rgba(76, 175, 80, 0.6)',
-                    'rgba(33, 150, 243, 0.6)',
-                    'rgba(255, 193, 7, 0.6)',
-                    'rgba(156, 39, 176, 0.6)',
-                    'rgba(255, 87, 34, 0.6)',
-                    'rgba(0, 188, 212, 0.6)'
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 205, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
                 ];
                 const borderColors = [
-                    'rgba(76, 175, 80, 1)',
-                    'rgba(33, 150, 243, 1)',
-                    'rgba(255, 193, 7, 1)',
-                    'rgba(156, 39, 176, 1)',
-                    'rgba(255, 87, 34, 1)',
-                    'rgba(0, 188, 212, 1)'
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
                 ];
-                new Chart(ctx, {
+                return new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(data),
@@ -413,25 +477,17 @@
                 });
             }
 
-            function createDoughnutChart(canvasId, title, labels, data) {
+            function createDoughnutChart(canvasId, title, labels, data, colors, borderColors) {
                 const ctx = document.getElementById(canvasId).getContext('2d');
-                new Chart(ctx, {
+                return new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         labels: labels,
                         datasets: [{
                             label: title,
                             data: data,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.8)',
-                                'rgba(54, 162, 235, 0.8)',
-                                'rgba(255, 205, 86, 0.8)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 205, 86, 1)'
-                            ],
+                            backgroundColor: colors.slice(0, labels.length),
+                            borderColor: borderColors.slice(0, labels.length),
                             borderWidth: 2
                         }]
                     },

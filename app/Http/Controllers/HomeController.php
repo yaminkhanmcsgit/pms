@@ -175,6 +175,60 @@ class HomeController extends Controller
 
         // Chart data
         $current_year = date('Y');
+
+        // Grievances by type for different periods
+        $grievances_by_type = [
+            'current_year' => DB::table('grievances')
+                ->join('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+                ->whereYear('grievances.created_at', $current_year)
+                ->select('grievance_types.name as type_name', DB::raw('COUNT(grievances.id) as count'))
+                ->groupBy('grievance_types.id', 'grievance_types.name')
+                ->having('count', '>', 0)
+                ->pluck('count', 'type_name')
+                ->toArray(),
+            'last_year' => DB::table('grievances')
+                ->join('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+                ->whereYear('grievances.created_at', $current_year - 1)
+                ->select('grievance_types.name as type_name', DB::raw('COUNT(grievances.id) as count'))
+                ->groupBy('grievance_types.id', 'grievance_types.name')
+                ->having('count', '>', 0)
+                ->pluck('count', 'type_name')
+                ->toArray(),
+            'current_month' => DB::table('grievances')
+                ->join('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+                ->whereYear('grievances.created_at', $current_year)
+                ->whereMonth('grievances.created_at', date('m'))
+                ->select('grievance_types.name as type_name', DB::raw('COUNT(grievances.id) as count'))
+                ->groupBy('grievance_types.id', 'grievance_types.name')
+                ->having('count', '>', 0)
+                ->pluck('count', 'type_name')
+                ->toArray(),
+            'last_month' => DB::table('grievances')
+                ->join('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+                ->whereYear('grievances.created_at', date('m') == 1 ? $current_year - 1 : $current_year)
+                ->whereMonth('grievances.created_at', date('m') == 1 ? 12 : date('m') - 1)
+                ->select('grievance_types.name as type_name', DB::raw('COUNT(grievances.id) as count'))
+                ->groupBy('grievance_types.id', 'grievance_types.name')
+                ->having('count', '>', 0)
+                ->pluck('count', 'type_name')
+                ->toArray(),
+            'current_week' => DB::table('grievances')
+                ->join('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+                ->whereBetween('grievances.created_at', [now()->startOfWeek(), now()->endOfWeek()])
+                ->select('grievance_types.name as type_name', DB::raw('COUNT(grievances.id) as count'))
+                ->groupBy('grievance_types.id', 'grievance_types.name')
+                ->having('count', '>', 0)
+                ->pluck('count', 'type_name')
+                ->toArray(),
+            'last_week' => DB::table('grievances')
+                ->join('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+                ->whereBetween('grievances.created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+                ->select('grievance_types.name as type_name', DB::raw('COUNT(grievances.id) as count'))
+                ->groupBy('grievance_types.id', 'grievance_types.name')
+                ->having('count', '>', 0)
+                ->pluck('count', 'type_name')
+                ->toArray(),
+        ];
         $chart_data = [
             'grievances' => [
                 'current_year' => $this->addTotalToData(DB::table('grievances')
@@ -183,28 +237,54 @@ class HomeController extends Controller
                     ->whereYear('grievances.created_at', $current_year)
                     ->groupBy('grievance_statuses.name')
                     ->pluck('count', 'status_name')->toArray()),
-                'last_30_days' => $this->addTotalToData(DB::table('grievances')
+                'last_year' => $this->addTotalToData(DB::table('grievances')
                     ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
                     ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
-                    ->whereBetween('grievances.created_at', [now()->subDays(30), now()])
+                    ->whereYear('grievances.created_at', $current_year - 1)
                     ->groupBy('grievance_statuses.name')
                     ->pluck('count', 'status_name')->toArray()),
-                'last_7_days' => $this->addTotalToData(DB::table('grievances')
+                'current_month' => $this->addTotalToData(DB::table('grievances')
                     ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
                     ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
-                    ->whereBetween('grievances.created_at', [now()->subDays(7), now()])
+                    ->whereYear('grievances.created_at', $current_year)
+                    ->whereMonth('grievances.created_at', date('m'))
+                    ->groupBy('grievance_statuses.name')
+                    ->pluck('count', 'status_name')->toArray()),
+                'last_month' => $this->addTotalToData(DB::table('grievances')
+                    ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+                    ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
+                    ->whereYear('grievances.created_at', date('m') == 1 ? $current_year - 1 : $current_year)
+                    ->whereMonth('grievances.created_at', date('m') == 1 ? 12 : date('m') - 1)
+                    ->groupBy('grievance_statuses.name')
+                    ->pluck('count', 'status_name')->toArray()),
+                'current_week' => $this->addTotalToData(DB::table('grievances')
+                    ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+                    ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
+                    ->whereBetween('grievances.created_at', [now()->startOfWeek(), now()->endOfWeek()])
+                    ->groupBy('grievance_statuses.name')
+                    ->pluck('count', 'status_name')->toArray()),
+                'last_week' => $this->addTotalToData(DB::table('grievances')
+                    ->join('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+                    ->select('grievance_statuses.name as status_name', DB::raw('COUNT(*) as count'))
+                    ->whereBetween('grievances.created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
                     ->groupBy('grievance_statuses.name')
                     ->pluck('count', 'status_name')->toArray()),
             ],
             'completion_process' => [
-                DB::table('completion_process')->whereYear('created_at', $current_year)->count(),
-                DB::table('completion_process')->whereBetween('created_at', [now()->subDays(30), now()])->count(),
-                DB::table('completion_process')->whereBetween('created_at', [now()->subDays(7), now()])->count(),
+                'current_year' => ['Total' => DB::table('completion_process')->whereYear('created_at', $current_year)->count()],
+                'last_year' => ['Total' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->count()],
+                'current_month' => ['Total' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->count()],
+                'last_month' => ['Total' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->count()],
+                'current_week' => ['Total' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count()],
+                'last_week' => ['Total' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->count()],
             ],
             'partal' => [
-                DB::table('partal')->whereYear('created_at', $current_year)->count(),
-                DB::table('partal')->whereBetween('created_at', [now()->subDays(30), now()])->count(),
-                DB::table('partal')->whereBetween('created_at', [now()->subDays(7), now()])->count(),
+                'current_year' => ['Total' => DB::table('partal')->whereYear('created_at', $current_year)->count()],
+                'last_year' => ['Total' => DB::table('partal')->whereYear('created_at', $current_year - 1)->count()],
+                'current_month' => ['Total' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->count()],
+                'last_month' => ['Total' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->count()],
+                'current_week' => ['Total' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count()],
+                'last_week' => ['Total' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->count()],
             ],
         ];
 
@@ -215,7 +295,159 @@ class HomeController extends Controller
             $assigned_district_name = DB::table('districts')->where('districtId', session('zila_id'))->value('districtNameUrdu');
             $assigned_tehsil_name = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->value('tehsilNameUrdu');
         }
-        return view('dashboard', compact('district', 'report_date', 'records', 'completion_process', 'grievances', 'chart_data', 'districts', 'tehsils', 'selected_district', 'selected_tehsil', 'from_date', 'to_date', 'role_id', 'assigned_district_name', 'assigned_tehsil_name'));
+        // Partal summary sums for different periods
+        $partal_sums = [
+            'current_year' => [
+                'تصدیق ملکیت/پیمود شدہ نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', $current_year)->sum('tasdeeq_milkiat_pemuda_khasra'),
+                'تعداد برامدہ بدرات (پیمود)' => DB::table('partal')->whereYear('created_at', $current_year)->sum('tasdeeq_milkiat_pemuda_khasra_badrat'),
+                'تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', $current_year)->sum('tasdeeq_milkiat_qabza_kasht_khasra'),
+                'تعداد برامدہ بدرات (قبضہ)' => DB::table('partal')->whereYear('created_at', $current_year)->sum('tasdeeq_milkiat_qabza_kasht_badrat'),
+                'تعداد گھری' => DB::table('partal')->whereYear('created_at', $current_year)->sum('tasdeeq_shajra_nasab_guri'),
+                'تعداد برامدہ بدرات (شجرہ)' => DB::table('partal')->whereYear('created_at', $current_year)->sum('tasdeeq_shajra_nasab_badrat'),
+                'مقابلہ کھتونی ہمراہ کاپی چومنڈہ' => DB::table('partal')->whereYear('created_at', $current_year)->sum('muqabala_khatoni_chomanda'),
+                'تعداد برامدہ بدرات (مقابلہ)' => DB::table('partal')->whereYear('created_at', $current_year)->sum('muqabala_khatoni_chomanda_badrat'),
+            ],
+            'last_year' => [
+                'تصدیق ملکیت/پیمود شدہ نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('tasdeeq_milkiat_pemuda_khasra'),
+                'تعداد برامدہ بدرات (پیمود)' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('tasdeeq_milkiat_pemuda_khasra_badrat'),
+                'تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('tasdeeq_milkiat_qabza_kasht_khasra'),
+                'تعداد برامدہ بدرات (قبضہ)' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('tasdeeq_milkiat_qabza_kasht_badrat'),
+                'تعداد گھری' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('tasdeeq_shajra_nasab_guri'),
+                'تعداد برامدہ بدرات (شجرہ)' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('tasdeeq_shajra_nasab_badrat'),
+                'مقابلہ کھتونی ہمراہ کاپی چومنڈہ' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('muqabala_khatoni_chomanda'),
+                'تعداد برامدہ بدرات (مقابلہ)' => DB::table('partal')->whereYear('created_at', $current_year - 1)->sum('muqabala_khatoni_chomanda_badrat'),
+            ],
+            'current_month' => [
+                'تصدیق ملکیت/پیمود شدہ نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tasdeeq_milkiat_pemuda_khasra'),
+                'تعداد برامدہ بدرات (پیمود)' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tasdeeq_milkiat_pemuda_khasra_badrat'),
+                'تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tasdeeq_milkiat_qabza_kasht_khasra'),
+                'تعداد برامدہ بدرات (قبضہ)' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tasdeeq_milkiat_qabza_kasht_badrat'),
+                'تعداد گھری' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tasdeeq_shajra_nasab_guri'),
+                'تعداد برامدہ بدرات (شجرہ)' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tasdeeq_shajra_nasab_badrat'),
+                'مقابلہ کھتونی ہمراہ کاپی چومنڈہ' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('muqabala_khatoni_chomanda'),
+                'تعداد برامدہ بدرات (مقابلہ)' => DB::table('partal')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('muqabala_khatoni_chomanda_badrat'),
+            ],
+            'last_month' => [
+                'تصدیق ملکیت/پیمود شدہ نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tasdeeq_milkiat_pemuda_khasra'),
+                'تعداد برامدہ بدرات (پیمود)' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tasdeeq_milkiat_pemuda_khasra_badrat'),
+                'تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tasdeeq_milkiat_qabza_kasht_khasra'),
+                'تعداد برامدہ بدرات (قبضہ)' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tasdeeq_milkiat_qabza_kasht_badrat'),
+                'تعداد گھری' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tasdeeq_shajra_nasab_guri'),
+                'تعداد برامدہ بدرات (شجرہ)' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tasdeeq_shajra_nasab_badrat'),
+                'مقابلہ کھتونی ہمراہ کاپی چومنڈہ' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('muqabala_khatoni_chomanda'),
+                'تعداد برامدہ بدرات (مقابلہ)' => DB::table('partal')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('muqabala_khatoni_chomanda_badrat'),
+            ],
+            'current_week' => [
+                'تصدیق ملکیت/پیمود شدہ نمبرات خسرہ' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tasdeeq_milkiat_pemuda_khasra'),
+                'تعداد برامدہ بدرات (پیمود)' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tasdeeq_milkiat_pemuda_khasra_badrat'),
+                'تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tasdeeq_milkiat_qabza_kasht_khasra'),
+                'تعداد برامدہ بدرات (قبضہ)' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tasdeeq_milkiat_qabza_kasht_badrat'),
+                'تعداد گھری' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tasdeeq_shajra_nasab_guri'),
+                'تعداد برامدہ بدرات (شجرہ)' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tasdeeq_shajra_nasab_badrat'),
+                'مقابلہ کھتونی ہمراہ کاپی چومنڈہ' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('muqabala_khatoni_chomanda'),
+                'تعداد برامدہ بدرات (مقابلہ)' => DB::table('partal')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('muqabala_khatoni_chomanda_badrat'),
+            ],
+            'last_week' => [
+                'تصدیق ملکیت/پیمود شدہ نمبرات خسرہ' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tasdeeq_milkiat_pemuda_khasra'),
+                'تعداد برامدہ بدرات (پیمود)' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tasdeeq_milkiat_pemuda_khasra_badrat'),
+                'تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tasdeeq_milkiat_qabza_kasht_khasra'),
+                'تعداد برامدہ بدرات (قبضہ)' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tasdeeq_milkiat_qabza_kasht_badrat'),
+                'تعداد گھری' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tasdeeq_shajra_nasab_guri'),
+                'تعداد برامدہ بدرات (شجرہ)' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tasdeeq_shajra_nasab_badrat'),
+                'مقابلہ کھتونی ہمراہ کاپی چومنڈہ' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('muqabala_khatoni_chomanda'),
+                'تعداد برامدہ بدرات (مقابلہ)' => DB::table('partal')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('muqabala_khatoni_chomanda_badrat'),
+            ],
+        ];
+
+        // Completion process summary sums for different periods
+        $completion_process_sums = [
+            'current_year' => [
+                'میزان کھاتہ دار/کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('mizan_khata_dar_khatoni'),
+                'پختہ کھتونی درانڈکس خسرہ' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('pukhta_khatoni_drandkas_khasra'),
+                'درستی بدرات' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('durusti_badrat'),
+                'تحریر نقل شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('tehreer_naqal_shajra_nasab'),
+                'تحریر شجرہ نسب مالکان قبضہ' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('tehreer_shajra_nasab_malkan_qabza'),
+                'پختہ کھاتاجات' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('pukhta_khatajat'),
+                'خام کھاتہ جات در شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('kham_khatajat_dar_shajra_nasab'),
+                'تحریر مشترکہ کھاتہ' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('tehreer_mushtarka_khata'),
+                'پختہ نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('pukhta_numberwan_dar_khatoni'),
+                'خام نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('kham_numberwan_dar_khatoni'),
+                'تصدیق آخیر' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('tasdeeq_akhir'),
+                'متفرق کام' => DB::table('completion_process')->whereYear('created_at', $current_year)->sum('mutafarriq_kaam'),
+            ],
+            'last_year' => [
+                'میزان کھاتہ دار/کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('mizan_khata_dar_khatoni'),
+                'پختہ کھتونی درانڈکس خسرہ' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('pukhta_khatoni_drandkas_khasra'),
+                'درستی بدرات' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('durusti_badrat'),
+                'تحریر نقل شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('tehreer_naqal_shajra_nasab'),
+                'تحریر شجرہ نسب مالکان قبضہ' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('tehreer_shajra_nasab_malkan_qabza'),
+                'پختہ کھاتاجات' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('pukhta_khatajat'),
+                'خام کھاتہ جات در شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('kham_khatajat_dar_shajra_nasab'),
+                'تحریر مشترکہ کھاتہ' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('tehreer_mushtarka_khata'),
+                'پختہ نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('pukhta_numberwan_dar_khatoni'),
+                'خام نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('kham_numberwan_dar_khatoni'),
+                'تصدیق آخیر' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('tasdeeq_akhir'),
+                'متفرق کام' => DB::table('completion_process')->whereYear('created_at', $current_year - 1)->sum('mutafarriq_kaam'),
+            ],
+            'current_month' => [
+                'میزان کھاتہ دار/کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('mizan_khata_dar_khatoni'),
+                'پختہ کھتونی درانڈکس خسرہ' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('pukhta_khatoni_drandkas_khasra'),
+                'درستی بدرات' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('durusti_badrat'),
+                'تحریر نقل شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tehreer_naqal_shajra_nasab'),
+                'تحریر شجرہ نسب مالکان قبضہ' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tehreer_shajra_nasab_malkan_qabza'),
+                'پختہ کھاتاجات' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('pukhta_khatajat'),
+                'خام کھاتہ جات در شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('kham_khatajat_dar_shajra_nasab'),
+                'تحریر مشترکہ کھاتہ' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tehreer_mushtarka_khata'),
+                'پختہ نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('pukhta_numberwan_dar_khatoni'),
+                'خام نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('kham_numberwan_dar_khatoni'),
+                'تصدیق آخیر' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('tasdeeq_akhir'),
+                'متفرق کام' => DB::table('completion_process')->whereYear('created_at', $current_year)->whereMonth('created_at', date('m'))->sum('mutafarriq_kaam'),
+            ],
+            'last_month' => [
+                'میزان کھاتہ دار/کھتونی' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('mizan_khata_dar_khatoni'),
+                'پختہ کھتونی درانڈکس خسرہ' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('pukhta_khatoni_drandkas_khasra'),
+                'درستی بدرات' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('durusti_badrat'),
+                'تحریر نقل شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tehreer_naqal_shajra_nasab'),
+                'تحریر شجرہ نسب مالکان قبضہ' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tehreer_shajra_nasab_malkan_qabza'),
+                'پختہ کھاتاجات' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('pukhta_khatajat'),
+                'خام کھاتہ جات در شجرہ نسب' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('kham_khatajat_dar_shajra_nasab'),
+                'تحریر مشترکہ کھاتہ' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tehreer_mushtarka_khata'),
+                'پختہ نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('pukhta_numberwan_dar_khatoni'),
+                'خام نمبرواں در کھتونی' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('kham_numberwan_dar_khatoni'),
+                'تصدیق آخیر' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('tasdeeq_akhir'),
+                'متفرق کام' => DB::table('completion_process')->whereYear('created_at', date('m') == 1 ? $current_year - 1 : $current_year)->whereMonth('created_at', date('m') == 1 ? 12 : date('m') - 1)->sum('mutafarriq_kaam'),
+            ],
+            'current_week' => [
+                'میزان کھاتہ دار/کھتونی' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('mizan_khata_dar_khatoni'),
+                'پختہ کھتونی درانڈکس خسرہ' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('pukhta_khatoni_drandkas_khasra'),
+                'درستی بدرات' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('durusti_badrat'),
+                'تحریر نقل شجرہ نسب' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tehreer_naqal_shajra_nasab'),
+                'تحریر شجرہ نسب مالکان قبضہ' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tehreer_shajra_nasab_malkan_qabza'),
+                'پختہ کھاتاجات' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('pukhta_khatajat'),
+                'خام کھاتہ جات در شجرہ نسب' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('kham_khatajat_dar_shajra_nasab'),
+                'تحریر مشترکہ کھاتہ' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tehreer_mushtarka_khata'),
+                'پختہ نمبرواں در کھتونی' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('pukhta_numberwan_dar_khatoni'),
+                'خام نمبرواں در کھتونی' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('kham_numberwan_dar_khatoni'),
+                'تصدیق آخیر' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('tasdeeq_akhir'),
+                'متفرق کام' => DB::table('completion_process')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('mutafarriq_kaam'),
+            ],
+            'last_week' => [
+                'میزان کھاتہ دار/کھتونی' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('mizan_khata_dar_khatoni'),
+                'پختہ کھتونی درانڈکس خسرہ' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('pukhta_khatoni_drandkas_khasra'),
+                'درستی بدرات' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('durusti_badrat'),
+                'تحریر نقل شجرہ نسب' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tehreer_naqal_shajra_nasab'),
+                'تحریر شجرہ نسب مالکان قبضہ' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tehreer_shajra_nasab_malkan_qabza'),
+                'پختہ کھاتاجات' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('pukhta_khatajat'),
+                'خام کھاتہ جات در شجرہ نسب' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('kham_khatajat_dar_shajra_nasab'),
+                'تحریر مشترکہ کھاتہ' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tehreer_mushtarka_khata'),
+                'پختہ نمبرواں در کھتونی' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('pukhta_numberwan_dar_khatoni'),
+                'خام نمبرواں در کھتونی' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('kham_numberwan_dar_khatoni'),
+                'تصدیق آخیر' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('tasdeeq_akhir'),
+                'متفرق کام' => DB::table('completion_process')->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->sum('mutafarriq_kaam'),
+            ],
+        ];
+
+        return view('dashboard', compact('district', 'report_date', 'records', 'completion_process', 'grievances', 'chart_data', 'districts', 'tehsils', 'selected_district', 'selected_tehsil', 'from_date', 'to_date', 'role_id', 'assigned_district_name', 'assigned_tehsil_name', 'partal_sums', 'completion_process_sums', 'grievances_by_type'));
     }
 
     private function addTotalToData($data)
