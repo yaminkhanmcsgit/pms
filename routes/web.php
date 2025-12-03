@@ -132,4 +132,12 @@ Route::middleware(['operator'])->group(function () {
         ];
         return response()->json($notifications);
     })->name('api.notifications');
+
+    // Chart Data APIs
+    Route::get('/chart-data/grievances', [HomeController::class, 'getGrievancesData'])->name('chart.grievances');
+    Route::get('/chart-data/partal', [HomeController::class, 'getPartalData'])->name('chart.partal');
+    Route::get('/chart-data/completion-process', [HomeController::class, 'getCompletionProcessData'])->name('chart.completion_process');
+    Route::get('/chart-data/partal-sums', [HomeController::class, 'getPartalSums'])->name('chart.partal_sums');
+    Route::get('/chart-data/completion-process-sums', [HomeController::class, 'getCompletionProcessSums'])->name('chart.completion_process_sums');
+    Route::get('/chart-data/grievances-by-type', [HomeController::class, 'getGrievancesByType'])->name('chart.grievances_by_type');
 });

@@ -330,7 +330,19 @@
 
     
 
+    @php
+        $chartUrls = [
+            'grievances' => url('chart-data/grievances'),
+            'completion_process' => url('chart-data/completion-process'),
+            'partal' => url('chart-data/partal'),
+            'partal_sums' => url('chart-data/partal-sums'),
+            'completion_process_sums' => url('chart-data/completion-process-sums'),
+            'grievances_by_type' => url('chart-data/grievances-by-type'),
+        ];
+    @endphp
     <script>
+        const chartUrls = @json($chartUrls);
+
         document.addEventListener('DOMContentLoaded', function() {
             var districtSelect = document.getElementById('district_id');
             var selectedDistrict = districtSelect.value;
@@ -338,156 +350,152 @@
                 onDistrictChange(selectedDistrict, 'tehsil_id', '{{ request("tehsil_id") }}');
             }
 
-            // Chart.js code
-            const chartData = @json($chart_data);
+            // Initialize charts with default period
+            let grievancesChart, completionProcessChart, partalChart, partalSummaryChart, completionProcessSummaryChart, grievancesByTypeChart;
 
-            console.log(chartData);
+            // Load initial data
+            loadGrievancesData('current_year');
+            loadCompletionProcessData('current_year');
+            loadPartalData('current_year');
+            loadPartalSums('current_year');
+            loadCompletionProcessSums('current_year');
+            loadGrievancesByType('current_year');
 
-            // Grievances Chart
-            let grievancesChart = createBarChart('grievancesChart', 'شکایات', chartData.grievances.current_year);
-
-            // Handle period change
+            // Event listeners for period changes
             document.getElementById('grievancesPeriod').addEventListener('change', function() {
-                const selectedPeriod = this.value;
-                const data = chartData.grievances[selectedPeriod];
-                const labels = Object.keys(data);
-                const values = Object.values(data);
-                const colors = [
-                    'rgba(255, 99, 132, 0.6)',
-                    'rgba(54, 162, 235, 0.6)',
-                    'rgba(255, 205, 86, 0.6)',
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(153, 102, 255, 0.6)',
-                    'rgba(255, 159, 64, 0.6)'
-                ];
-                const borderColors = [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 205, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ];
-                grievancesChart.data.labels = labels;
-                grievancesChart.data.datasets[0].data = values;
-                grievancesChart.data.datasets[0].backgroundColor = colors.slice(0, labels.length);
-                grievancesChart.data.datasets[0].borderColor = borderColors.slice(0, labels.length);
-                grievancesChart.update();
+                loadGrievancesData(this.value);
             });
-
-            // Completion Process Chart
-            let completionProcessChart = createDoughnutChart('completionProcessChart', 'تکمیلی کام', Object.keys(chartData.completion_process.current_year), Object.values(chartData.completion_process.current_year), [
-                'rgba(45, 125, 45, 0.8)',    // Dark Green
-                'rgba(54, 162, 235, 0.8)',   // Blue
-                'rgba(255, 205, 86, 0.8)',   // Yellow
-                'rgba(75, 192, 192, 0.8)',   // Teal
-                'rgba(153, 102, 255, 0.8)',  // Purple
-                'rgba(255, 159, 64, 0.8)',   // Orange
-                'rgba(199, 199, 199, 0.8)',  // Grey
-                'rgba(83, 102, 255, 0.8)',   // Indigo
-                'rgba(255, 99, 255, 0.8)',   // Pink
-                'rgba(99, 255, 132, 0.8)'    // Light Green
-            ], [
-                'rgba(45, 125, 45, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 205, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(199, 199, 199, 1)',
-                'rgba(83, 102, 255, 1)',
-                'rgba(255, 99, 255, 1)',
-                'rgba(99, 255, 132, 1)'
-            ]);
-
-            // Handle completion process period change
             document.getElementById('completionProcessPeriod').addEventListener('change', function() {
-                const selectedPeriod = this.value;
-                const data = chartData.completion_process[selectedPeriod];
-                const labels = Object.keys(data);
-                const values = Object.values(data);
-                completionProcessChart.data.labels = labels;
-                completionProcessChart.data.datasets[0].data = values;
-                completionProcessChart.update();
+                loadCompletionProcessData(this.value);
             });
-
-            // Partal Chart
-            let partalChart = createDoughnutChart('partalChart', 'پڑتال', Object.keys(chartData.partal.current_year), Object.values(chartData.partal.current_year), [
-                'rgba(255, 87, 34, 0.8)',    // Deep Orange
-                'rgba(156, 39, 176, 0.8)',   // Deep Purple
-                'rgba(0, 150, 136, 0.8)',    // Teal
-                'rgba(255, 193, 7, 0.8)',    // Amber
-                'rgba(33, 150, 243, 0.8)',   // Blue
-                'rgba(96, 125, 139, 0.8)',   // Blue Grey
-                'rgba(63, 81, 181, 0.8)',    // Indigo
-                'rgba(233, 30, 99, 0.8)',    // Pink
-                'rgba(76, 175, 80, 0.8)',    // Green
-                'rgba(121, 85, 72, 0.8)'     // Brown
-            ], [
-                'rgba(255, 87, 34, 1)',
-                'rgba(156, 39, 176, 1)',
-                'rgba(0, 150, 136, 1)',
-                'rgba(255, 193, 7, 1)',
-                'rgba(33, 150, 243, 1)',
-                'rgba(96, 125, 139, 1)',
-                'rgba(63, 81, 181, 1)',
-                'rgba(233, 30, 99, 1)',
-                'rgba(76, 175, 80, 1)',
-                'rgba(121, 85, 72, 1)'
-            ]);
-
-            // Handle partal period change
             document.getElementById('partalPeriod').addEventListener('change', function() {
-                const selectedPeriod = this.value;
-                const data = chartData.partal[selectedPeriod];
-                const labels = Object.keys(data);
-                const values = Object.values(data);
-                partalChart.data.labels = labels;
-                partalChart.data.datasets[0].data = values;
-                partalChart.update();
+                loadPartalData(this.value);
             });
-
-            // Partal Summary Chart
-            let partalSummaryChart = createBarChart('partalSummaryChart', 'گوشوارہ پڑتال خلاصہ', @json($partal_sums['current_year']));
-
-            // Handle partal summary period change
             document.getElementById('partalSummaryPeriod').addEventListener('change', function() {
-                const selectedPeriod = this.value;
-                const data = @json($partal_sums)[selectedPeriod];
-                const labels = Object.keys(data);
-                const values = Object.values(data);
-                partalSummaryChart.data.labels = labels;
-                partalSummaryChart.data.datasets[0].data = values;
-                partalSummaryChart.update();
+                loadPartalSums(this.value);
             });
-
-            // Completion Process Summary Chart
-            let completionProcessSummaryChart = createBarChart('completionProcessSummaryChart', 'تکمیلی عمل خلاصہ', @json($completion_process_sums['current_year']));
-
-            // Handle completion process summary period change
             document.getElementById('completionProcessSummaryPeriod').addEventListener('change', function() {
-                const selectedPeriod = this.value;
-                const data = @json($completion_process_sums)[selectedPeriod];
-                const labels = Object.keys(data);
-                const values = Object.values(data);
-                completionProcessSummaryChart.data.labels = labels;
-                completionProcessSummaryChart.data.datasets[0].data = values;
-                completionProcessSummaryChart.update();
+                loadCompletionProcessSums(this.value);
             });
-
-            // Grievances by Type Chart
-            let grievancesByTypeChart = createBarChart('grievancesByTypeChart', 'شکایات کی اقسام', @json($grievances_by_type['current_year']));
-
-            // Handle grievances by type period change
             document.getElementById('grievancesByTypePeriod').addEventListener('change', function() {
-                const selectedPeriod = this.value;
-                const data = @json($grievances_by_type)[selectedPeriod];
-                const labels = Object.keys(data);
-                const values = Object.values(data);
-                grievancesByTypeChart.data.labels = labels;
-                grievancesByTypeChart.data.datasets[0].data = values;
-                grievancesByTypeChart.update();
+                loadGrievancesByType(this.value);
             });
+
+            function loadGrievancesData(period) {
+                fetch(`${chartUrls.grievances}?period=${period}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!grievancesChart) {
+                        grievancesChart = createBarChart('grievancesChart', 'شکایات', data);
+                    } else {
+                        updateBarChart(grievancesChart, data);
+                    }
+                })
+                .catch(error => console.error('Error loading grievances data:', error));
+            }
+
+            function loadCompletionProcessData(period) {
+                fetch(`${chartUrls.completion_process}?period=${period}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!completionProcessChart) {
+                        completionProcessChart = createDoughnutChart('completionProcessChart', 'تکمیلی کام', Object.keys(data), Object.values(data), [
+                            'rgba(45, 125, 45, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)', 'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)', 'rgba(99, 255, 132, 0.8)'
+                        ], [
+                            'rgba(45, 125, 45, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(199, 199, 199, 1)', 'rgba(83, 102, 255, 1)', 'rgba(255, 99, 255, 1)', 'rgba(99, 255, 132, 1)'
+                        ]);
+                    } else {
+                        updateDoughnutChart(completionProcessChart, data);
+                    }
+                })
+                .catch(error => console.error('Error loading completion process data:', error));
+            }
+
+            function loadPartalData(period) {
+                fetch(`${chartUrls.partal}?period=${period}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!partalChart) {
+                        partalChart = createDoughnutChart('partalChart', 'پڑتال', Object.keys(data), Object.values(data), [
+                            'rgba(255, 87, 34, 0.8)', 'rgba(156, 39, 176, 0.8)', 'rgba(0, 150, 136, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(33, 150, 243, 0.8)', 'rgba(96, 125, 139, 0.8)', 'rgba(63, 81, 181, 0.8)', 'rgba(233, 30, 99, 0.8)', 'rgba(76, 175, 80, 0.8)', 'rgba(121, 85, 72, 0.8)'
+                        ], [
+                            'rgba(255, 87, 34, 1)', 'rgba(156, 39, 176, 1)', 'rgba(0, 150, 136, 1)', 'rgba(255, 193, 7, 1)', 'rgba(33, 150, 243, 1)', 'rgba(96, 125, 139, 1)', 'rgba(63, 81, 181, 1)', 'rgba(233, 30, 99, 1)', 'rgba(76, 175, 80, 1)', 'rgba(121, 85, 72, 1)'
+                        ]);
+                    } else {
+                        updateDoughnutChart(partalChart, data);
+                    }
+                })
+                .catch(error => console.error('Error loading partal data:', error));
+            }
+
+            function loadPartalSums(period) {
+                fetch(`${chartUrls.partal_sums}?period=${period}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!partalSummaryChart) {
+                        partalSummaryChart = createBarChart('partalSummaryChart', 'گوشوارہ پڑتال خلاصہ', data);
+                    } else {
+                        updateBarChart(partalSummaryChart, data);
+                    }
+                })
+                .catch(error => console.error('Error loading partal sums:', error));
+            }
+
+            function loadCompletionProcessSums(period) {
+                fetch(`${chartUrls.completion_process_sums}?period=${period}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!completionProcessSummaryChart) {
+                        completionProcessSummaryChart = createBarChart('completionProcessSummaryChart', 'تکمیلی عمل خلاصہ', data);
+                    } else {
+                        updateBarChart(completionProcessSummaryChart, data);
+                    }
+                })
+                .catch(error => console.error('Error loading completion process sums:', error));
+            }
+
+            function loadGrievancesByType(period) {
+                fetch(`${chartUrls.grievances_by_type}?period=${period}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!grievancesByTypeChart) {
+                        grievancesByTypeChart = createBarChart('grievancesByTypeChart', 'شکایات کی اقسام', data);
+                    } else {
+                        updateBarChart(grievancesByTypeChart, data);
+                    }
+                })
+                .catch(error => console.error('Error loading grievances by type:', error));
+            }
+
+            function updateBarChart(chart, data) {
+                chart.data.labels = Object.keys(data);
+                chart.data.datasets[0].data = Object.values(data);
+                chart.update();
+            }
+
+            function updateDoughnutChart(chart, data) {
+                chart.data.labels = Object.keys(data);
+                chart.data.datasets[0].data = Object.values(data);
+                chart.update();
+            }
 
             function createBarChart(canvasId, title, data) {
                 const ctx = document.getElementById(canvasId).getContext('2d');
