@@ -229,6 +229,13 @@ class HomeController extends Controller
                 ->pluck('count', 'type_name')
                 ->toArray(),
         ];
+
+        // Counts for dashboard panels
+        $operators_count = DB::table('users')->count();
+        $employees_count = DB::table('employees')->count();
+        $completion_process_count = DB::table('completion_process')->count();
+        $partal_count = DB::table('partal')->count();
+        $grievances_count = DB::table('grievances')->count();
         $chart_data = [
             'grievances' => [
                 'current_year' => $this->addTotalToData(DB::table('grievances')
@@ -447,7 +454,7 @@ class HomeController extends Controller
             ],
         ];
 
-        return view('dashboard', compact('district', 'report_date', 'records', 'completion_process', 'grievances', 'chart_data', 'districts', 'tehsils', 'selected_district', 'selected_tehsil', 'from_date', 'to_date', 'role_id', 'assigned_district_name', 'assigned_tehsil_name', 'partal_sums', 'completion_process_sums', 'grievances_by_type'));
+        return view('dashboard', compact('district', 'report_date', 'records', 'completion_process', 'grievances', 'chart_data', 'districts', 'tehsils', 'selected_district', 'selected_tehsil', 'from_date', 'to_date', 'role_id', 'assigned_district_name', 'assigned_tehsil_name', 'partal_sums', 'completion_process_sums', 'grievances_by_type', 'operators_count', 'employees_count', 'completion_process_count', 'partal_count', 'grievances_count'));
     }
 
     private function addTotalToData($data)

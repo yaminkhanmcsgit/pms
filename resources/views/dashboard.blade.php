@@ -3,54 +3,142 @@
 @section('title', 'ڈیش بورڈ')
 
 @section('content')
+<style>
+.dashboard-card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-card-header {
+    padding: 15px 20px 10px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.dashboard-card-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-card-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+}
+
+.dashboard-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    display: inline-block;
+}
+
+.dashboard-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #ffffff;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .dashboard-card {
+        height: 120px;
+    }
+
+    .dashboard-card-title {
+        font-size: 1em;
+    }
+
+    .dashboard-btn {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+}
+</style>
 <div class="container " dir="rtl" >
    
    <div class="row dashboard-panels">
-       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
-           <div class="panel panel-success">
-               <div class="panel-heading">صارفین</div>
-               <div class="panel-body text-center">
-                   <a href="{{ route('operators.index') }}" class="btn btn-success">صارفین دیکھیں</a>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+           <div class="dashboard-card" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">
+               <div class="dashboard-card-header">
+                   <h4 class="dashboard-card-title">({{ $operators_count }}) صارفین</h4>
+               </div>
+               <div class="dashboard-card-body">
+                   <a href="{{ route('operators.index') }}" class="dashboard-btn">صارفین دیکھیں</a>
                </div>
            </div>
        </div>
-       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
-           <div class="panel panel-info">
-               <div class="panel-heading">ملازمین</div>
-               <div class="panel-body text-center">
-                   <a href="{{ route('employees.index') }}" class="btn btn-primary">ملازمین دیکھیں</a>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+           <div class="dashboard-card" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">
+               <div class="dashboard-card-header">
+                   <h4 class="dashboard-card-title">({{ $employees_count }}) ملازمین</h4>
+               </div>
+               <div class="dashboard-card-body">
+                   <a href="{{ route('employees.index') }}" class="dashboard-btn">ملازمین دیکھیں</a>
                </div>
            </div>
        </div>
-       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
-           <div class="panel panel-warning">
-               <div class="panel-heading">تکمیلی عمل</div>
-               <div class="panel-body text-center">
-                   <a href="{{ route('completion_process.index') }}" class="btn btn-warning">تکمیلی عمل دیکھیں</a>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+           <div class="dashboard-card" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);">
+               <div class="dashboard-card-header">
+                   <h4 class="dashboard-card-title">({{ $completion_process_count }}) تکمیلی عمل</h4>
+               </div>
+               <div class="dashboard-card-body">
+                   <a href="{{ route('completion_process.index') }}" class="dashboard-btn">تکمیلی عمل دیکھیں</a>
                </div>
            </div>
        </div>
-       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
-           <div class="panel panel-danger">
-               <div class="panel-heading">پڑتال</div>
-               <div class="panel-body text-center">
-                   <a href="{{ route('partal.index') }}" class="btn btn-danger">پڑتال دیکھیں</a>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+           <div class="dashboard-card" style="background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);">
+               <div class="dashboard-card-header">
+                   <h4 class="dashboard-card-title">({{ $partal_count }}) پڑتال</h4>
+               </div>
+               <div class="dashboard-card-body">
+                   <a href="{{ route('partal.index') }}" class="dashboard-btn">پڑتال دیکھیں</a>
                </div>
            </div>
        </div>
-       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
-           <div class="panel panel-primary">
-               <div class="panel-heading">شکایات</div>
-               <div class="panel-body text-center">
-                   <a href="{{ route('grievances.index') }}" class="btn btn-primary">شکایات دیکھیں</a>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+           <div class="dashboard-card" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">
+               <div class="dashboard-card-header">
+                   <h4 class="dashboard-card-title">({{ $grievances_count }}) شکایات</h4>
+               </div>
+               <div class="dashboard-card-body">
+                   <a href="{{ route('grievances.index') }}" class="dashboard-btn">شکایات دیکھیں</a>
                </div>
            </div>
        </div>
-       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;">
-           <div class="panel panel-default">
-               <div class="panel-heading">ترتیبات</div>
-               <div class="panel-body text-center">
-                   <a href="{{ route('settings.edit') }}" class="btn btn-default">ترتیبات دیکھیں</a>
+       <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
+           <div class="dashboard-card" style="background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);">
+               <div class="dashboard-card-header">
+                   <h4 class="dashboard-card-title">ترتیبات</h4>
+               </div>
+               <div class="dashboard-card-body">
+                   <a href="{{ route('settings.edit') }}" class="dashboard-btn">ترتیبات دیکھیں</a>
                </div>
            </div>
        </div>
@@ -59,9 +147,7 @@
    <!-- Charts Section -->
    <div class="row">
        <div class="col-md-12">
-           <div class="dashboard-header">
-               <h3>ڈیٹا چارٹس</h3>
-           </div>
+          
            <div class="row">
                <!-- Grievances Chart -->
                <div class="col-md-6">
