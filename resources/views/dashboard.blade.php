@@ -77,6 +77,7 @@
                    <canvas id="grievancesLast7DaysChart"></canvas>
                </div>
            </div>
+           <Br>
            <div class="row">
                <!-- Completion Process Chart -->
                <div class="col-md-6">
