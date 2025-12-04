@@ -53,7 +53,7 @@ class NewsController extends Controller
         // Generate slug
         $slug = Str::slug($validated['title']) . '-' . rand(10, 100);
 
-        $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
+        $uploadDir = file_exists(dirname(base_path(), 1) . '/assets') ? dirname(base_path(), 1) . '/assets/img/news' : base_path('assets/news');
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -146,8 +146,8 @@ class NewsController extends Controller
         // Generate slug
         $slug = Str::slug($validated['title']) . '-' . rand(10, 100);
 
-        $uploadDir = file_exists(base_path('../assets')) ? base_path('../assets/img/news') : base_path('assets/news');
-        $relativeDir = file_exists(base_path('../assets')) ? 'img/news' : 'news';
+        $uploadDir = file_exists(dirname(base_path(), 1) . '/assets') ? dirname(base_path(), 1) . '/assets/img/news' : base_path('assets/news');
+        $relativeDir = file_exists(dirname(base_path(), 1) . '/assets') ? 'img/news' : 'news';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }

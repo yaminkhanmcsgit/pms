@@ -6,8 +6,9 @@
 @php
 function getImageUrl($imagePath) {
     if (!$imagePath) return '';
-    if (file_exists(base_path('../assets'))) {
-        return url(str_replace(base_path('../assets'), 'assets', $imagePath));
+    $assetsPath = dirname(base_path(), 1) . '/assets';
+    if (file_exists($assetsPath)) {
+        return url(str_replace($assetsPath, 'assets', $imagePath));
     } else {
         return url(str_replace(base_path('assets'), 'assets', $imagePath));
     }
