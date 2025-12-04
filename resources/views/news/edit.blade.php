@@ -3,17 +3,6 @@
 @section('title', 'Edit News')
 
 @section('content')
-@php
-function getImageUrl($imagePath) {
-    if (!$imagePath) return '';
-    $assetsPath = dirname(base_path(), 1) . '/assets';
-    if (file_exists($assetsPath)) {
-        return url(str_replace($assetsPath, 'assets', $imagePath));
-    } else {
-        return url(str_replace(base_path('assets'), 'assets', $imagePath));
-    }
-}
-@endphp
 <div class="container">
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
@@ -101,7 +90,7 @@ function getImageUrl($imagePath) {
                                     <input type="file" name="image1" id="image1" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image1)
-                                            Current: <a href="{{ getImageUrl($record->image1) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url($record->image1) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -117,7 +106,7 @@ function getImageUrl($imagePath) {
                                     <input type="file" name="image2" id="image2" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image2)
-                                            Current: <a href="{{ getImageUrl($record->image2) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url($record->image2) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -135,7 +124,7 @@ function getImageUrl($imagePath) {
                                     <input type="file" name="image3" id="image3" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image3)
-                                            Current: <a href="{{ getImageUrl($record->image3) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url($record->image3) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif
@@ -151,7 +140,7 @@ function getImageUrl($imagePath) {
                                     <input type="file" name="image4" id="image4" class="form-control" accept="image/*">
                                     <span class="help-block">
                                         @if($record->image4)
-                                            Current: <a href="{{ getImageUrl($record->image4) }}" target="_blank">View Image</a>
+                                            Current: <a href="{{ url($record->image4) }}" target="_blank">View Image</a>
                                         @else
                                             No image uploaded
                                         @endif

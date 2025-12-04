@@ -3,17 +3,6 @@
 @section('title', 'View News')
 
 @section('content')
-@php
-function getImageUrl($imagePath) {
-    if (!$imagePath) return '';
-    $assetsPath = dirname(base_path(), 1) . '/assets';
-    if (file_exists($assetsPath)) {
-        return url(str_replace($assetsPath, 'assets', $imagePath));
-    } else {
-        return url(str_replace(base_path('assets'), 'assets', $imagePath));
-    }
-}
-@endphp
 <div class="container">
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
@@ -57,7 +46,7 @@ function getImageUrl($imagePath) {
                                 @if($record->image1)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ getImageUrl($record->image1) }}" alt="Image 1" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url($record->image1) }}" alt="Image 1" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 1</small>
                                         </div>
@@ -68,7 +57,7 @@ function getImageUrl($imagePath) {
                                 @if($record->image2)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ getImageUrl($record->image2) }}" alt="Image 2" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url($record->image2) }}" alt="Image 2" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 2</small>
                                         </div>
@@ -79,7 +68,7 @@ function getImageUrl($imagePath) {
                                 @if($record->image3)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ getImageUrl($record->image3) }}" alt="Image 3" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url($record->image3) }}" alt="Image 3" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 3</small>
                                         </div>
@@ -90,7 +79,7 @@ function getImageUrl($imagePath) {
                                 @if($record->image4)
                                 <div class="col-md-3">
                                     <div class="thumbnail">
-                                        <img src="{{ getImageUrl($record->image4) }}" alt="Image 4" style="width: 100%; height: 150px; object-fit: cover;">
+                                        <img src="{{ url($record->image4) }}" alt="Image 4" style="width: 100%; height: 150px; object-fit: cover;">
                                         <div class="caption text-center">
                                             <small>Image 4</small>
                                         </div>
