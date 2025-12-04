@@ -56,6 +56,7 @@ class NewsController extends Controller
         $assetsExists = file_exists(dirname(base_path(), 1) . '/assets');
         $uploadDir = $assetsExists ? dirname(base_path(), 1) . '/assets/img/news' : base_path('assets/news');
         $relativeDir = $assetsExists ? 'img/news' : 'news';
+        $pathPrefix = $assetsExists ? '../assets/' : 'assets/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -68,7 +69,7 @@ class NewsController extends Controller
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
                 $file->move($uploadDir, $filename);
-                $imagePaths[$fieldName] = 'assets/' . $relativeDir . '/' . $filename;
+                $imagePaths[$fieldName] = $pathPrefix . $relativeDir . '/' . $filename;
             } else {
                 $imagePaths[$fieldName] = '';
             }
@@ -151,6 +152,7 @@ class NewsController extends Controller
         $assetsExists = file_exists(dirname(base_path(), 1) . '/assets');
         $uploadDir = $assetsExists ? dirname(base_path(), 1) . '/assets/img/news' : base_path('assets/news');
         $relativeDir = $assetsExists ? 'img/news' : 'news';
+        $pathPrefix = $assetsExists ? '../assets/' : 'assets/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -168,7 +170,7 @@ class NewsController extends Controller
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
                 $file->move($uploadDir, $filename);
-                $imagePaths[$fieldName] = 'assets/' . $relativeDir . '/' . $filename;
+                $imagePaths[$fieldName] = $pathPrefix . $relativeDir . '/' . $filename;
             } else {
                 $imagePaths[$fieldName] = $record->{'image' . $i};
             }
