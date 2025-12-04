@@ -66,7 +66,7 @@ class NewsController extends Controller
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
                 $file->move($uploadDir, $filename);
-                $imagePaths[$fieldName] = $filename;
+                $imagePaths[$fieldName] = $uploadDir . '/' . $filename;
             } else {
                 $imagePaths[$fieldName] = '';
             }
@@ -158,17 +158,14 @@ class NewsController extends Controller
             $fieldName = 'image' . $i;
             if ($request->hasFile($fieldName)) {
                 // Delete old file if exists
-                if ($record->{'image' . $i}) {
-                    $fullPath = base_path('assets/' . $relativeDir . '/' . $record->{'image' . $i});
-                    if (file_exists($fullPath)) {
-                        unlink($fullPath);
-                    }
+                if ($record->{'image' . $i} && file_exists($record->{'image' . $i})) {
+                    unlink($record->{'image' . $i});
                 }
 
                 $file = $request->file($fieldName);
                 $filename = $i . round(microtime(true)) . '.' . $file->getClientOriginalExtension();
                 $file->move($uploadDir, $filename);
-                $imagePaths[$fieldName] = $filename;
+                $imagePaths[$fieldName] = $uploadDir . '/' . $filename;
             } else {
                 $imagePaths[$fieldName] = $record->{'image' . $i};
             }
@@ -202,15 +199,10 @@ class NewsController extends Controller
             return redirect()->route('news.index')->with('error', 'News not found.');
         }
 
-        $relativeDir = file_exists(base_path('../assets')) ? 'img/news' : 'news';
-
         // Delete associated images
         for ($i = 1; $i <= 4; $i++) {
-            if ($record->{'image' . $i}) {
-                $fullPath = base_path('assets/' . $relativeDir . '/' . $record->{'image' . $i});
-                if (file_exists($fullPath)) {
-                    unlink($fullPath);
-                }
+            if ($record->{'image' . $i} && file_exists($record->{'image' . $i})) {
+                unlink($record->{'image' . $i});
             }
         }
 
@@ -272,7 +264,7 @@ class NewsController extends Controller
                 'sn' => $i++,
                 'created_at' => $record->created_at ? date('d-m-Y', strtotime($record->created_at)) : '',
                 'title' => htmlspecialchars($record->title),
-                'actions' => '<a href="' . route('news.show', $record->id) . '" class="btn btn-sm btn-info" title="View"><i class="fa fa-eye"></i></a> <a href="' . route('news.edit', $record->id) . '" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-pencil"></i></a> <form method="POST" action="' . route('news.destroy', $record->id) . '" style="display:inline;" onsubmit="return confirm(\'Are you sure?\')"> <input type="hidden" name="_method" value="DELETE"> <input type="hidden" name="_token" value="' . csrf_token() . '"> <button type="submit" class="btn btn-sm btn-danger" title="Delete"><i class="fa fa-trash"></i></button> </form>'
+                'actions' => '<a href="' . route('news.show', $record->id) . '" class="btn btn-sm btn-info" title="View"><i class="fa fa-eye"></i></a> <a href="' . route('news.edit', $record->id) . '" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-pencil"></i></a> <form method="POST" action="' . route('news.destroy', $record->id) . '" style="display:inline;" id="delete-form-' . $record->id . '"> <input type="hidden" name="_method" value="DELETE"> <input type="hidden" name="_token" value="' . csrf_token() . '"> <button type="button" class="btn btn-sm btn-danger" onclick="deleteNews(' . $record->id . ')" title="Delete"><i class="fa fa-trash"></i></button> </form>'
             ];
         }
 
