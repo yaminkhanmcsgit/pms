@@ -272,7 +272,7 @@ class NewsController extends Controller
                 'sn' => $i++,
                 'created_at' => $record->created_at ? date('d-m-Y', strtotime($record->created_at)) : '',
                 'title' => htmlspecialchars($record->title),
-                'actions' => '<a href="' . route('news.show', $record->id) . '" class="btn btn-sm btn-info" title="View"><i class="fa fa-eye"></i></a> <a href="' . route('news.edit', $record->id) . '" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-pencil"></i></a> <a href="' . route('news.destroy', $record->id) . '" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\')" title="Delete"><i class="fa fa-trash"></i></a>'
+                'actions' => '<a href="' . route('news.show', $record->id) . '" class="btn btn-sm btn-info" title="View"><i class="fa fa-eye"></i></a> <a href="' . route('news.edit', $record->id) . '" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-pencil"></i></a> <form method="POST" action="' . route('news.destroy', $record->id) . '" style="display:inline;" onsubmit="return confirm(\'Are you sure?\')"> <input type="hidden" name="_method" value="DELETE"> <input type="hidden" name="_token" value="' . csrf_token() . '"> <button type="submit" class="btn btn-sm btn-danger" title="Delete"><i class="fa fa-trash"></i></button> </form>'
             ];
         }
 
