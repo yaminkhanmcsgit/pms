@@ -249,17 +249,21 @@ function loadTargetValues() {
         var tbody = $('#targetValuesBody');
         tbody.empty();
         data.forEach(function(item, index) {
+            var editButton = '';
+            @if(session('operator_id'))
+            if (item.operator_id && item.operator_id == {{ session('operator_id') }}) {
+                editButton = `<button class="btn btn-sm btn-warning" onclick="editTarget(${item.moza_id}, ${item.completion_process_type_id}, ${item.target_value_id})">
+                    <i class="fa fa-edit"></i> ترمیم
+                </button>`;
+            }
+            @endif
             tbody.append(`
                 <tr>
                     <td>${index + 1}</td>
                     <td>${item.moza_name}</td>
                     <td>${item.type_title}</td>
                     <td>${item.target_value}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editTarget(${item.moza_id}, ${item.completion_process_type_id}, ${item.target_value_id})">
-                            <i class="fa fa-edit"></i> ترمیم
-                        </button>
-                    </td>
+                    <td>${editButton}</td>
                 </tr>
             `);
         });

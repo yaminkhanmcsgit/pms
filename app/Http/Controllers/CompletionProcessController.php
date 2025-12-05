@@ -187,6 +187,8 @@ class CompletionProcessController extends Controller
                 'target_value' => 'required|numeric',
             ]);
 
+            $validated['operator_id'] = session('operator_id');
+
             $existing = DB::table('completion_process_target_values_to_achieve')
                 ->where('moza_id', $request->moza_id)
                 ->where('completion_process_type_id', $request->completion_process_type_id)
