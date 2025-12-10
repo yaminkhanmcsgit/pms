@@ -25,6 +25,7 @@
     padding: 15px 20px 10px;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
+    text-align: center;
 }
 
 .dashboard-card-title {
@@ -71,6 +72,7 @@
 
     .dashboard-card-title {
         font-size: 1em;
+        
     }
 
     .dashboard-btn {
@@ -82,6 +84,7 @@
 <div class="container " dir="rtl" >
    
    <div class="row dashboard-panels">
+@if($role_id == 1)
        <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
            <div class="dashboard-card" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">
                <div class="dashboard-card-header">
@@ -92,6 +95,7 @@
                </div>
            </div>
        </div>
+@endif
        <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
            <div class="dashboard-card" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">
                <div class="dashboard-card-header">

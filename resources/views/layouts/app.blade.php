@@ -66,6 +66,10 @@
 .form-group {
   float: right;
 }
+.panel-heading {
+    text-align: center;
+}
+.panel{max-width: 1200px;margin: 0 auto;}
 
 /* Urdu input fields */
 .urdu-input, .urdu-input * {
