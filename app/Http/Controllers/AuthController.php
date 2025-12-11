@@ -105,13 +105,13 @@ class AuthController extends Controller
         ]);
 
         $resetLink = route('reset.password', ['token' => $token]);
-        $subject = 'پاسورڈ ری سیٹ کی درخواست';
+        $subject = 'Password Reset Request';
         $body = "
-            <p>ہیلو {$operator->full_name},</p>
-            <p>آپ نے پاسورڈ ری سیٹ کی درخواست کی ہے۔ نیچے دیے گئے لنک پر کلک کریں تاکہ اپنا پاسورڈ ری سیٹ کریں:</p>
-            <p><a href='{$resetLink}'>پاسورڈ ری سیٹ کریں</a></p>
-            <p>یہ لنک 1 گھنٹے تک درست رہے گا۔</p>
-            <p>اگر آپ نے یہ درخواست نہیں کی ہے تو اس ای میل کو نظر انداز کریں۔</p>
+            <p>Hello {$operator->full_name},</p>
+            <p>You have requested a password reset. Click the link below to reset your password:</p>
+            <p><a href='{$resetLink}'>Reset Password</a></p>
+            <p>This link will expire in 1 hour.</p>
+            <p>If you did not request this, please ignore this email.</p>
         ";
 
         $emailSent = sendEmail($operator->username, $subject, $body);
