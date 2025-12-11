@@ -23,9 +23,9 @@ if (!function_exists('sendEmail')) {
             // Use Laravel's Mail facade to send the email
             Mail::send([], [], function ($message) use ($to, $subject, $body, $attachments, $fromEmail, $fromName) {
                 $message->to($to)
-                        ->subject($subject)
-                        ->from($fromEmail, $fromName)
-                        ->html($body); // Or use ->text($body) for plain text
+                         ->subject($subject)
+                         ->from($fromEmail, $fromName)
+                         ->setBody($body, 'text/html'); // HTML body
 
                 // Add attachments if provided
                 foreach ($attachments as $attachment) {
