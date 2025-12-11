@@ -10,6 +10,8 @@
     <link rel="shortcut icon" type="image/x-icon" href="@if($setting && $setting->logo_path){{ url('assets/logo/' . $setting->logo_path) }}@else{{ url('public/notika/img/logo/logo.png') }}@endif">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #e8f5e8 0%, #2d7d2d 100%);
@@ -153,6 +155,36 @@
                 <button type="submit" class="btn-login">لاگ ان کریں</button>
             </form>
 
+            <div style="text-align: center; margin-top: 20px;">
+                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#forgotPasswordModal" style="color: #1877f2; text-decoration: none;">پاسورڈ بھول گئے؟</button>
+            </div>
+
+            <!-- Forgot Password Modal -->
+            <div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="forgotPasswordModalLabel">پاسورڈ بھول گئے</h4>
+                        </div>
+                        <form id="forgotPasswordForm" method="POST" action="{{ route('forgot.password.post') }}">
+                            @csrf
+                            <div class="modal-body">
+                                <p>اپنا ای میل درج کریں تاکہ پاسورڈ ری سیٹ کا لنک حاصل کریں</p>
+                                <div id="forgotPasswordMessage"></div>
+                                <div class="form-group">
+                                    <input type="email" name="email" id="forgotEmail" class="form-control" placeholder="ای میل" required dir="ltr">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">منسوخ کریں</button>
+                                <button type="submit" class="btn btn-primary" id="forgotSubmitBtn">لنک بھیجیں</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <div class="login-footer">
                 @php
                     $setting = DB::table('settings')->first();
@@ -167,6 +199,62 @@
                 </p>
             </div>
         </div>
+    <script>
+        $(document).ready(function() {
+            $('#forgotPasswordForm').on('submit', function(e) {
+                e.preventDefault();
+
+                var form = $(this);
+                var submitBtn = $('#forgotSubmitBtn');
+                var messageDiv = $('#forgotPasswordMessage');
+
+                // Clear previous messages
+                messageDiv.html('');
+
+                // Disable submit button
+                submitBtn.prop('disabled', true).text('براہ کرم انتظار کریں...');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            messageDiv.html('<div class="alert alert-success">' + response.message + '</div>');
+                            form[0].reset();
+                            setTimeout(function() {
+                                $('#forgotPasswordModal').modal('hide');
+                            }, 2000);
+                        } else {
+                            messageDiv.html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                    },
+                    error: function(xhr) {
+                        var errors = xhr.responseJSON;
+                        if (errors && errors.errors) {
+                            var errorMsg = '';
+                            for (var key in errors.errors) {
+                                errorMsg += errors.errors[key][0] + '<br>';
+                            }
+                            messageDiv.html('<div class="alert alert-danger">' + errorMsg + '</div>');
+                        } else {
+                            messageDiv.html('<div class="alert alert-danger">ای میل بھیجنے میں خرابی ہوئی ہے</div>');
+                        }
+                    },
+                    complete: function() {
+                        // Re-enable submit button
+                        submitBtn.prop('disabled', false).text('لنک بھیجیں');
+                    }
+                });
+            });
+
+            // Clear messages when modal is closed
+            $('#forgotPasswordModal').on('hidden.bs.modal', function() {
+                $('#forgotPasswordMessage').html('');
+                $('#forgotPasswordForm')[0].reset();
+            });
+        });
+    </script>
     </div>
 </body>
 </html>

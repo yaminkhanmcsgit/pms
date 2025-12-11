@@ -36,6 +36,7 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         'c72349b1fe8d0deeedd3a52e8aa814d8' => __DIR__ . '/..' . '/mockery/mockery/library/helpers.php',
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
+        '14f5c1f7ff75dfb48c2ad8f5675d50d3' => __DIR__ . '/../..' . '/app/Helpers/EmailHelper.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -525,9 +526,12 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
         'App\\Http\\Controllers\\CompletionProcessController' => __DIR__ . '/../..' . '/app/Http/Controllers/CompletionProcessController.php',
+        'App\\Http\\Controllers\\ContactController' => __DIR__ . '/../..' . '/app/Http/Controllers/ContactController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\EmployeeController' => __DIR__ . '/../..' . '/app/Http/Controllers/EmployeeController.php',
+        'App\\Http\\Controllers\\GrievanceController' => __DIR__ . '/../..' . '/app/Http/Controllers/GrievanceController.php',
         'App\\Http\\Controllers\\HomeController' => __DIR__ . '/../..' . '/app/Http/Controllers/HomeController.php',
+        'App\\Http\\Controllers\\NewsController' => __DIR__ . '/../..' . '/app/Http/Controllers/NewsController.php',
         'App\\Http\\Controllers\\OperatorController' => __DIR__ . '/../..' . '/app/Http/Controllers/OperatorController.php',
         'App\\Http\\Controllers\\PartalController' => __DIR__ . '/../..' . '/app/Http/Controllers/PartalController.php',
         'App\\Http\\Controllers\\SettingController' => __DIR__ . '/../..' . '/app/Http/Controllers/SettingController.php',

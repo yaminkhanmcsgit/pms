@@ -19,6 +19,12 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/change-password', [AuthController::class, 'changePassword'])->middleware('operator');
 
+// Password reset routes
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('forgot.password');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.password.post');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('reset.password');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset.password.post');
+
 // Protected routes (require operator session)
 Route::middleware(['operator'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('dashboard');
