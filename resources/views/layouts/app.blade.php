@@ -305,12 +305,13 @@ ul.notika-menu-wrap li a {
             <i class="notika-icon notika-support"></i> صارفین
         </a>
     </li>
-@endif
+
     <li class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
         <a href="{{ route('employees.index') }}">
             <i class="notika-icon notika-social"></i> ملازمین
         </a>
     </li>
+@endif
     <li class="{{ request()->routeIs('completion_process.*') ? 'active' : '' }}">
         <a href="{{ route('completion_process.index') }}">
             <i class="notika-icon notika-edit"></i> تکمیلی کام
@@ -342,13 +343,14 @@ ul.notika-menu-wrap li a {
                                 <i class="notika-icon notika-newspaper"></i> خبریں
                             </a>
                         </li>
-                        @endif
+                       
                    
                          <li class="{{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                         <a href="{{ route('settings.edit') }}">
                                                <i class="fa fa-gear"></i>  ترتیبات
                                         </a>
                          </li>
+                         @endif
                                 <!-- More mobile menu items -->
                             </ul>
                         </nav>

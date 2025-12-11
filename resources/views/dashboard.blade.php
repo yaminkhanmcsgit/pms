@@ -4,6 +4,11 @@
 
 @section('content')
 <style>
+.dashboard-panels {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
 .dashboard-card {
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -138,6 +143,7 @@
                </div>
            </div>
        </div>
+       @if($role_id == 1)
        <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
            <div class="dashboard-card" style="background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);">
                <div class="dashboard-card-header">
@@ -148,6 +154,7 @@
                </div>
            </div>
        </div>
+       @endif
    </div>
 
    <!-- Charts Section -->
