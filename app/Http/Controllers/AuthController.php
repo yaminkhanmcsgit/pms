@@ -107,11 +107,20 @@ class AuthController extends Controller
         $resetLink = route('reset.password', ['token' => $token]);
         $subject = 'Password Reset Request';
         $body = "
-            <p>Hello {$operator->full_name},</p>
-            <p>You have requested a password reset. Click the link below to reset your password:</p>
-            <p><a href='{$resetLink}'>Reset Password</a></p>
-            <p>This link will expire in 1 hour.</p>
-            <p>If you did not request this, please ignore this email.</p>
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;'>
+            <div style='background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
+                <h2 style='color: #333; text-align: center; margin-bottom: 20px;'>Password Reset Request</h2>
+                <p style='color: #555; font-size: 16px; line-height: 1.6;'>Hello {$operator->full_name},</p>
+                <p style='color: #555; font-size: 16px; line-height: 1.6;'>You have requested a password reset. Click the button below to reset your password:</p>
+                <div style='text-align: center; margin: 30px 0;'>
+                    <a href='{$resetLink}' style='background-color: #28a745; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: bold; display: inline-block; box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3); transition: background-color 0.3s;'>Reset Password</a>
+                </div>
+                <p style='color: #777; font-size: 14px; text-align: center;'>This link will expire in 1 hour.</p>
+                <p style='color: #777; font-size: 14px; text-align: center;'>If you did not request this, please ignore this email.</p>
+                <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
+                <p style='color: #999; font-size: 12px; text-align: center;'>This is an automated message. Please do not reply.</p>
+            </div>
+        </div>
         ";
 
         $emailSent = sendEmail($operator->username, $subject, $body);
