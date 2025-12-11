@@ -95,7 +95,7 @@
                </div>
            </div>
        </div>
-@endif
+
        <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
            <div class="dashboard-card" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">
                <div class="dashboard-card-header">
@@ -106,6 +106,8 @@
                </div>
            </div>
        </div>
+
+       @endif
        <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 20px;">
            <div class="dashboard-card" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);">
                <div class="dashboard-card-header">

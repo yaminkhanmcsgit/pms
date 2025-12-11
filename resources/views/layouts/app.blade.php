@@ -181,16 +181,20 @@ ul.notika-menu-wrap li a {
                                 <i class="notika-icon notika-house"></i> ڈیش بورڈ
                             </a>
                         </li>
+@if(session('role_id') == 1)
                         <li class="{{ request()->routeIs('operators.*') ? 'active' : '' }}">
                             <a href="{{ route('operators.index') }}">
                                 <i class="notika-icon notika-support"></i> صارفین
                             </a>
                         </li>
+
                         <li class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
                             <a href="{{ route('employees.index') }}">
                                 <i class="notika-icon notika-social"></i> ملازمین
                             </a>
                         </li>
+
+    @endif
                         <li class="{{ request()->routeIs('completion_process.*') ? 'active' : '' }}">
                             <a href="{{ route('completion_process.index') }}">
                                 <i class="notika-icon notika-edit"></i> تکمیلی کام
@@ -295,11 +299,13 @@ ul.notika-menu-wrap li a {
             <i class="notika-icon notika-house"></i> ڈیش بورڈ
         </a>
     </li>
+@if(session('role_id') == 1)
     <li class="{{ request()->routeIs('operators.*') ? 'active' : '' }}">
         <a href="{{ route('operators.index') }}">
             <i class="notika-icon notika-support"></i> صارفین
         </a>
     </li>
+@endif
     <li class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
         <a href="{{ route('employees.index') }}">
             <i class="notika-icon notika-social"></i> ملازمین
