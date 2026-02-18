@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 
 class GrievanceController extends Controller
 {
@@ -34,6 +35,35 @@ class GrievanceController extends Controller
             ->paginate(10);
 
         return view('grievances.index', compact('grievances'));
+    }
+
+    public function apiIndex(Request $request)
+    {
+        $query = DB::table('grievances')
+            ->leftJoin('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+            ->leftJoin('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+            ->leftJoin('districts', 'grievances.district', '=', 'districts.districtId')
+            ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
+            ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId');
+
+        if (session('role_id') == 2) {
+            $query->where('grievances.district', session('zila_id'))
+                  ->where('grievances.tehsil', session('tehsil_id'));
+        }
+
+        $grievances = $query->select(
+                'grievances.*',
+                'grievance_types.name as grievance_type_name',
+                'grievance_statuses.name as status_name',
+                'grievance_statuses.color_class as status_color',
+                'districts.districtNameUrdu as district_name',
+                'tehsils.tehsilNameUrdu as tehsil_name',
+                'mozas.mozaNameUrdu as moza_name'
+            )
+            ->latest()
+            ->paginate(10);
+
+        return response()->json(['grievances' => $grievances]);
     }
 
     public function create()
@@ -342,6 +372,129 @@ class GrievanceController extends Controller
         return response()->json(['success' => false, 'message' => 'No file uploaded.']);
     }
 
+    // Get attachments for a grievance
+    public function getAttachments($id)
+    {
+        $attachments = DB::table('grievance_attachments')
+            ->where('grievance_id', $id)
+            ->orderBy('uploaded_datetime', 'desc')
+            ->get();
+
+        return response()->json(['success' => true, 'attachments' => $attachments]);
+    }
+
+    // Upload attachment for a grievance
+    public function uploadAttachment(Request $request, $id)
+    {
+        $request->validate([
+            'attachment_file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $uploadDir = base_path('assets/grievance_attachments');
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $grievance = DB::table('grievances')->where('id', $id)->first();
+        if (!$grievance) {
+            return response()->json(['success' => false, 'message' => 'Grievance not found.']);
+        }
+
+        if ($request->hasFile('attachment_file')) {
+            $file = $request->file('attachment_file');
+            $filename = time() . '_' . $id . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Debug info
+            $moved = $file->move($uploadDir, $filename);
+            
+            // Log for debugging
+            error_log('Upload dir: ' . $uploadDir);
+            error_log('Filename: ' . $filename);
+            error_log('Moved: ' . ($moved ? 'yes' : 'no'));
+
+            DB::table('grievance_attachments')->insert([
+                'grievance_id' => $id,
+                'image_path' => 'assets/grievance_attachments/' . $filename,
+                'uploaded_datetime' => now(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Attachment uploaded successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No file uploaded.']);
+    }
+
+    // Delete attachment
+    public function deleteAttachment($id, $attachment_id)
+    {
+        $attachment = DB::table('grievance_attachments')
+            ->where('attachment_id', $attachment_id)
+            ->where('grievance_id', $id)
+            ->first();
+
+        if (!$attachment) {
+            return response()->json(['success' => false, 'message' => 'Attachment not found.']);
+        }
+
+        $fullPath = public_path($attachment->image_path);
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+
+        DB::table('grievance_attachments')->where('attachment_id', $attachment_id)->delete();
+
+        return response()->json(['success' => true, 'message' => 'Attachment deleted successfully.']);
+    }
+
+    // Generate PDF with attachments
+    public function generatePdf($id)
+    {
+        $grievance = DB::table('grievances')
+            ->leftJoin('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
+            ->leftJoin('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+            ->leftJoin('districts', 'grievances.district', '=', 'districts.districtId')
+            ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
+            ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId')
+            ->select(
+                'grievances.*',
+                'grievance_types.name as grievance_type_name',
+                'grievance_statuses.name as status_name',
+                'grievance_statuses.color_class as status_color',
+                'districts.districtNameUrdu as district_name',
+                'tehsils.tehsilNameUrdu as tehsil_name',
+                'mozas.mozaNameUrdu as moza_name'
+            )
+            ->where('grievances.id', $id)
+            ->first();
+
+        if (!$grievance) {
+            return response()->json(['success' => false, 'message' => 'Grievance not found.']);
+        }
+
+        // Get attachments
+        $attachments = DB::table('grievance_attachments')
+            ->where('grievance_id', $id)
+            ->orderBy('uploaded_datetime', 'asc')
+            ->get();
+
+        // Get HTML content from view
+        $html = view('grievances.pdf', compact('grievance', 'attachments'))->render();
+
+        // Configure MPDF with Unicode support and Urdu font
+        $config = [
+            'mode' => 'utf-8',
+            'fontdata' => [
+                'arabic' => [
+                    'R' => 'arabtype.ttf',
+                ]
+            ],
+            'default_font' => 'arabic'
+        ];
+        $mpdf = new Mpdf($config);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('grievance-' . $id . '.pdf', 'D');
+    }
+
     // DataTables server-side processing
     public function datatable(Request $request)
     {
@@ -414,9 +567,26 @@ class GrievanceController extends Controller
             'mozas.mozaNameUrdu as moza_name'
         )->get();
 
+        // Get attachment counts for all grievances
+        $grievanceIds = $records->pluck('id')->toArray();
+        $attachmentCounts = [];
+        if (!empty($grievanceIds)) {
+            $attachmentData = DB::table('grievance_attachments')
+                ->whereIn('grievance_id', $grievanceIds)
+                ->select('grievance_id', DB::raw('count(*) as count'))
+                ->groupBy('grievance_id')
+                ->get();
+            foreach ($attachmentData as $att) {
+                $attachmentCounts[$att->grievance_id] = $att->count;
+            }
+        }
+
         $data = [];
         foreach ($records as $record) {
+            $attachmentCount = isset($attachmentCounts[$record->id]) ? $attachmentCounts[$record->id] : 0;
+            
             $editLi = ($record->operator_id == session('operator_id')) ? '<li><a href="' . route('grievances.edit', $record->id) . '"><i class="fa fa-edit"></i> Edit</a></li>' : '';
+            $attachmentsBtn = '<button class="btn btn-xs btn-info" onclick="viewAttachments(' . $record->id . ')" title="View Attachments"><i class="fa fa-paperclip"></i> (' . $attachmentCount . ')</button>';
             $actions = '<div class="dropdown">
                 <button class="btn btn-sm btn-default dropdown-toggle actions-dropdown-btn" type="button" data-toggle="dropdown" data-grievance-id="' . $record->id . '">
                     <i class="fa fa-ellipsis-v"></i>
@@ -431,7 +601,7 @@ class GrievanceController extends Controller
                     <li><a href="#" onclick="updateField(' . $record->id . ', \'preliminary_remarks\', \'' . addslashes($record->preliminary_remarks) . '\')"><i class="fa fa-comment"></i> Preliminary Remarks</a></li>
                     <li><a href="#" onclick="updateField(' . $record->id . ', \'action_proposed\', \'' . addslashes($record->action_proposed) . '\')"><i class="fa fa-lightbulb-o"></i> Action Proposed</a></li>
                     <li><a href="#" onclick="updateField(' . $record->id . ', \'decision\', \'' . addslashes($record->decision) . '\')"><i class="fa fa-gavel"></i> Decision</a></li>
-                    <li><a href="#" onclick="updateField(' . $record->id . ', \'assistant_remarks\', \'' . addslashes($record->assistant_remarks) . '\')"><i class="fa fa-user-md"></i> Assistant Remarks</a></li>
+                    <li><a href="#" onclick="updateField(' . $record->id . ', \'assistant_remarks\', \'' . addslashes($record->assistant_remarks) . '\')"><i class="fa fa-user-md"></i> ASO Remarks</a></li>
                     <li><a href="#" onclick="updateField(' . $record->id . ', \'status_id\', \'' . $record->status_id . '\')"><i class="fa fa-flag"></i> Update Status</a></li>
                     <li><a href="#" onclick="updateSignature(' . $record->id . ', \'' . $record->tehsildar_signature . '\')"><i class="fa fa-signature"></i> Tehsildar Signature</a></li>
                     <li class="divider"></li>
@@ -456,6 +626,7 @@ class GrievanceController extends Controller
                 'tehsil_name' => $record->tehsil_name,
                 'moza_name' => $record->moza_name,
                 'grievance_type_name' => $record->grievance_type_name,
+                'attachments' => $attachmentsBtn,
                 'status_name' => '<span class="label label-' . $record->status_color . '">' . $record->status_name . '</span>',
                 'application_date' => $record->application_date ? date('d-m-Y', strtotime($record->application_date)) : '',
                 'actions' => $actions

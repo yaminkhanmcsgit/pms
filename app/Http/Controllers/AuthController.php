@@ -11,6 +11,26 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+  
+
+public function apiLogin(Request $request)
+{
+    $request->validate([
+        'username' => 'required',
+        'password' => 'required',
+    ]);
+
+    $operator = DB::table('operators')->where('username', $request->username)->first();
+    if ($operator && trim($request->password) === trim((string)$operator->password)) {
+        $token = bin2hex(random_bytes(40));
+        DB::table('operators')->where('id', $operator->id)->update(['api_token' => $token]);
+        return response()->json(['success' => true, 'token' => $token]);
+    }
+
+    return response()->json(['success' => false, 'message' => 'غلط صارف نام یا پاسورڈ'], 401);
+}
+
+
     public function showLoginForm()
     {
         return view('auth.login');
@@ -22,7 +42,7 @@ class AuthController extends Controller
             'username' => 'required',
             'password' => 'required',
         ]);
-        //var_dump($request->password);exit;
+        
 
         $user = DB::table('operators')->where('username', $request->username)->first();
         if ($user && trim($request->password) === trim((string)$user->password)) {
@@ -31,14 +51,19 @@ class AuthController extends Controller
             Session::put('role_id', $user->role_id);
             Session::put('zila_id', $user->zila_id);
             Session::put('tehsil_id', $user->tehsil_id);
+             //var_dump($request->password);exit;
             return redirect()->route('dashboard');
         }
+       
         return back()->withErrors(['username' => 'غلط صارف نام یا پاسورڈ'])->withInput();
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Session::flush();
+        if ($request->is('api/*')) {
+            return response()->json(['success' => true]);
+        }
         return redirect()->route('login');
     }
 
@@ -82,63 +107,53 @@ class AuthController extends Controller
         return view('auth.forgot-password');
     }
 
-    public function sendResetLink(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
+   public function sendResetLink(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+    ]);
 
-        $operator = DB::table('operators')->where('username', $request->email)->first();
-        if (!$operator) {
-            if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'اس ای میل سے کوئی اکاؤنٹ نہیں ملا']);
-            }
-            return back()->withErrors(['email' => 'اس ای میل سے کوئی اکاؤنٹ نہیں ملا']);
-        }
-
-        $token = bin2hex(random_bytes(32));
-        $expires = now()->addHours(1);
-
-        DB::table('operators')->where('id', $operator->id)->update([
-            'reset_token' => $token,
-            'reset_token_expires' => $expires,
-        ]);
-
-        $resetLink = route('reset.password', ['token' => $token]);
-        $subject = 'Password Reset Request';
-        $body = "
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;'>
-            <div style='background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
-                <h2 style='color: #333; text-align: center; margin-bottom: 20px;'>Password Reset Request</h2>
-                <p style='color: #555; font-size: 16px; line-height: 1.6;'>Hello {$operator->full_name},</p>
-                <p style='color: #555; font-size: 16px; line-height: 1.6;'>You have requested a password reset. Click the button below to reset your password:</p>
-                <div style='text-align: center; margin: 30px 0;'>
-                    <a href='{$resetLink}' style='background-color: #28a745; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: bold; display: inline-block; box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3); transition: background-color 0.3s;'>Reset Password</a>
-                </div>
-                <p style='color: #777; font-size: 14px; text-align: center;'>This link will expire in 1 hour.</p>
-                <p style='color: #777; font-size: 14px; text-align: center;'>If you did not request this, please ignore this email.</p>
-                <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
-                <p style='color: #999; font-size: 12px; text-align: center;'>This is an automated message. Please do not reply.</p>
-            </div>
-        </div>
-        ";
-
-        $emailSent = sendEmail($operator->username, $subject, $body);
-
-        if ($request->ajax()) {
-            if ($emailSent) {
-                return response()->json(['success' => true, 'message' => 'پاسورڈ ری سیٹ کا لنک آپ کے ای میل پر بھیج دیا گیا ہے']);
-            } else {
-                return response()->json(['success' => false, 'message' => 'ای میل بھیجنے میں خرابی ہوئی ہے']);
-            }
-        }
-
-        if ($emailSent) {
-            return back()->with('success', 'پاسورڈ ری سیٹ کا لنک آپ کے ای میل پر بھیج دیا گیا ہے');
-        } else {
-            return back()->withErrors(['email' => 'ای میل بھیجنے میں خرابی ہوئی ہے']);
-        }
+    $operator = DB::table('operators')->where('username', $request->email)->first();
+    if (!$operator) {
+        return response()->json(['success' => false, 'message' => 'اس ای میل سے کوئی اکاؤنٹ نہیں ملا']);
     }
+
+    $token = bin2hex(random_bytes(32));
+    $expires = now()->addHours(1);
+
+    DB::table('operators')->where('id', $operator->id)->update([
+        'reset_token' => $token,
+        'reset_token_expires' => $expires,
+    ]);
+
+    $resetLink = route('reset.password', ['token' => $token]);
+    $subject = 'Password Reset Request';
+    $body = "
+    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;'>
+        <div style='background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
+            <h2 style='color: #333; text-align: center; margin-bottom: 20px;'>Password Reset Request</h2>
+            <p style='color: #555; font-size: 16px; line-height: 1.6;'>Hello {$operator->full_name},</p>
+            <p style='color: #555; font-size: 16px; line-height: 1.6;'>You have requested a password reset. Click the button below to reset your password:</p>
+            <div style='text-align: center; margin: 30px 0;'>
+                <a href='{$resetLink}' style='background-color: #28a745; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: bold; display: inline-block; box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3); transition: background-color 0.3s;'>Reset Password</a>
+            </div>
+            <p style='color: #777; font-size: 14px; text-align: center;'>This link will expire in 1 hour.</p>
+            <p style='color: #777; font-size: 14px; text-align: center;'>If you did not request this, please ignore this email.</p>
+            <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
+            <p style='color: #999; font-size: 12px; text-align: center;'>This is an automated message. Please do not reply.</p>
+        </div>
+    </div>
+    ";
+
+    $emailSent = sendEmail($operator->username, $subject, $body);
+
+    if ($emailSent) {
+        return response()->json(['success' => true, 'message' => 'پاسورڈ ری سیٹ کا لنک آپ کے ای میل پر بھیج دیا گیا ہے']);
+    } else {
+        return response()->json(['success' => false, 'message' => 'ای میل بھیجنے میں خرابی ہوئی ہے']);
+    }
+}
+
 
     public function showResetPasswordForm($token)
     {

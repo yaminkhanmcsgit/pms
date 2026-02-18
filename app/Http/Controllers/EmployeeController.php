@@ -30,6 +30,33 @@ class EmployeeController extends Controller
         return view('employees.index', compact('employees'));
     }
 
+    public function apiIndex() {
+        $query = DB::table('employees')
+            ->leftJoin('employee_type', 'employees.ahalkar_type', '=', 'employee_type.ahalkar_type_id')
+            ->leftJoin('districts', 'employees.zila_id', '=', 'districts.districtId')
+            ->leftJoin('tehsils', 'employees.tehsil_id', '=', 'tehsils.tehsilId')
+            ->leftJoin('mozas', 'employees.moza_id', '=', 'mozas.mozaId');
+
+        if (session('role_id') == 2) {
+            $query->where('employees.zila_id', session('zila_id'))
+                  ->where('employees.tehsil_id', session('tehsil_id'));
+        }
+
+        $employees = $query->select(
+                'employees.*',
+                'employee_type.ahalkar_title as employee_type_title',
+                'districts.districtNameUrdu as district_name',
+                'tehsils.tehsilNameUrdu as tehsil_name',
+                'mozas.mozaNameUrdu as moza_name'
+            )
+            ->get();
+        // actually
+        // $response = response();
+        //return $response->json(['employees' => $employees]);
+
+        return response()->json(['employees' => $employees]);
+    }
+
     public function create()
 {
     $role_id = session('role_id');

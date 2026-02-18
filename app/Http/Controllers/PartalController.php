@@ -42,6 +42,39 @@ class PartalController extends Controller
         return view('partal.index', compact('records'));
     }
 
+    public function apiIndex()
+    {
+        $query = DB::table($this->table)
+            ->leftJoin('employees as emp_ahalkar', 'partal.ahalkar_nam', '=', 'emp_ahalkar.nam')
+            ->leftJoin('employee_type as et_ahalkar', 'emp_ahalkar.ahalkar_type', '=', 'et_ahalkar.ahalkar_type_id')
+            ->leftJoin('employees as emp_patwari', 'partal.patwari_nam', '=', 'emp_patwari.nam')
+            ->leftJoin('employee_type as et_patwari', 'emp_patwari.ahalkar_type', '=', 'et_patwari.ahalkar_type_id')
+            ->leftJoin('districts', 'partal.zila_nam', '=', 'districts.districtId')
+            ->leftJoin('tehsils', 'partal.tehsil_nam', '=', 'tehsils.tehsilId')
+            ->leftJoin('mozas', 'partal.moza_nam', '=', 'mozas.mozaId');
+
+        if (session('role_id') == 2) {
+            $query->where('districts.districtId', session('zila_id'))
+                  ->where('tehsils.tehsilId', session('tehsil_id'));
+        }
+
+        $records = $query->select(
+                'partal.*',
+                'et_ahalkar.ahalkar_title as ahalkar_title',
+                'et_patwari.ahalkar_title as patwari_title',
+                'districts.districtNameUrdu as districtNameUrdu',
+                'tehsils.tehsilNameUrdu as tehsilNameUrdu',
+                'mozas.mozaNameUrdu as mozaNameUrdu',
+                'districts.districtId as zila_id',
+                'tehsils.tehsilId as tehsil_id',
+                'mozas.mozaId as moza_id'
+            )
+            ->orderBy('partal.id', 'desc')
+            ->paginate(10);
+
+        return response()->json(['partal' => $records]);
+    }
+
     // Show form to create a new record
     public function create()
     {

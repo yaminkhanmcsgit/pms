@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/pms/frontend/static/js/main.4206fb29.js",
+    "index.html": "/pms/frontend/index.html",
+    "main.4206fb29.js.map": "/pms/frontend/static/js/main.4206fb29.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.4206fb29.js"
+  ]
+}

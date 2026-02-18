@@ -644,7 +644,7 @@ ul.notika-menu-wrap li a {
 <script>
     // Function to fetch and update notifications
     function fetchNotifications() {
-        fetch("{{ url('api/notifications') }}")
+        fetch("{{ url('notifications') }}")
             .then(response => response.json())
             .then(data => {
                 let total = data.recent_partal + data.recent_completion_process + data.recent_grievances + data.pending_grievances;

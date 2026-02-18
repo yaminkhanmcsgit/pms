@@ -75,18 +75,22 @@ Route::middleware(['operator'])->group(function () {
     Route::post('/grievances/datatable', [GrievanceController::class, 'datatable'])->name('grievances.datatable');
     Route::get('/grievances/create', [GrievanceController::class, 'create'])->name('grievances.create');
     Route::post('/grievances', [GrievanceController::class, 'store'])->name('grievances.store');
-    Route::get('/grievances/{id}', [GrievanceController::class, 'show'])->name('grievances.show');
-    Route::get('/grievances/{id}/edit', [GrievanceController::class, 'edit'])->name('grievances.edit');
-    Route::put('/grievances/{id}', [GrievanceController::class, 'update'])->name('grievances.update');
+    // Specific routes must come before {id} routes
+    Route::get('/grievances/{id}/pdf', [GrievanceController::class, 'generatePdf'])->name('grievances.pdf');
+    Route::get('/grievances/{id}/attachments', [GrievanceController::class, 'getAttachments'])->name('grievances.attachments');
+    Route::post('/grievances/{id}/upload-signature', [GrievanceController::class, 'uploadSignature'])->name('grievances.uploadSignature');
+    Route::post('/grievances/{id}/upload-attachment', [GrievanceController::class, 'uploadAttachment'])->name('grievances.uploadAttachment');
+    Route::delete('/grievances/{id}/attachment/{attachment_id}', [GrievanceController::class, 'deleteAttachment'])->name('grievances.deleteAttachment');
     Route::post('/grievances/{id}/update-status', [GrievanceController::class, 'updateStatus'])->name('grievances.updateStatus');
     Route::post('/grievances/{id}/update-field', [GrievanceController::class, 'updateField'])->name('grievances.updateField');
-    Route::post('/grievances/{id}/upload-signature', [GrievanceController::class, 'uploadSignature'])->name('grievances.uploadSignature');
+    Route::get('/grievances/{id}/edit', [GrievanceController::class, 'edit'])->name('grievances.edit');
+    Route::put('/grievances/{id}', [GrievanceController::class, 'update'])->name('grievances.update');
     Route::delete('/grievances/{id}', [GrievanceController::class, 'destroy'])->name('grievances.destroy');
+    Route::get('/grievances/{id}', [GrievanceController::class, 'show'])->name('grievances.show');
     Route::get('/grievance-types', [GrievanceController::class, 'getTypes'])->name('grievances.types');
     Route::get('/grievance-statuses', [GrievanceController::class, 'getStatuses'])->name('grievances.statuses');
 
-    // Contact Us (Admin Only)
-    Route::middleware(['operator'])->group(function () {
+   
         Route::get('/contactus', [ContactController::class, 'index'])->name('contactus.index');
         Route::post('/contactus/datatable', [ContactController::class, 'datatable'])->name('contactus.datatable');
         Route::get('/contactus/create', [ContactController::class, 'create'])->name('contactus.create');
@@ -94,10 +98,7 @@ Route::middleware(['operator'])->group(function () {
         Route::get('/contactus/{id}/edit', [ContactController::class, 'edit'])->name('contactus.edit');
         Route::put('/contactus/{id}', [ContactController::class, 'update'])->name('contactus.update');
         Route::delete('/contactus/{id}', [ContactController::class, 'destroy'])->name('contactus.destroy');
-    });
-
-    // Latest News (Admin Only)
-    Route::middleware(['operator'])->group(function () {
+   
         Route::get('/news', [NewsController::class, 'index'])->name('news.index');
         Route::post('/news/datatable', [NewsController::class, 'datatable'])->name('news.datatable');
         Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
@@ -106,14 +107,14 @@ Route::middleware(['operator'])->group(function () {
         Route::get('/news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit');
         Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
         Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
-    });
+   
 
     // Settings
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // Notifications
-    Route::get('/api/notifications', function () {
+    Route::get('/notifications', function () {
         $role_id = session('role_id');
         $zila_id = session('zila_id');
         $tehsil_id = session('tehsil_id');
@@ -137,7 +138,7 @@ Route::middleware(['operator'])->group(function () {
             'pending_grievances' => $pending_grievances_query->count(),
         ];
         return response()->json($notifications);
-    })->name('api.notifications');
+    })->name('notifications');
 
     // Chart Data APIs
     Route::get('/chart-data/grievances', [HomeController::class, 'getGrievancesData'])->name('chart.grievances');
@@ -146,4 +147,5 @@ Route::middleware(['operator'])->group(function () {
     Route::get('/chart-data/partal-sums', [HomeController::class, 'getPartalSums'])->name('chart.partal_sums');
     Route::get('/chart-data/completion-process-sums', [HomeController::class, 'getCompletionProcessSums'])->name('chart.completion_process_sums');
     Route::get('/chart-data/grievances-by-type', [HomeController::class, 'getGrievancesByType'])->name('chart.grievances_by_type');
+    
 });
