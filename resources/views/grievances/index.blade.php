@@ -756,16 +756,19 @@ function pdfGrievance() {
         btn.style.display = 'none';
     });
     
-    // Get the main details section (everything before attachments)
-    const mainDetailsSection = element.querySelector('#grievanceAttachmentsSection');
-    const attachmentsSection = document.getElementById('grievanceAttachmentsSection');
+    // Get the attachments section
+    const attachmentsSection = element.querySelector('#grievanceAttachmentsSection');
+    const attachmentsList = element.querySelector('#grievanceAttachmentsList');
+    
+    // Store original display states
+    const attachmentsOriginalDisplay = attachmentsSection ? attachmentsSection.style.display : 'none';
     
     // Hide attachments temporarily to capture main details first
     if (attachmentsSection) {
         attachmentsSection.style.display = 'none';
     }
     
-    // Use html2canvas to capture the main content
+    // Use html2canvas to capture the main content (without attachments)
     html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -775,17 +778,18 @@ function pdfGrievance() {
         // Create PDF with jsPDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
-        const imgData = canvas.toDataURL('image/png');
         const imgWidth = 190; // A4 width minus margins
         const pageHeight = 295;
         const imgHeight = canvas.height * imgWidth / canvas.width;
         let heightLeft = imgHeight;
         let position = 10;
         
+        // Add main details to first page(s)
+        const imgData = canvas.toDataURL('image/png');
         doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
         
-        // Add more pages if needed for main details
+        // Add more pages if main details is longer than one page
         while (heightLeft >= 0) {
             position = heightLeft - imgHeight + 10;
             doc.addPage();
@@ -793,41 +797,32 @@ function pdfGrievance() {
             heightLeft -= pageHeight;
         }
         
-        // Now capture each attachment separately
+        // Now process attachments - show attachments section
+        if (attachmentsSection) {
+            attachmentsSection.style.display = '';
+        }
+        
         const attachmentDivs = element.querySelectorAll('#grievanceAttachmentsList > div');
         
         if (attachmentDivs.length > 0) {
-            // Show attachments section
-            if (attachmentsSection) {
-                attachmentsSection.style.display = '';
-            }
-            
-            // Hide main details temporarily
-            const mainDetails = element.querySelector('#grievanceAttachmentsSection');
-            const tempParent = mainDetails.parentNode;
-            
-            // Process each attachment
+            // Capture each attachment on a separate page
             const captureAttachment = (index) => {
                 if (index >= attachmentDivs.length) {
-                    // Restore attachment buttons
+                    // All attachments captured, restore and save
                     attachmentButtons.forEach(btn => {
                         btn.style.display = '';
                     });
-                    
-                    // Save the PDF
+                    if (attachmentsSection) {
+                        attachmentsSection.style.display = attachmentsOriginalDisplay;
+                    }
                     doc.save('grievance-' + document.getElementById('viewed_grievance_id').value + '.pdf');
                     return;
                 }
                 
-                // Hide all other attachments
+                // Hide all attachments except current one
                 attachmentDivs.forEach((div, i) => {
                     div.style.display = (i === index) ? '' : 'none';
                 });
-                
-                // Show main details section temporarily
-                if (mainDetails) {
-                    mainDetails.style.display = '';
-                }
                 
                 html2canvas(element, {
                     scale: 2,
@@ -867,7 +862,7 @@ function pdfGrievance() {
                 btn.style.display = '';
             });
             if (attachmentsSection) {
-                attachmentsSection.style.display = '';
+                attachmentsSection.style.display = attachmentsOriginalDisplay;
             }
             doc.save('grievance-' + document.getElementById('viewed_grievance_id').value + '.pdf');
         }
@@ -877,7 +872,7 @@ function pdfGrievance() {
             btn.style.display = '';
         });
         if (attachmentsSection) {
-            attachmentsSection.style.display = '';
+            attachmentsSection.style.display = attachmentsOriginalDisplay;
         }
         
         console.error('Error generating PDF:', error);

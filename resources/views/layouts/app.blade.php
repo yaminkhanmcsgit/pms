@@ -231,12 +231,13 @@ ul.notika-menu-wrap li a {
                                         <i class="notika-icon notika-form"></i> خبریں
                                     </a>
                                 </li>
-                                @endif
+                               
                                 <li class="{{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                     <a href="{{ route('settings.edit') }}">
                                         <i class="fa fa-gear"></i> ترتیبات
                                     </a>
                                 </li>
+                                 @endif
                             </ul>
                         </li>
                     </ul>
