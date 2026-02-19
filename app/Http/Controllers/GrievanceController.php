@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Mpdf\Mpdf;
 
 class GrievanceController extends Controller
 {
@@ -446,7 +445,7 @@ class GrievanceController extends Controller
         return response()->json(['success' => true, 'message' => 'Attachment deleted successfully.']);
     }
 
-    // Generate PDF with attachments
+    // Generate PDF with attachments (client-side PDF using jsPDF)
     public function generatePdf($id)
     {
         $grievance = DB::table('grievances')
@@ -477,22 +476,12 @@ class GrievanceController extends Controller
             ->orderBy('uploaded_datetime', 'asc')
             ->get();
 
-        // Get HTML content from view
-        $html = view('grievances.pdf', compact('grievance', 'attachments'))->render();
-
-        // Configure MPDF with Unicode support and Urdu font
-        $config = [
-            'mode' => 'utf-8',
-            'fontdata' => [
-                'arabic' => [
-                    'R' => 'arabtype.ttf',
-                ]
-            ],
-            'default_font' => 'arabic'
-        ];
-        $mpdf = new Mpdf($config);
-        $mpdf->WriteHTML($html);
-        $mpdf->Output('grievance-' . $id . '.pdf', 'D');
+        // Return JSON for client-side PDF generation
+        return response()->json([
+            'success' => true,
+            'grievance' => $grievance,
+            'attachments' => $attachments
+        ]);
     }
 
     // DataTables server-side processing
