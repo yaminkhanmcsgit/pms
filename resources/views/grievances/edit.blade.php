@@ -88,7 +88,7 @@
             </tr>
             <tr>
                 <td>3. CNIC No.:</td>
-                <td><input type="number" name="cnic" class="form-control" value="{{ $grievance->cnic }}" required></td>
+                <td><input type="text" name="cnic" class="form-control" value="{{ $grievance->cnic }}" required></td>
             </tr>
             <tr>
                 <td>4. Address / Contact No.:</td>
