@@ -131,7 +131,7 @@ class EmployeeController extends Controller
         $mozas     = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
     }
     $employee_types = DB::table('employee_type')->orderBy('ahalkar_type_id')->get();
-    return view('employees.edit', compact('employee', 'districts', 'tehsils',  'employee_types', 'role_id'));
+    return view('employees.edit', compact('employee', 'districts', 'tehsils',  'employee_types', 'role_id','mozas'));
     }
 
     public function update(Request $request, $id) {

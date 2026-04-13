@@ -67,11 +67,11 @@
                     </div>
                     <div class="col-md-3">
                         <label>فون</label>
-                        <input type="number" name="phone" class="form-control" lang="ur" value="{{ $employee->phone }}" style="direction: rtl; text-align: right; font-family: 'Noto Nastaleeq Urdu', 'Jameel Noori Nastaleeq', 'Nafees', sans-serif;" onfocus="ActivateUrdu(this)">
+                        <input type="number" name="phone" class="form-control"  value="{{ $employee->phone }}">
                     </div>
                     <div class="col-md-3">
                         <label>شناختی کارڈ</label>
-                        <input type="number" name="cnic" class="form-control " lang="ur" value="{{ $employee->cnic }}" style="direction: rtl; text-align: right; font-family: 'Noto Nastaleeq Urdu', 'Jameel Noori Nastaleeq', 'Nafees', sans-serif;" onfocus="ActivateUrdu(this)">
+                        <input type="number" name="cnic" class="form-control " lang="ur" value="{{ $employee->cnic }}">
                     </div>
                 </div>
 
