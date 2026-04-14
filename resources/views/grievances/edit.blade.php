@@ -92,7 +92,7 @@
             </tr>
             <tr>
                 <td>4. Address / Contact No.:</td>
-                <td><input type="number" name="address" class="form-control " value="{{ $grievance->address }}"></td>
+                <td><input type="number" name="address" class="form-control " value="{{ $grievance->address }}" required></td>
             </tr>
             <tr>
                 <td>5. Mouza / Village Name:</td>

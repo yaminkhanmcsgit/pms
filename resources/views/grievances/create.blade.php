@@ -91,7 +91,7 @@
             </tr>
             <tr>
                 <td>4. Address / Contact No.:</td>
-                <td><input type="number" name="address" class="form-control"></td>
+                <td><input type="number" name="address" class="form-control" required></td>
             </tr>
             <tr>
                 <td>5. Mouza / Village Name:</td>
