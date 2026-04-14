@@ -112,6 +112,7 @@ Route::middleware(['operator'])->group(function () {
     // Settings
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::get('/backup', [SettingController::class, 'backup'])->name('settings.backup');
 
     // Notifications
     Route::get('/notifications', function () {

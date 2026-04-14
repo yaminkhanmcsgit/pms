@@ -237,6 +237,13 @@ ul.notika-menu-wrap li a {
                                         <i class="fa fa-gear"></i> ترتیبات
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="{{ route('settings.backup') }}">
+                                        <i class="fa fa-database"></i> ڈیٹا بیک اپ
+                                    </a>
+                                </li>
+                                    </a>
+                                </li>
                                  @endif
                             </ul>
                         </li>
@@ -349,6 +356,13 @@ ul.notika-menu-wrap li a {
                          <li class="{{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                         <a href="{{ route('settings.edit') }}">
                                                <i class="fa fa-gear"></i>  ترتیبات
+                                         </a>
+                          </li>
+                          <li>
+                                    <a href="{{ route('settings.backup') }}">
+                                        <i class="fa fa-database"></i> ڈیٹا بیک اپ
+                                         </a>
+                          </li>
                                         </a>
                          </li>
                          @endif
