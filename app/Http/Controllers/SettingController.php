@@ -49,12 +49,6 @@ class SettingController extends Controller
 
     public function backup()
     {
-        $dbHost = config('database.connections.mysql.host');
-        $dbPort = config('database.connections.mysql.port');
-        $dbName = config('database.connections.mysql.database');
-        $dbUser = config('database.connections.mysql.username');
-        $dbPass = config('database.connections.mysql.password');
-
         $filename = 'database_backup_' . date('Y-m-d_H-i-s') . '.sql';
         $storagePath = storage_path('app/backups');
 
@@ -64,30 +58,8 @@ class SettingController extends Controller
 
         $filePath = $storagePath . '/' . $filename;
 
-        // Try using mysqldump first, fallback to PHP method
-        $command = sprintf(
-            'mysqldump --host=%s --port=%s --user=%s --password=%s %s > %s 2>/dev/null',
-            escapeshellarg($dbHost),
-            escapeshellarg($dbPort),
-            escapeshellarg($dbUser),
-            escapeshellarg($dbPass),
-            escapeshellarg($dbName),
-            escapeshellarg($filePath)
-        );
-
-        $output = [];
-        $returnVar = 0;
-        exec($command, $output, $returnVar);
-
-        // If mysqldump failed, create backup using PHP
-        if ($returnVar !== 0 || !file_exists($filePath) || filesize($filePath) === 0) {
-            // Create SQL backup using PHP
-            $this->createPhpBackup($filePath);
-        }
-
-        if (!file_exists($filePath)) {
-            return redirect()->back()->with('error', 'Failed to create database backup!');
-        }
+        // Create backup using PHP (mysldump disabled on server)
+        $this->createPhpBackup($filePath);
 
         // Create ZIP file
         $zipFilename = str_replace('.sql', '.zip', $filename);
