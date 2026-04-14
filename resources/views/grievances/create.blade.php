@@ -91,7 +91,7 @@
             </tr>
             <tr>
                 <td>4. Address / Contact No.:</td>
-                <td><input type="text" name="address" class="form-control urdu-input" style="direction: rtl; text-align: right; font-family: 'Noto Nastaleeq Urdu', 'Jameel Noori Nastaleeq', 'Nafees', sans-serif;" onfocus="ActivateUrdu(this)"></td>
+                <td><input type="number" name="address" class="form-control"></td>
             </tr>
             <tr>
                 <td>5. Mouza / Village Name:</td>
