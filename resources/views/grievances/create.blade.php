@@ -118,7 +118,7 @@
 
         <div style="margin-left:10px; margin-bottom:20px;">
             <label>Grievance Type:</label>
-            <select name="grievance_type_id" class="form-control">
+            <select name="grievance_type_id" class="form-control" required>
                 <option value="">Select Type</option>
                 @foreach($types as $type)
                     <option value="{{ $type->id }}">{{ $type->name }}</option>
