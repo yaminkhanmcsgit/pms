@@ -83,8 +83,8 @@
         </div>
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
-                <label>تاریخ</label>
-                <input type="date" name="tareekh" class="form-control" value="{{ $completion_process->tareekh }}">
+                <label>تاریخ <span style="color: red;">*</span></label>
+                <input type="date" name="tareekh" class="form-control" value="{{ $completion_process->tareekh }}" required>
             </div>
         </div>
             <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>

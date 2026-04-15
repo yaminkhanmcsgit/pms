@@ -82,8 +82,8 @@
         </div>
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
-                <label>تاریخ</label>
-                <input type="date" name="tareekh" class="form-control">
+                <label>تاریخ <span style="color: red;">*</span></label>
+                <input type="date" name="tareekh" class="form-control" required>
             </div>
         </div>
             <!-- Add other fields as needed, following the same form-group/col format -->
