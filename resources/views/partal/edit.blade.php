@@ -14,7 +14,7 @@
                 @method('PUT')
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
-                <label>نام ضلع</label>
+                <label>نام ضلع <span style="color: red;">*</span></label>
                 @if($role_id == 1)
                 <select name="zila_id" id="zila_id" class="form-control" required onchange="onDistrictChange(this.value, 'tehsil_id', '{{ $record->tehsil_id }}')" data-selected="{{ $record->zila_id }}">
                     <option value="">منتخب کریں</option>
@@ -28,7 +28,7 @@
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">
-                <label>نام تحصیل</label>
+                <label>نام تحصیل <span style="color: red;">*</span></label>
                 @if($role_id == 1)
                 <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id', '{{ $record->moza_id }}')" data-selected="{{ $record->tehsil_id }}">
                     <option value="">منتخب کریں</option>
@@ -42,7 +42,7 @@
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">
-                <label>نام موضع</label>
+                <label>نام موضع <span style="color: red;">*</span></label>
                 @if($role_id == 1)
                 <select name="moza_id" id="moza_id" class="form-control" required data-selected="{{ $record->moza_id }}"></select>
                 @else
@@ -57,7 +57,7 @@
         </div>
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
-                <label>نام پٹواری</label>
+                <label>نام پٹواری <span style="color: red;">*</span></label>
                 <select name="patwari_nam" class="form-control" required>
                     <option value="">منتخب کریں</option>
                     @foreach($employees as $emp)
@@ -66,7 +66,7 @@
                 </select>
             </div>
             <div class="form-group col-md-4 col-xs-12">
-                <label>نام اہلکار</label>
+                <label>نام اہلکار <span style="color: red;">*</span></label>
                 <select name="ahalkar_nam" class="form-control" required>
                     <option value="">منتخب کریں</option>
                     @foreach($employees as $emp)

@@ -14,7 +14,7 @@
                 @method('PUT')
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
-                <label>ضلع</label>
+                <label>ضلع <span style="color: red;">*</span></label>
                 @if($role_id == 1)
                 <select name="zila_id" id="zila_id" class="form-control" required onchange="onDistrictChange(this.value, 'tehsil_id', '{{ $completion_process->tehsil_id }}')" data-selected="{{ $completion_process->zila_id }}">
                     <option value="">منتخب کریں</option>
@@ -28,7 +28,7 @@
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">
-                <label>تحصیل</label>
+                <label>تحصیل <span style="color: red;">*</span></label>
                 @if($role_id == 1)
                 <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id', '{{ $completion_process->moza_id }}')" data-selected="{{ $completion_process->tehsil_id }}">
                     <option value="">منتخب کریں</option>
@@ -42,7 +42,7 @@
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">
-                <label>موضع</label>
+                <label>موضع <span style="color: red;">*</span></label>
                 @if($role_id == 1)
                 <select name="moza_id" id="moza_id" class="form-control" required data-selected="{{ $completion_process->moza_id }}">
                     <option value="">منتخب کریں</option>
@@ -59,7 +59,7 @@
         </div>
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
-                <label>اہلکار</label>
+                <label>اہلکار <span style="color: red;">*</span></label>
                 <select name="employee_id" class="form-control" required>
                     <option value="">منتخب کریں</option>
                     @foreach($employees as $emp)
@@ -68,7 +68,7 @@
                 </select>
             </div>
             <div class="form-group col-md-4 col-xs-12">
-                <label>ٹاسک کی قسم</label>
+                <label>ٹاسک کی قسم <span style="color: red;">*</span></label>
                 <select name="completion_process_type_id" id="completion_process_type_id" class="form-control" required>
                     <option value="">منتخب کریں</option>
                     @foreach($completion_process_types as $type)
