@@ -74,6 +74,8 @@ class EmployeeController extends Controller
 }
 
     public function store(Request $request) {
+
+        echo "<h1>Hello</h1>";exit;
         $request->validate([
             'nam' => 'required|string|max:150',
             'walid_ka_nam' => 'nullable|string|max:150',
