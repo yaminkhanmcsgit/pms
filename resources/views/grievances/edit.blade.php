@@ -59,16 +59,20 @@
                 </select>
             </div>
             @else
-            <!-- Limited user: Show hidden inputs and readonly text -->
-            <input type="hidden" name="district_id" value="{{ $districts->first()->districtId }}">
-            <input type="hidden" name="tehsil_id" value="{{ $tehsils->first()->tehsilId }}">
+            <!-- Limited user: Show district readonly and tehsil dropdown -->
+            <input type="hidden" name="district_id" value="{{ optional($districts->first())->districtId }}">
             <div class="col-xs-6">
                 <strong>District:</strong>
-                <input type="text" class="form-control" value="{{ $districts->first()->districtNameUrdu }}" readonly style="display: inline-block; width: 60%;">
+                <input type="text" class="form-control" value="{{ optional($districts->first())->districtNameUrdu }}" readonly style="display: inline-block; width: 60%;">
             </div>
             <div class="col-xs-6">
-                <strong>Tehsil:</strong>
-                <input type="text" class="form-control" value="{{ $tehsils->first()->tehsilNameUrdu }}" readonly style="display: inline-block; width: 60%;">
+                <strong>Tehsil <span style="color: red;">*</span>:</strong>
+                <select name="tehsil_id" class="form-control" required tabindex="2" onchange="onTehsilChange(this.value, 'moza_id', '{{ $grievance->village_name }}')" data-selected="{{ $grievance->tehsil }}" style="display: inline-block; width: 60%;">
+                    <option value="">Select Tehsil</option>
+                    @foreach($tehsils as $tehsil)
+                        <option value="{{ $tehsil->tehsilId }}" @if($grievance->tehsil == $tehsil->tehsilId) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
+                    @endforeach
+                </select>
             </div>
             @endif
         </div>

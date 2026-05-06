@@ -23,22 +23,26 @@
                     @endforeach
                 </select>
                 @else
-                <input type="hidden" name="zila_id" value="{{ $districts->first()->districtId }}">
-                <input type="text" class="form-control" value="{{ $districts->first()->districtNameUrdu }}" disabled>
+                <input type="hidden" name="zila_id" value="{{ optional($districts->first())->districtId }}">
+                <input type="text" class="form-control" value="{{ optional($districts->first())->districtNameUrdu }}" disabled>
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">
                 <label>نام تحصیل <span style="color: red;">*</span></label>
                 @if($role_id == 1)
-                <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id', '{{ $record->moza_id }}')" data-selected="{{ $record->tehsil_id }}">
+                <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id')" data-selected="{{ $record->tehsil_nam }}">
                     <option value="">منتخب کریں</option>
                     @foreach($tehsils as $tehsil)
-                        <option value="{{ $tehsil->tehsilId }}" @if($record->tehsil_id == $tehsil->tehsilId) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
+                        <option value="{{ $tehsil->tehsilId }}" @if($record->tehsil_nam == $tehsil->tehsilId) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
                     @endforeach
                 </select>
                 @else
-                <input type="hidden" name="tehsil_id" value="{{ $tehsils->first()->tehsilId }}">
-                <input type="text" class="form-control" value="{{ $tehsils->first()->tehsilNameUrdu }}" readonly>
+                <select name="tehsil_id" class="form-control" required>
+                    <option value="">منتخب کریں</option>
+                    @foreach($tehsils as $tehsil)
+                        <option value="{{ $tehsil->tehsilId }}" @if($record->tehsil_nam == $tehsil->tehsilId) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
+                    @endforeach
+                </select>
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">

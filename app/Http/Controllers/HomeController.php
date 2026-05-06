@@ -95,7 +95,7 @@ class HomeController extends Controller
             ->leftJoin('mozas', 'completion_process.moza_id', '=', 'mozas.mozaId')
             ->leftJoin('completion_process_types', 'completion_process.completion_process_type_id', '=', 'completion_process_types.id')
             ->when($selected_district, function($q) use ($selected_district) { $q->where('completion_process.zila_id', $selected_district); })
-            ->when($selected_tehsil, function($q) use ($selected_tehsil) { $q->where('completion_process.tehsil_id', $selected_tehsil); })
+            ->when($selected_tehsil, function($q) use ($selected_tehsil) { $q->whereRaw("FIND_IN_SET(completion_process.tehsil_id, ?)", [$selected_tehsil]); })
             ->when(Schema::hasColumn('completion_process', 'tareekh'), function($q) use ($from_date, $to_date) { $q->whereBetween('completion_process.tareekh', [$from_date, $to_date]); })
             ->groupBy(
                 'completion_process.zila_id',
@@ -204,7 +204,8 @@ class HomeController extends Controller
             $tehsils = DB::table('tehsils')->orderBy('tehsilId')->get();
         } else {
             $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-            $tehsils = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
+            $assignedTehsils = explode(',', session('tehsil_id'));
+            $tehsils = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
         }
         $mozas = DB::table('mozas')->orderBy('mozaId')->get();
 
@@ -221,7 +222,9 @@ class HomeController extends Controller
         $tehsil_name = null;
         if (session('role_id') == 2) {
             $zila_name = DB::table('districts')->where('districtId', session('zila_id'))->value('districtNameUrdu');
-            $tehsil_name = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->value('tehsilNameUrdu');
+            $assignedTehsils = explode(',', session('tehsil_id'));
+            $tehsil_names = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->pluck('tehsilNameUrdu')->toArray();
+            $tehsil_name = implode(', ', $tehsil_names);
         }
 
         return view('reports.index', compact('districts', 'tehsils', 'mozas', 'role_id', 'from_date', 'to_date', 'partal_data', 'completion_data', 'grievances_data', 'zila_name', 'tehsil_name'));
@@ -275,7 +278,7 @@ class HomeController extends Controller
             ->leftJoin('mozas', 'completion_process.moza_id', '=', 'mozas.mozaId')
             ->leftJoin('completion_process_types', 'completion_process.completion_process_type_id', '=', 'completion_process_types.id')
             ->when($district, function($q) use ($district) { $q->where('completion_process.zila_id', $district); })
-            ->when($tehsil, function($q) use ($tehsil) { $q->where('completion_process.tehsil_id', $tehsil); })
+            ->when($tehsil, function($q) use ($tehsil) { $q->whereRaw("FIND_IN_SET(completion_process.tehsil_id, ?)", [$tehsil]); })
             ->when($moza, function($q) use ($moza) { $q->where('completion_process.moza_id', $moza); })
             ->when($employee, function($q) use ($employee) { $q->where('completion_process.employee_id', $employee); })
             ->when($from_date && $to_date, function($q) use ($from_date, $to_date) {

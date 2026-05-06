@@ -742,25 +742,37 @@ ul.notika-menu-wrap li a {
     });
 </script>
 <script>
-// Helper: Populate a dropdown with options
-function populateDropdown(dropdown, items, valueKey, textKey, selectedValue) {
+// Helper: Populate a dropdown with options (supports multiple selection)
+function populateDropdown(dropdown, items, valueKey, textKey, selectedValues) {
     if (!dropdown) {
         console.error('Dropdown element not found');
         return;
     }
-    console.log('Populating dropdown:', dropdown.id, 'with', items ? items.length : 0, 'items. Selected value:', selectedValue);
+    console.log('Populating dropdown:', dropdown.id, 'with', items ? items.length : 0, 'items. Selected values:', selectedValues);
+    
+    // Convert selectedValues to array if it's a string (comma-separated)
+    var selectedArray = [];
+    if (selectedValues) {
+        if (Array.isArray(selectedValues)) {
+            selectedArray = selectedValues;
+        } else if (typeof selectedValues === 'string') {
+            // Split by comma and filter empty strings
+            selectedArray = selectedValues.split(',').map(function(v) { return v.trim(); }).filter(function(v) { return v; });
+        } else {
+            selectedArray = [selectedValues];
+        }
+    }
+    
     dropdown.innerHTML = '<option value="">منتخب کریں</option>';
     if (items && Array.isArray(items)) {
         items.forEach(function(item) {
-            var selected = selectedValue && item[valueKey] == selectedValue ? 'selected' : '';
+            var selected = selectedArray.length && selectedArray.includes(String(item[valueKey])) ? 'selected' : '';
             if (selected) {
                 console.log('Pre-selected:', dropdown.id, 'value:', item[valueKey], 'text:', item[textKey]);
             }
             dropdown.innerHTML += `<option value="${item[valueKey]}" ${selected}>${item[textKey]}</option>`;
         });
     }
-
-
 }
     var districtDropdown = document.getElementById('zila_id');
     var tehsilDropdown = document.getElementById('tehsil_id');

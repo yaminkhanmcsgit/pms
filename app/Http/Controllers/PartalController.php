@@ -23,7 +23,7 @@ class PartalController extends Controller
 
         if (session('role_id') == 2) {
             $query->where('districts.districtId', session('zila_id'))
-                  ->where('tehsils.tehsilId', session('tehsil_id'));
+                  ->whereRaw("FIND_IN_SET(tehsils.tehsilId, ?)", [session('tehsil_id')]);
         }
 
         $records = $query->select(
@@ -80,13 +80,14 @@ class PartalController extends Controller
     {
     $role_id = session('role_id');
     if ($role_id == 1) {
-        $districts = DB::table('districts')->orderBy('districtId')->get();
-        $tehsils   = DB::table('tehsils')->orderBy('tehsilId')->get();
-        $mozas = DB::table('mozas')->orderBy('mozaId')->get();
+        $districts = DB::table('districts')->get();
+        $tehsils   = collect(); // Will be loaded via AJAX on district change
+        $mozas = collect(); // Will be loaded via AJAX on tehsil change
     } else {
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-        $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
-        $mozas = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
+        $assignedTehsils = explode(',', session('tehsil_id'));
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
+        $mozas = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
     }
     $employees = DB::table('employees')->orderBy('nam')->get();
     return view('partal.create', compact('districts', 'tehsils', 'mozas', 'employees', 'role_id'));
@@ -150,7 +151,8 @@ class PartalController extends Controller
             $mozas = DB::table('mozas')->orderBy('mozaId')->get();
         } else {
             $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-            $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
+            $assignedTehsils = explode(',', session('tehsil_id'));
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
             $mozas = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
         }
         $employees = DB::table('employees')->orderBy('nam')->get();

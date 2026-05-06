@@ -16,9 +16,10 @@ class GrievanceController extends Controller
             ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId');
 
-        if (session('role_id') == 2) {
+        if (session('role_id') != 1) {
+            $assignedTehsils = explode(',', session('tehsil_id'));
             $query->where('grievances.district', session('zila_id'))
-                  ->where('grievances.tehsil', session('tehsil_id'));
+                  ->whereIn('grievances.tehsil', $assignedTehsils);
         }
 
         $grievances = $query->select(
@@ -45,9 +46,10 @@ class GrievanceController extends Controller
             ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId');
 
-        if (session('role_id') == 2) {
+        if (session('role_id') != 1) {
+            $assignedTehsils = explode(',', session('tehsil_id'));
             $query->where('grievances.district', session('zila_id'))
-                  ->where('grievances.tehsil', session('tehsil_id'));
+                  ->whereIn('grievances.tehsil', $assignedTehsils);
         }
 
         $grievances = $query->select(
@@ -74,8 +76,9 @@ class GrievanceController extends Controller
             $mozas     = DB::table('mozas')->orderBy('mozaId')->get();
         } else {
             $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-            $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
-            $mozas     = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
+            $assignedTehsils = explode(',', session('tehsil_id'));
+            $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
+            $mozas     = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
         }
 
         $types = DB::table('grievance_types')->get();
@@ -173,8 +176,9 @@ class GrievanceController extends Controller
             $mozas     = DB::table('mozas')->orderBy('mozaId')->get();
         } else {
             $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-            $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
-            $mozas     = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
+            $assignedTehsils = explode(',', session('tehsil_id'));
+            $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
+            $mozas     = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
         }
 
         $types = DB::table('grievance_types')->get();
@@ -508,9 +512,10 @@ class GrievanceController extends Controller
             ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId');
 
         // Role-based filtering
-        if (session('role_id') == 2) {
+        if (session('role_id') != 1) {
+            $assignedTehsils = explode(',', session('tehsil_id'));
             $query->where('districts.districtId', session('zila_id'))
-                  ->where('tehsils.tehsilId', session('tehsil_id'));
+                  ->whereIn('tehsils.tehsilId', $assignedTehsils);
         }
 
         // Search functionality

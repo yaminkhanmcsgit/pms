@@ -22,8 +22,8 @@
                     @endforeach
                 </select>
                 @else
-                <input type="hidden" name="zila_id" value="{{ $districts->first()->districtId }}">
-                <input type="text" class="form-control" value="{{ $districts->first()->districtNameUrdu }}" disabled>
+                <input type="hidden" name="zila_id" value="{{ optional($districts->first())->districtId }}">
+                <input type="text" class="form-control" value="{{ optional($districts->first())->districtNameUrdu }}" disabled>
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">
@@ -36,8 +36,12 @@
                     @endforeach
                 </select>
                 @else
-                <input type="hidden" name="tehsil_id" value="{{ $tehsils->first()->tehsilId }}">
-                <input type="text" class="form-control" value="{{ $tehsils->first()->tehsilNameUrdu }}" readonly>
+                <select name="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id')">
+                    <option value="">منتخب کریں</option>
+                    @foreach($tehsils as $tehsil)
+                        <option value="{{ $tehsil->tehsilId }}">{{ $tehsil->tehsilNameUrdu }}</option>
+                    @endforeach
+                </select>
                 @endif
             </div>
             <div class="form-group col-md-4 col-xs-12">

@@ -15,8 +15,9 @@ class EmployeeController extends Controller
             ->leftJoin('mozas', 'employees.moza_id', '=', 'mozas.mozaId');
 
         if (session('role_id') == 2) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
             $query->where('employees.zila_id', session('zila_id'))
-                  ->where('employees.tehsil_id', session('tehsil_id'));
+                  ->whereIn('employees.tehsil_id', $assignedTehsils);
         }
 
         $employees = $query->select(
@@ -38,8 +39,9 @@ class EmployeeController extends Controller
             ->leftJoin('mozas', 'employees.moza_id', '=', 'mozas.mozaId');
 
         if (session('role_id') == 2) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
             $query->where('employees.zila_id', session('zila_id'))
-                  ->where('employees.tehsil_id', session('tehsil_id'));
+                  ->whereIn('employees.tehsil_id', $assignedTehsils);
         }
 
         $employees = $query->select(
@@ -65,9 +67,10 @@ class EmployeeController extends Controller
         $tehsils   = DB::table('tehsils')->orderBy('tehsilId')->get();
         $mozas     = DB::table('mozas')->orderBy('mozaId')->get();
     } else {
+        $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-        $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
-        $mozas     = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->orderBy('tehsilId')->get();
+        $mozas     = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->orderBy('mozaId')->get();
     }
     $employee_types = DB::table('employee_type')->orderBy('ahalkar_type_id')->get();
     return view('employees.create', compact('districts', 'tehsils', 'mozas', 'employee_types', 'role_id'));
@@ -76,32 +79,52 @@ class EmployeeController extends Controller
     public function store(Request $request) {
 
         //echo "<h1>Hello</h1>";exit;
-        $request->validate([
+        $roleId = (int) session('role_id');
+
+        $validated = $request->validate([
             'nam' => 'required|string|max:150',
             'walid_ka_nam' => 'nullable|string|max:150',
-            'zila_id' => 'nullable|integer',
-            'tehsil_id' => 'nullable|integer',
+            'zila_id' => $roleId === 1 ? 'required|integer|exists:districts,districtId' : 'nullable|integer',
+            'tehsil_id' => 'required|integer|exists:tehsils,tehsilId',
+            'moza_id' => 'required|integer|exists:mozas,mozaId',
             
             'pata' => 'nullable|string',
             'phone' => 'nullable|string|max:50',
             'cnic' => 'nullable|string|max:20',
             'darja_taleem' => 'nullable|string|max:100',
-            'ahalkar_type' => 'nullable|string|max:100',
-            'tareekh_shamil' => 'nullable|date',
+            'ahalkar_type' => 'required|integer|exists:employee_type,ahalkar_type_id',
+            'tareekh_shamil' => 'required|date',
         ]);
 
+        if ($roleId !== 1) {
+            $validated['zila_id'] = (int) session('zila_id');
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
+            if (!in_array((string) $validated['tehsil_id'], $assignedTehsils, true)) {
+                return back()->withInput()->withErrors(['tehsil_id' => 'منتخب تحصیل آپ کو الاٹ نہیں ہے۔']);
+            }
+
+            $mozaAllowed = DB::table('mozas')
+                ->where('mozaId', $validated['moza_id'])
+                ->where('tehsilId', $validated['tehsil_id'])
+                ->exists();
+
+            if (!$mozaAllowed) {
+                return back()->withInput()->withErrors(['moza_id' => 'منتخب موضع درست نہیں ہے۔']);
+            }
+        }
+
         DB::table('employees')->insert([
-            'nam' => $request->nam,
-            'walid_ka_nam' => $request->walid_ka_nam,
-            'zila_id' => $request->zila_id,
-            'tehsil_id' => $request->tehsil_id,
-            'moza_id' => $request->moza_id,
-            'pata' => $request->pata,
-            'phone' => $request->phone,
-            'cnic' => $request->cnic,
-            'darja_taleem' => $request->darja_taleem,
-            'ahalkar_type' => $request->ahalkar_type,
-            'tareekh_shamil' => $request->tareekh_shamil,
+            'nam' => $validated['nam'],
+            'walid_ka_nam' => $validated['walid_ka_nam'] ?? null,
+            'zila_id' => $validated['zila_id'] ?? null,
+            'tehsil_id' => $validated['tehsil_id'] ?? null,
+            'moza_id' => $validated['moza_id'],
+            'pata' => $validated['pata'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'cnic' => $validated['cnic'] ?? null,
+            'darja_taleem' => $validated['darja_taleem'] ?? null,
+            'ahalkar_type' => $validated['ahalkar_type'],
+            'tareekh_shamil' => $validated['tareekh_shamil'],
             'created_at' => now(),
         ]);
 
@@ -128,20 +151,23 @@ class EmployeeController extends Controller
         $tehsils   = DB::table('tehsils')->orderBy('tehsilId')->get();
         $mozas     = DB::table('mozas')->orderBy('mozaId')->get();
     } else {
+        $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-        $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
-        $mozas     = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->orderBy('tehsilId')->get();
+        $mozas     = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->orderBy('mozaId')->get();
     }
     $employee_types = DB::table('employee_type')->orderBy('ahalkar_type_id')->get();
     return view('employees.edit', compact('employee', 'districts', 'tehsils',  'employee_types', 'role_id','mozas'));
     }
 
     public function update(Request $request, $id) {
+        $roleId = (int) session('role_id');
+
         $request->validate([
             'nam' => 'required|string|max:150',
             'walid_ka_nam' => 'nullable|string|max:150',
-            'zila_id' => 'nullable|integer',
-            'tehsil_id' => 'nullable|integer',
+            'zila_id' => $roleId === 1 ? 'required|integer|exists:districts,districtId' : 'nullable|integer',
+            'tehsil_id' => 'required|integer|exists:tehsils,tehsilId',
             'moza_id' => 'nullable|integer',
             'pata' => 'nullable|string',
             'phone' => 'nullable|string|max:50',
@@ -151,10 +177,17 @@ class EmployeeController extends Controller
             'tareekh_shamil' => 'nullable|date',
         ]);
 
+        if ($roleId !== 1) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
+            if (!in_array((string) $request->tehsil_id, $assignedTehsils, true)) {
+                return back()->withInput()->withErrors(['tehsil_id' => 'منتخب تحصیل آپ کو الاٹ نہیں ہے۔']);
+            }
+        }
+
         DB::table('employees')->where('id', $id)->update([
             'nam' => $request->nam,
             'walid_ka_nam' => $request->walid_ka_nam,
-            'zila_id' => $request->zila_id,
+            'zila_id' => $roleId === 1 ? $request->zila_id : session('zila_id'),
             'tehsil_id' => $request->tehsil_id,
             'moza_id' => $request->moza_id,
             'pata' => $request->pata,

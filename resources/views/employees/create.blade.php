@@ -25,46 +25,54 @@
                 </div>
 
                 <div class="row mb-3">
-
-                <div class="col-md-4">
+                    <div class="col-md-4">
+                        <label>نام ضلع <span style="color: red;">*</span></label>
+                        @if($role_id == 1)
+                        <select name="zila_id" id="zila_id" class="form-control" required tabindex="3" onchange="onDistrictChange(this.value, 'tehsil_id')">
+                            <option value="">--- ضلع منتخب کریں ---</option>
+                            @foreach($districts as $district)
+                                <option value="{{ $district->districtId }}">{{ $district->districtNameUrdu }}</option>
+                            @endforeach
+                        </select>
+                        @else
+                        <input type="hidden" name="zila_id" value="{{ optional($districts->first())->districtId }}">
+                        <input type="text" class="form-control" value="{{ optional($districts->first())->districtNameUrdu }}" disabled>
+                        @endif
+                    </div>
+                    <div class="col-md-4">
+                        <label>نام تحصیل <span style="color: red;">*</span></label>
+                        @if($role_id == 1)
+                        <select name="tehsil_id" id="tehsil_id" class="form-control" required tabindex="4" onchange="onTehsilChange(this.value, 'moza_id')">
+                            <option value="">--- تحصیل منتخب کریں ---</option>
+                            @foreach($tehsils as $tehsil)
+                                <option value="{{ $tehsil->tehsilId }}">{{ $tehsil->tehsilNameUrdu }}</option>
+                            @endforeach
+                        </select>
+                        @else
+                        <select name="tehsil_id" class="form-control" required tabindex="4" onchange="onTehsilChange(this.value, 'moza_id')">
+                            <option value="">--- تحصیل منتخب کریں ---</option>
+                            @foreach($tehsils as $tehsil)
+                                <option value="{{ $tehsil->tehsilId }}">{{ $tehsil->tehsilNameUrdu }}</option>
+                            @endforeach
+                        </select>
+                        @endif
+                    </div>
+                    <div class="col-md-4">
                         <label>نام موضع <span style="color: red;">*</span></label>
-
-                       <select name="moza_id" id="moza_id" class="form-control" required tabindex="5">
+                        @if($role_id == 1)
+                        <select name="moza_id" id="moza_id" class="form-control" required tabindex="5">
+                            <option value="">منتخب کریں</option>
+                        </select>
+                        @else
+                        <select name="moza_id" id="moza_id" class="form-control" required tabindex="5">
                             <option value="">منتخب کریں</option>
                             @foreach($mozas as $moza)
                                 <option value="{{ $moza->mozaId }}">{{ $moza->mozaNameUrdu }}</option>
                             @endforeach
                         </select>
-
-
+                        @endif
                     </div>
-             <div class="col-md-4">
-                <label>نام تحصیل <span style="color: red;">*</span></label>
-                @if($role_id == 1)
-                <select name="tehsil_id" id="tehsil_id" class="form-control" required tabindex="4" onchange="onTehsilChange(this.value, 'moza_id')">
-                    <option value="">--- تحصیل منتخب کریں ---</option>
-                </select>
-                @else
-                <input type="hidden" name="tehsil_id" value="{{ $tehsils->first()->tehsilId }}">
-                <input type="text" class="form-control" value="{{ $tehsils->first()->tehsilNameUrdu }}" disabled>
-                @endif
-            </div>
-            <div class="col-md-4">
-                <label>نام ضلع <span style="color: red;">*</span></label>
-                @if($role_id == 1)
-                <select name="zila_id" id="zila_id" class="form-control" required tabindex="3" onchange="onDistrictChange(this.value, 'tehsil_id')">
-                    <option value="">--- ضلع منتخب کریں ---</option>
-                </select>
-                @else
-                <input type="hidden" name="zila_id" value="{{ $districts->first()->districtId }}">
-                <input type="text" class="form-control" value="{{ $districts->first()->districtNameUrdu }}" disabled>
-                @endif
-            </div>
-
-
-
-
-        </div>
+                </div>
 
 
 

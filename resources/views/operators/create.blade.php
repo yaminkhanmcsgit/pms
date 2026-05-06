@@ -44,20 +44,19 @@
                  <input type="text" class="form-control" value="{{ $districts->first()->districtNameUrdu }}" disabled>
                  @endif
              </div>
-             <div class="form-group col-md-6 col-12">
-                 <label>تحصیل</label>
-                 @if($role_id == 1)
-                 <select name="tehsil_id" id="tehsil_id" class="form-control" required>
-                     <option value="">منتخب کریں</option>
-                     @foreach($tehsils as $tehsil)
-                         <option value="{{ $tehsil->tehsilId }}">{{ $tehsil->tehsilNameUrdu }}</option>
-                     @endforeach
-                 </select>
-                 @else
-                 <input type="hidden" name="tehsil_id" value="{{ $tehsils->first()->tehsilId }}">
-                 <input type="text" class="form-control" value="{{ $tehsils->first()->tehsilNameUrdu }}" readonly>
-                 @endif
-             </div>
+              <div class="form-group col-md-6 col-12">
+                  <label>تحصیل (متعدد منتخب کریں)</label>
+                  @if($role_id == 1)
+                  <select name="tehsil_id[]" id="tehsil_id" class="form-control" multiple required size="8">
+                      @foreach($tehsils as $tehsil)
+                          <option value="{{ $tehsil->tehsilId }}">{{ $tehsil->tehsilNameUrdu }}</option>
+                      @endforeach
+                  </select>
+                  @else
+                  <input type="hidden" name="tehsil_id[]" value="{{ $tehsils->first()->tehsilId }}">
+                  <input type="text" class="form-control" value="{{ $tehsils->first()->tehsilNameUrdu }}" readonly>
+                  @endif
+              </div>
            
         </div>
         

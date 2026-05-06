@@ -42,16 +42,15 @@
                 @endif
             </div>
             <div class="form-group col-md-6 col-12">
-                <label>تحصیل</label>
+                <label>تحصیل (متعدد منتخب کریں)</label>
                 @if($role_id == 1)
-                <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, '', '')" data-selected="{{ $operator->tehsil_id }}">
-                    <option value="">منتخب کریں</option>
+                <select name="tehsil_id[]" id="tehsil_id" class="form-control" multiple required size="8" onchange="onTehsilChange(this.value, '', '')" data-selected="{{ $operator->tehsil_id }}">
                     @foreach($tehsils as $tehsil)
-                        <option value="{{ $tehsil->tehsilId }}" @if($operator->tehsil_id == $tehsil->tehsilId) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
+                        <option value="{{ $tehsil->tehsilId }}" @if(in_array($tehsil->tehsilId, explode(',', $operator->tehsil_id))) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
                     @endforeach
                 </select>
                 @else
-                <input type="hidden" name="tehsil_id" value="{{ $tehsils->first()->tehsilId }}">
+                <input type="hidden" name="tehsil_id[]" value="{{ $tehsils->first()->tehsilId }}">
                 <input type="text" class="form-control" value="{{ $tehsils->first()->tehsilNameUrdu }}" readonly>
                 @endif
             </div>

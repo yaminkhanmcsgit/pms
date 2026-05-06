@@ -43,19 +43,33 @@
                     <div class="col-md-4">
                         <label>تحصیل <span style="color: red;">*</span></label>
                         @if($role_id == 1)
-                        <select name="tehsil_id" id="tehsil_id" class="form-control" required tabindex="4" onchange="onTehsilChange(this.value, 'moza_id', '{{ $employee->moza_id }}')" data-selected="{{ $employee->tehsil_id }}"></select>
+                        <select name="tehsil_id" id="tehsil_id" class="form-control" required tabindex="4" onchange="onTehsilChange(this.value, 'moza_id', '{{ $employee->moza_id }}')" data-selected="{{ $employee->tehsil_id }}">
+                            <option value="">منتخب کریں</option>
+                            @foreach($tehsils as $tehsil)
+                                <option value="{{ $tehsil->tehsilId }}" @if($employee->tehsil_id == $tehsil->tehsilId) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
+                            @endforeach
+                        </select>
                         @else
-                        <input type="hidden" name="tehsil_id" value="{{ $employee->tehsil_id }}">
-                        <input type="text" class="form-control" value="{{ $employee->tehsil_name }}" readonly>
+                        <select name="tehsil_id" class="form-control" required tabindex="4" onchange="onTehsilChange(this.value, 'moza_id', '{{ $employee->moza_id }}')">
+                            <option value="">منتخب کریں</option>
+                            @foreach($tehsils as $tehsil)
+                                <option value="{{ $tehsil->tehsilId }}" @if($employee->tehsil_id == $tehsil->tehsilId) selected @endif>{{ $tehsil->tehsilNameUrdu }}</option>
+                            @endforeach
+                        </select>
                         @endif
                     </div>
                     <div class="col-md-4">
                         <label>ضلع <span style="color: red;">*</span></label>
                         @if($role_id == 1)
-                        <select name="zila_id" id="zila_id" class="form-control" required tabindex="3" onchange="onDistrictChange(this.value, 'tehsil_id', '{{ $employee->tehsil_id }}')" data-selected="{{ $employee->zila_id }}"></select>
+                        <select name="zila_id" id="zila_id" class="form-control" required tabindex="3" onchange="onDistrictChange(this.value, 'tehsil_id', '{{ $employee->tehsil_id }}')" data-selected="{{ $employee->zila_id }}">
+                            <option value="">منتخب کریں</option>
+                            @foreach($districts as $district)
+                                <option value="{{ $district->districtId }}" @if($employee->zila_id == $district->districtId) selected @endif>{{ $district->districtNameUrdu }}</option>
+                            @endforeach
+                        </select>
                         @else
                         <input type="hidden" name="zila_id" value="{{ $employee->zila_id }}">
-                        <input type="text" class="form-control" value="{{ $employee->district_name }}" disabled>
+                        <input type="text" class="form-control" value="{{ optional($districts->first())->districtNameUrdu ?? ($employee->district_name ?? '') }}" disabled>
                         @endif
                     </div>
                 </div>

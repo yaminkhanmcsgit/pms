@@ -59,11 +59,14 @@ class CompletionProcessController extends Controller
         $districts = DB::table('districts')->orderBy('districtId')->get();
         $tehsils   = DB::table('tehsils')->orderBy('tehsilId')->get();
         $mozas     = DB::table('mozas')->orderBy('mozaId')->get();
-    } else {
-        $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-        $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
-        $mozas     = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
     }
+     else {
+        $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
+        $assignedTehsils = explode(',', session('tehsil_id'));
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
+        $mozas = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
+    }
+    
     $employees = DB::table('employees')->orderBy('nam')->get();
     $completion_process_types = DB::table('completion_process_types')->orderBy('id')->get();
     return view('completion_process.create', compact('districts', 'tehsils', 'mozas', 'employees', 'completion_process_types', 'role_id'));
@@ -94,7 +97,7 @@ class CompletionProcessController extends Controller
     // Show form to edit a record
     public function edit($id)
     {
-    $completion_process = DB::table($this->table)
+    $record = DB::table($this->table)
         ->leftJoin('districts', $this->table.'.zila_id', '=', 'districts.districtId')
         ->leftJoin('tehsils', $this->table.'.tehsil_id', '=', 'tehsils.tehsilId')
         ->leftJoin('mozas', $this->table.'.moza_id', '=', 'mozas.mozaId')
@@ -108,12 +111,13 @@ class CompletionProcessController extends Controller
         $mozas     = DB::table('mozas')->orderBy('mozaId')->get();
     } else {
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-        $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
-        $mozas     = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
+        $assignedTehsils = explode(',', session('tehsil_id'));
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
+        $mozas = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
     }
     $employees = DB::table('employees')->orderBy('nam')->get();
     $completion_process_types = DB::table('completion_process_types')->orderBy('id')->get();
-    return view('completion_process.edit', compact('completion_process', 'districts', 'tehsils', 'mozas', 'employees', 'completion_process_types', 'role_id'));
+    return view('completion_process.edit', compact('record', 'districts', 'tehsils', 'mozas', 'employees', 'completion_process_types', 'role_id'));
     }
 
     // Update a record
@@ -216,7 +220,8 @@ class CompletionProcessController extends Controller
             );
 
         if (session('role_id') == 2) {
-            $query->where('mozas.tehsilId', session('tehsil_id'));
+            $assignedTehsils = explode(',', session('tehsil_id'));
+            $query->whereIn('mozas.tehsilId', $assignedTehsils);
         }
 
         $target_values = $query->get();

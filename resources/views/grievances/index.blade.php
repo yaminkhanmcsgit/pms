@@ -270,7 +270,7 @@ function populateModalDropdowns(grievance) {
     } else {
         // Limited user: load only their district and set it as selected/readonly
         const userDistrictId = {{ session('zila_id') }};
-        const userTehsilId = {{ session('tehsil_id') }};
+        const userTehsilIds = '{{ session('tehsil_id') }}'.split(',').map(id => id.trim());
 
         fetch(`{{ url('api/districts') }}`)
             .then(res => res.json())
@@ -285,13 +285,28 @@ function populateModalDropdowns(grievance) {
                 // Disable district dropdown for limited users
                 districtDropdown.disabled = true;
 
-                // Load their tehsils and disable the dropdown
-                onDistrictChange(userDistrictId, 'modal_tehsil', userTehsilId);
-                // Disable tehsil dropdown for limited users
-                setTimeout(() => {
-                    document.getElementById('modal_tehsil').disabled = true;
-                    onTehsilChange(userTehsilId, 'modal_moza', grievance.village_name);
-                }, 100);
+                // Load only their assigned tehsils
+                fetch(`{{ url('api/tehsils') }}?district_id=${userDistrictId}`)
+                    .then(res => res.json())
+                    .then(tehsils => {
+                        // Filter to only assigned tehsils
+                        const assignedTehsils = tehsils.filter(tehsil => userTehsilIds.includes(String(tehsil.tehsil_id)));
+                        const tehsilDropdown = document.getElementById('modal_tehsil');
+                        tehsilDropdown.innerHTML = '<option value="">Select Tehsil</option>';
+                        assignedTehsils.forEach(tehsil => {
+                            tehsilDropdown.innerHTML += `<option value="${tehsil.tehsil_id}">${tehsil.tehsilNameUrdu}</option>`;
+                        });
+                        // Disable tehsil dropdown for limited users
+                        tehsilDropdown.disabled = true;
+
+                        // Load mozas for the first assigned tehsil or the grievance's tehsil
+                        const grievanceTehsilId = grievance.tehsil;
+                        if (userTehsilIds.includes(String(grievanceTehsilId))) {
+                            onTehsilChange(grievanceTehsilId, 'modal_moza', grievance.village_name);
+                        } else if (assignedTehsils.length > 0) {
+                            onTehsilChange(assignedTehsils[0].tehsil_id, 'modal_moza', grievance.village_name);
+                        }
+                    });
             });
     }
 }
