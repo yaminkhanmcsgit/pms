@@ -29,14 +29,14 @@
             <div class="form-group col-md-4 col-xs-12">
                 <label>نام تحصیل <span style="color: red;">*</span></label>
                 @if($role_id == 1)
-                <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id')">
+                <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id'); loadPartalEmployees(this.value);">
                     <option value="">منتخب کریں</option>
                     @foreach($tehsils as $tehsil)
                         <option value="{{ $tehsil->tehsilId }}">{{ $tehsil->tehsilNameUrdu }}</option>
                     @endforeach
                 </select>
                 @else
-                <select name="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id')">
+                <select name="tehsil_id" id="tehsil_id" class="form-control" required onchange="onTehsilChange(this.value, 'moza_id'); loadPartalEmployees(this.value);">
                     <option value="">منتخب کریں</option>
                     @foreach($tehsils as $tehsil)
                         <option value="{{ $tehsil->tehsilId }}">{{ $tehsil->tehsilNameUrdu }}</option>
@@ -136,78 +136,76 @@
         </div>
             <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> محفوظ کریں</button>
             <a href="{{ route('partal.index') }}" class="btn btn-secondary">واپس</a>
+
+           
         </form>
         </div>
     </div>
 </div>
 
 <script>
-$(document).ready(function() {
-    console.log('Partal create page loaded');
-    console.log('jQuery version:', $.fn.jquery);
-    console.log('Tehsil select exists:', $('#tehsil_id').length > 0);
+// Function to load employees when tehsil changes
+function loadPartalEmployees(tehsilId) {
+    console.log('Loading employees for tehsil:', tehsilId);
 
-    // Handle tehsil change for admin users
-    $('#tehsil_id').change(function() {
-        console.log('Tehsil changed');
-        var tehsilId = $(this).val();
-        console.log('Selected tehsil ID:', tehsilId);
+    var apiUrl = '{{ url("api/partal-employees") }}';
+    console.log('API URL:', apiUrl);
 
-        var apiUrl = '{{ url("api/partal-employees") }}';
-        console.log('API URL:', apiUrl);
+    // Fallback: construct URL manually if Laravel helper fails
+    if (!apiUrl || apiUrl.indexOf('api/partal-employees') === -1) {
+        var baseUrl = window.location.origin;
+        var pathParts = window.location.pathname.split('/');
+        var appPath = pathParts[1]; // Get the app path (e.g., 'pms' or 'admin')
+        apiUrl = baseUrl + '/' + appPath + '/api/partal-employees';
+        console.log('Fallback API URL constructed:', apiUrl);
+    }
 
-        if (tehsilId) {
-            // Load patwaris (ahalkar_type = 1)
-            var patwariUrl = apiUrl + '?tehsil_id=' + tehsilId + '&type=patwari';
-            console.log('Loading patwaris from:', patwariUrl);
+    if (tehsilId) {
+        // Load patwaris (ahalkar_type = 1)
+        var patwariUrl = apiUrl + '?tehsil_id=' + tehsilId + '&type=patwari';
+        console.log('Loading patwaris from:', patwariUrl);
 
-            $.get(patwariUrl)
-                .done(function(data) {
-                    console.log('Patwaris data received:', data);
-                    var options = '<option value="">منتخب کریں</option>';
-                    $.each(data, function(index, employee) {
-                        options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
-                    });
-                    $('#patwari_nam').html(options);
-                    console.log('Patwaris dropdown updated');
-                })
-                .fail(function(xhr, status, error) {
-                    console.log('Error loading patwaris:', error);
-                    console.log('Status:', status);
-                    console.log('XHR:', xhr);
-                    console.log('Response:', xhr.responseText);
+        fetch(patwariUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Patwaris data received:', data);
+                var options = '<option value="">منتخب کریں</option>';
+                data.forEach(function(employee) {
+                    options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
                 });
+                document.getElementById('patwari_nam').innerHTML = options;
+                console.log('Patwaris dropdown updated');
+            })
+            .catch(error => {
+                console.log('Error loading patwaris:', error);
+            });
 
-            // Load all employees for ahalkar
-            var employeeUrl = apiUrl + '?tehsil_id=' + tehsilId + '&type=all';
-            console.log('Loading employees from:', employeeUrl);
+        // Load all employees for ahalkar
+        var employeeUrl = apiUrl + '?tehsil_id=' + tehsilId + '&type=all';
+        console.log('Loading employees from:', employeeUrl);
 
-            $.get(employeeUrl)
-                .done(function(data) {
-                    console.log('Employees data received:', data);
-                    var options = '<option value="">منتخب کریں</option>';
-                    $.each(data, function(index, employee) {
-                        options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
-                    });
-                    $('#ahalkar_nam').html(options);
-                    console.log('Employees dropdown updated');
-                })
-                .fail(function(xhr, status, error) {
-                    console.log('Error loading employees:', error);
-                    console.log('Status:', status);
-                    console.log('XHR:', xhr);
-                    console.log('Response:', xhr.responseText);
+        fetch(employeeUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Employees data received:', data);
+                var options = '<option value="">منتخب کریں</option>';
+                data.forEach(function(employee) {
+                    options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
                 });
-        } else {
-            // Clear selects if no tehsil selected
-            $('#patwari_nam').html('<option value="">منتخب کریں</option>');
-            $('#ahalkar_nam').html('<option value="">منتخب کریں</option>');
-            console.log('Dropdowns cleared');
-        }
-    });
+                document.getElementById('ahalkar_nam').innerHTML = options;
+                console.log('Employees dropdown updated');
+            })
+            .catch(error => {
+                console.log('Error loading employees:', error);
+            });
+    } else {
+        // Clear selects if no tehsil selected
+        document.getElementById('patwari_nam').innerHTML = '<option value="">منتخب کریں</option>';
+        document.getElementById('ahalkar_nam').innerHTML = '<option value="">منتخب کریں</option>';
+        console.log('Dropdowns cleared');
+    }
+}
 
-    // Test if change event is bound
-    console.log('Change event bound to tehsil_id');
-});
+console.log('Partal employee loading functions loaded');
 </script>
 @endsection
