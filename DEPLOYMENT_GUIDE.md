@@ -29,14 +29,19 @@ APP_DEBUG=false
 #### **4. Clear Laravel Caches**
 - Upload `clear_cache.php` to `public_html/admin/`
 - Visit `yoursite.com/admin/clear_cache.php` in browser
-- This will clear all Laravel caches (config, route, view, etc.)
+- This will clear all Laravel caches using Laravel's internal methods
 - Delete the file after successful execution
 
-#### **5. Run Migrations**
-- Upload `run_migrations.php` to `public_html/admin/`
-- Visit `yoursite.com/admin/run_migrations.php` in browser
-- This will run the sessions migration and any other pending migrations
+#### **5. Create Sessions Table**
+- Upload `create_sessions_table.php` to `public_html/admin/`
+- Visit `yoursite.com/admin/create_sessions_table.php` in browser
+- This will create the sessions table if it doesn't exist
 - Delete the file after successful execution
+
+#### **6. Alternative Migration Runner**
+- If needed, upload `run_migrations.php` for checking migration status
+- Visit `yoursite.com/admin/run_migrations.php` in browser
+- This shows migration status (doesn't use exec)
 
 #### **5. Update .htaccess**
 Ensure `public_html/admin/.htaccess` contains:

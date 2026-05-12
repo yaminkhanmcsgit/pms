@@ -1,5 +1,5 @@
 <?php
-// run_migrations.php - Properly run Laravel migrations on cPanel
+// run_migrations.php - Run Laravel migrations without exec()
 echo "<h2>Running Laravel Migrations</h2>";
 
 try {
@@ -20,39 +20,52 @@ try {
         exit;
     }
 
-    // Run specific sessions migration
-    $migrationPath = __DIR__ . '/database/migrations/2026_05_07_070436_create_sessions_table.php';
+    // Get migration repository
+    $repository = $app->make('migrator');
+    $files = $repository->getMigrationFiles(__DIR__ . '/database/migrations');
 
-    if (file_exists($migrationPath)) {
-        echo "✓ Sessions migration file found<br>";
+    echo "Found " . count($files) . " migration files<br>";
 
-        exec("php artisan migrate --path=database/migrations/2026_05_07_070436_create_sessions_table.php 2>&1", $output, $exitCode);
-
-        if ($exitCode === 0) {
+    // Run specific sessions migration if it exists
+    $sessionsMigration = '2026_05_07_070436_create_sessions_table';
+    if (isset($files[$sessionsMigration])) {
+        echo "Running sessions migration...<br>";
+        try {
+            $repository->run([__DIR__ . '/database/migrations/' . $files[$sessionsMigration]]);
             echo "✓ Sessions migration completed successfully!<br>";
-            echo "<pre>" . implode("\n", $output) . "</pre>";
-        } else {
-            echo "❌ Migration failed with exit code: $exitCode<br>";
-            echo "<pre>" . implode("\n", $output) . "</pre>";
+        } catch (Exception $e) {
+            echo "❌ Sessions migration failed: " . $e->getMessage() . "<br>";
         }
     } else {
-        echo "❌ Migration file not found: $migrationPath<br>";
-        echo "Please ensure the migration file exists<br>";
+        echo "⚠ Sessions migration not found<br>";
     }
 
-    // Optional: Run all pending migrations
-    echo "<br><h3>Running All Pending Migrations</h3>";
-    exec("php artisan migrate 2>&1", $output, $exitCode);
+    // Check migration status
+    echo "<br><h3>Migration Status</h3>";
+    $ran = $repository->getRepository()->getRan();
+    echo "Ran migrations: " . count($ran) . "<br>";
+    if (!empty($ran)) {
+        echo "<ul>";
+        foreach ($ran as $migration) {
+            echo "<li>$migration</li>";
+        }
+        echo "</ul>";
+    }
 
-    if ($exitCode === 0) {
-        echo "✓ All migrations completed successfully!<br>";
-        echo "<pre>" . implode("\n", $output) . "</pre>";
+    // Get pending migrations
+    $pending = $repository->getPendingMigrations($files, $ran);
+    if (!empty($pending)) {
+        echo "<br>Pending migrations: " . count($pending) . "<br>";
+        echo "<ul>";
+        foreach ($pending as $migration) {
+            echo "<li>$migration</li>";
+        }
+        echo "</ul>";
     } else {
-        echo "⚠ Some migrations may have failed (exit code: $exitCode)<br>";
-        echo "<pre>" . implode("\n", $output) . "</pre>";
+        echo "<br>✓ All migrations are up to date!<br>";
     }
 
-    echo "<br><strong>Migration operations completed!</strong><br>";
+    echo "<br><strong>Migration check completed!</strong><br>";
     echo "<a href='../'>Back to Application</a>";
 
 } catch (Exception $e) {
