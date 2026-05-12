@@ -115,4 +115,22 @@ Route::get('/employees', function (Request $request) {
     return response()->json($employees);
 });
 
+// Get employees for Partal form (filtered by tehsil and type)
+Route::get('/partal-employees', function (Request $request) {
+    $tehsil_id = $request->query('tehsil_id');
+    $type = $request->query('type'); // 'patwari' or 'all'
+
+    $query = DB::table('employees')
+        ->leftJoin('employee_type', 'employees.ahalkar_type', '=', 'employee_type.ahalkar_type_id')
+        ->where('employees.tehsil_id', $tehsil_id)
+        ->orderBy('employees.nam');
+
+    if ($type === 'patwari') {
+        $query->where('employees.ahalkar_type', '1'); // patwari (check as string since VARCHAR)
+    }
+
+    $employees = $query->select('employees.id', 'employees.nam')->get();
+    return response()->json($employees);
+});
+
 

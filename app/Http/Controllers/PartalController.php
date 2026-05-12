@@ -83,14 +83,27 @@ class PartalController extends Controller
         $districts = DB::table('districts')->get();
         $tehsils   = collect(); // Will be loaded via AJAX on district change
         $mozas = collect(); // Will be loaded via AJAX on tehsil change
+        $patwaris = collect(); // Will be loaded via AJAX on tehsil change
+        $ahalkars = collect(); // Will be loaded via AJAX on tehsil change
     } else {
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
         $assignedTehsils = explode(',', session('tehsil_id'));
         $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
         $mozas = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
+
+        // Load initial employees for limited users
+        $patwaris = DB::table('employees')
+            ->whereIn('tehsil_id', $assignedTehsils)
+            ->where('ahalkar_type', 1) // patwari
+            ->orderBy('nam')
+            ->get();
+
+        $ahalkars = DB::table('employees')
+            ->whereIn('tehsil_id', $assignedTehsils)
+            ->orderBy('nam')
+            ->get();
     }
-    $employees = DB::table('employees')->orderBy('nam')->get();
-    return view('partal.create', compact('districts', 'tehsils', 'mozas', 'employees', 'role_id'));
+    return view('partal.create', compact('districts', 'tehsils', 'mozas', 'patwaris', 'ahalkars', 'role_id'));
     }
 
     // Store a new record

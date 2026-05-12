@@ -61,20 +61,30 @@
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">
                 <label>نام پٹواری <span style="color: red;">*</span></label>
-                <select name="patwari_nam" class="form-control" required>
+                <select name="patwari_nam" id="patwari_nam" class="form-control" required>
                     <option value="">منتخب کریں</option>
-                    @foreach($employees as $emp)
-                        <option value="{{ $emp->nam }}">{{ $emp->nam }}</option>
-                    @endforeach
+                    @if($role_id == 1)
+                        <!-- Admin: Load via AJAX when tehsil selected -->
+                    @else
+                        <!-- Limited user: Show pre-loaded patwaris -->
+                        @foreach($patwaris as $emp)
+                            <option value="{{ $emp->nam }}">{{ $emp->nam }}</option>
+                        @endforeach
+                    @endif
                 </select>
             </div>
             <div class="form-group col-md-4 col-xs-12">
                 <label>نام اہلکار <span style="color: red;">*</span></label>
-                <select name="ahalkar_nam" class="form-control" required>
+                <select name="ahalkar_nam" id="ahalkar_nam" class="form-control" required>
                     <option value="">منتخب کریں</option>
-                    @foreach($employees as $emp)
-                        <option value="{{ $emp->nam }}">{{ $emp->nam }}</option>
-                    @endforeach
+                    @if($role_id == 1)
+                        <!-- Admin: Load via AJAX when tehsil selected -->
+                    @else
+                        <!-- Limited user: Show pre-loaded employees -->
+                        @foreach($ahalkars as $emp)
+                            <option value="{{ $emp->nam }}">{{ $emp->nam }}</option>
+                        @endforeach
+                    @endif
                 </select>
             </div>
             <div class="form-group col-md-4 col-xs-12">
@@ -130,4 +140,46 @@
         </div>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    // Handle tehsil change for admin users
+    $('#tehsil_id').change(function() {
+        var tehsilId = $(this).val();
+        if (tehsilId) {
+            // Load patwaris (ahalkar_type = 1)
+            $.get('{{ url("api/partal-employees") }}?tehsil_id=' + tehsilId + '&type=patwari')
+                .done(function(data) {
+                    var options = '<option value="">منتخب کریں</option>';
+                    $.each(data, function(index, employee) {
+                        options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
+                    });
+                    $('#patwari_nam').html(options);
+                })
+                .fail(function(xhr, status, error) {
+                    console.log('Error loading patwaris:', error);
+                    console.log('Response:', xhr.responseText);
+                });
+
+            // Load all employees for ahalkar
+            $.get('{{ url("api/partal-employees") }}?tehsil_id=' + tehsilId + '&type=all')
+                .done(function(data) {
+                    var options = '<option value="">منتخب کریں</option>';
+                    $.each(data, function(index, employee) {
+                        options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
+                    });
+                    $('#ahalkar_nam').html(options);
+                })
+                .fail(function(xhr, status, error) {
+                    console.log('Error loading employees:', error);
+                    console.log('Response:', xhr.responseText);
+                });
+        } else {
+            // Clear selects if no tehsil selected
+            $('#patwari_nam').html('<option value="">منتخب کریں</option>');
+            $('#ahalkar_nam').html('<option value="">منتخب کریں</option>');
+        }
+    });
+});
+</script>
 @endsection
