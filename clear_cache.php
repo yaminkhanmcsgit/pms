@@ -1,16 +1,15 @@
 <?php
-// clear_cache.php - Clear Laravel caches without exec()
+// clear_cache.php - Clear Laravel caches with proper facade initialization
 echo "<h2>Clearing Laravel Caches</h2>";
 
 try {
-    // Bootstrap Laravel application
-    require_once __DIR__ . '/vendor/autoload.php';
-    $app = require_once __DIR__ . '/bootstrap/app.php';
-    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    // Properly bootstrap Laravel with facade support
+    require_once __DIR__ . '/bootstrap_laravel.php';
+    $app = bootstrapLaravel();
 
-    echo "✓ Laravel application bootstrapped<br>";
+    echo "✓ Laravel application fully bootstrapped<br>";
 
-    // Clear caches using Laravel's Cache facade
+    // Clear caches using Laravel facades (now properly initialized)
     try {
         Illuminate\Support\Facades\Cache::flush();
         echo "✓ Application cache cleared<br>";
@@ -18,39 +17,31 @@ try {
         echo "⚠ Could not clear application cache: " . $e->getMessage() . "<br>";
     }
 
-    // Clear config cache by removing the file
-    $configCachePath = __DIR__ . '/bootstrap/cache/config.php';
-    if (file_exists($configCachePath)) {
-        unlink($configCachePath);
+    // Clear config cache
+    try {
+        Illuminate\Support\Facades\Artisan::call('config:clear');
         echo "✓ Configuration cache cleared<br>";
-    } else {
-        echo "✓ Configuration cache already clear<br>";
+    } catch (Exception $e) {
+        echo "⚠ Could not clear config cache: " . $e->getMessage() . "<br>";
     }
 
     // Clear route cache
-    $routeCachePath = __DIR__ . '/bootstrap/cache/routes.php';
-    if (file_exists($routeCachePath)) {
-        unlink($routeCachePath);
+    try {
+        Illuminate\Support\Facades\Artisan::call('route:clear');
         echo "✓ Route cache cleared<br>";
-    } else {
-        echo "✓ Route cache already clear<br>";
+    } catch (Exception $e) {
+        echo "⚠ Could not clear route cache: " . $e->getMessage() . "<br>";
     }
 
     // Clear view cache
-    $viewCachePath = __DIR__ . '/bootstrap/cache/views';
-    if (is_dir($viewCachePath)) {
-        $files = glob($viewCachePath . '/*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-        }
+    try {
+        Illuminate\Support\Facades\Artisan::call('view:clear');
         echo "✓ View cache cleared<br>";
-    } else {
-        echo "✓ View cache already clear<br>";
+    } catch (Exception $e) {
+        echo "⚠ Could not clear view cache: " . $e->getMessage() . "<br>";
     }
 
-    echo "<br><strong>Cache clearing completed successfully!</strong><br>";
+    echo "<br><strong>All cache clearing operations completed successfully!</strong><br>";
     echo "<a href='../'>Back to Application</a>";
 
 } catch (Exception $e) {

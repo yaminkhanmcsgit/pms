@@ -26,22 +26,17 @@ SESSION_DRIVER=database
 APP_DEBUG=false
 ```
 
-#### **4. Clear Laravel Caches**
-- Upload `clear_cache.php` to `public_html/admin/`
-- Visit `yoursite.com/admin/clear_cache.php` in browser
-- This will clear all Laravel caches using Laravel's internal methods
+#### **4. Clear Laravel Caches (Simple Version)**
+- Upload `clear_cache_simple.php` to `public_html/admin/`
+- Visit `yoursite.com/admin/clear_cache_simple.php` in browser
+- This manually deletes cache files without using Laravel facades
 - Delete the file after successful execution
 
-#### **5. Create Sessions Table**
-- Upload `create_sessions_table.php` to `public_html/admin/`
-- Visit `yoursite.com/admin/create_sessions_table.php` in browser
-- This will create the sessions table if it doesn't exist
+#### **5. Create Sessions Table (Simple Version)**
+- Upload `create_sessions_simple.php` to `public_html/admin/`
+- Visit `yoursite.com/admin/create_sessions_simple.php` in browser
+- This creates the sessions table using direct database connection
 - Delete the file after successful execution
-
-#### **6. Alternative Migration Runner**
-- If needed, upload `run_migrations.php` for checking migration status
-- Visit `yoursite.com/admin/run_migrations.php` in browser
-- This shows migration status (doesn't use exec)
 
 #### **5. Update .htaccess**
 Ensure `public_html/admin/.htaccess` contains:
