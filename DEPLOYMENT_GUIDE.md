@@ -10,7 +10,7 @@ Laravel Sanctum requires Ignition, but Ignition is a dev dependency that gets ex
 
 #### **1. Download Fresh Vendor Directory**
 - Download this `vendor_production.zip` file to your local machine
-- This contains all production dependencies with proper autoloader
+- This contains CLEAN production dependencies without Ignition errors
 
 #### **2. Upload to cPanel**
 - Go to cPanel → File Manager → public_html/admin/
@@ -81,7 +81,8 @@ In cPanel → MultiPHP Manager:
 4. Clear browser cache
 
 ### **Files to Upload:**
-- `vendor_production.zip` → Extract in public_html/admin/
+- `vendor_production.zip` → Extract in public_html/admin/ (CLEAN version without Ignition)
+- `clear_cache.php` → Run once, then delete
+- `create_sessions_table.php` → Run once, then delete
 - Updated `.env` file
 - Updated `.htaccess` file
-- `run_migration.php` → Run once, then delete
