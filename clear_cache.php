@@ -1,5 +1,5 @@
 <?php
-// clear_cache.php - Properly clear Laravel caches on cPanel
+// clear_cache.php - Clear Laravel caches without exec()
 echo "<h2>Clearing Laravel Caches</h2>";
 
 try {
@@ -10,31 +10,47 @@ try {
 
     echo "✓ Laravel application bootstrapped<br>";
 
-    // Clear various caches
-    $commands = [
-        'cache:clear' => 'Application cache',
-        'config:clear' => 'Configuration cache',
-        'route:clear' => 'Route cache',
-        'view:clear' => 'View cache'
-    ];
-
-    foreach ($commands as $command => $description) {
-        try {
-            exec("php artisan $command 2>&1", $output, $exitCode);
-            if ($exitCode === 0) {
-                echo "✓ $description cleared successfully<br>";
-            } else {
-                echo "⚠ Warning: $description may not have been cleared (exit code: $exitCode)<br>";
-                if (!empty($output)) {
-                    echo "<pre>" . implode("\n", $output) . "</pre>";
-                }
-            }
-        } catch (Exception $e) {
-            echo "⚠ Error clearing $description: " . $e->getMessage() . "<br>";
-        }
+    // Clear caches using Laravel's Cache facade
+    try {
+        Illuminate\Support\Facades\Cache::flush();
+        echo "✓ Application cache cleared<br>";
+    } catch (Exception $e) {
+        echo "⚠ Could not clear application cache: " . $e->getMessage() . "<br>";
     }
 
-    echo "<br><strong>All cache clearing operations completed!</strong><br>";
+    // Clear config cache by removing the file
+    $configCachePath = __DIR__ . '/bootstrap/cache/config.php';
+    if (file_exists($configCachePath)) {
+        unlink($configCachePath);
+        echo "✓ Configuration cache cleared<br>";
+    } else {
+        echo "✓ Configuration cache already clear<br>";
+    }
+
+    // Clear route cache
+    $routeCachePath = __DIR__ . '/bootstrap/cache/routes.php';
+    if (file_exists($routeCachePath)) {
+        unlink($routeCachePath);
+        echo "✓ Route cache cleared<br>";
+    } else {
+        echo "✓ Route cache already clear<br>";
+    }
+
+    // Clear view cache
+    $viewCachePath = __DIR__ . '/bootstrap/cache/views';
+    if (is_dir($viewCachePath)) {
+        $files = glob($viewCachePath . '/*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+        echo "✓ View cache cleared<br>";
+    } else {
+        echo "✓ View cache already clear<br>";
+    }
+
+    echo "<br><strong>Cache clearing completed successfully!</strong><br>";
     echo "<a href='../'>Back to Application</a>";
 
 } catch (Exception $e) {
