@@ -1,0 +1,10 @@
+# Upload this vendor.zip to your cPanel public_html/admin/ directory
+# Then extract it there, replacing any existing vendor folder
+
+# After uploading:
+# 1. Extract vendor.zip in public_html/admin/
+# 2. Make sure all files are uploaded (check file count)
+# 3. Test your Laravel application
+
+# The vendor directory now contains only production dependencies,
+# which should resolve the Ignition error.
