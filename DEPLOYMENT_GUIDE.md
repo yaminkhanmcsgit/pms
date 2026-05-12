@@ -26,17 +26,22 @@ SESSION_DRIVER=database
 APP_DEBUG=false
 ```
 
-#### **4. Clear Laravel Caches (Simple Version)**
-- Upload `clear_cache_simple.php` to `public_html/admin/`
-- Visit `yoursite.com/admin/clear_cache_simple.php` in browser
-- This manually deletes cache files without using Laravel facades
+#### **4. Clear Laravel Caches**
+- Upload `clear_cache.php` to `public_html/admin/`
+- Visit `yoursite.com/admin/clear_cache.php` in browser
+- This uses Laravel facades (now properly initialized) to clear all caches
 - Delete the file after successful execution
 
-#### **5. Create Sessions Table (Simple Version)**
-- Upload `create_sessions_simple.php` to `public_html/admin/`
-- Visit `yoursite.com/admin/create_sessions_simple.php` in browser
-- This creates the sessions table using direct database connection
+#### **5. Create Sessions Table**
+- Upload `create_sessions_table.php` to `public_html/admin/`
+- Visit `yoursite.com/admin/create_sessions_table.php` in browser
+- This creates the sessions table using Laravel Schema builder
 - Delete the file after successful execution
+
+#### **Alternative: Simple Versions (No Facades)**
+If facade initialization still fails, use:
+- `clear_cache_simple.php` - Manual file deletion
+- `create_sessions_simple.php` - Direct PDO connection
 
 #### **5. Update .htaccess**
 Ensure `public_html/admin/.htaccess` contains:

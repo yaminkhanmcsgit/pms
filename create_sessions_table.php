@@ -1,18 +1,17 @@
 <?php
-// create_sessions_table.php - Manually create sessions table
+// create_sessions_table.php - Create sessions table with proper facade initialization
 echo "<h2>Creating Sessions Table</h2>";
 
 try {
-    // Bootstrap Laravel application
-    require_once __DIR__ . '/vendor/autoload.php';
-    $app = require_once __DIR__ . '/bootstrap/app.php';
-    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    // Properly bootstrap Laravel with facade support
+    require_once __DIR__ . '/bootstrap_laravel.php';
+    $app = bootstrapLaravel();
 
-    echo "✓ Laravel application bootstrapped<br>";
+    echo "✓ Laravel application fully bootstrapped<br>";
 
     // Test database connection
     try {
-        $pdo = Illuminate\Support\Facades\DB::connection()->getPdo();
+        Illuminate\Support\Facades\DB::connection()->getPdo();
         echo "✓ Database connection successful<br>";
     } catch (Exception $e) {
         echo "❌ Database connection failed: " . $e->getMessage() . "<br>";
@@ -28,7 +27,7 @@ try {
     } else {
         echo "Creating sessions table...<br>";
 
-        // Create the sessions table manually
+        // Create the sessions table using Schema facade
         Illuminate\Support\Facades\Schema::create('sessions', function ($table) {
             $table->string('id')->primary();
             $table->foreignId('operator_id')->nullable()->index();

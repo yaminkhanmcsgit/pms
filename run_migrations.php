@@ -1,14 +1,13 @@
 <?php
-// run_migrations.php - Run Laravel migrations without exec()
+// run_migrations.php - Run Laravel migrations with proper facade initialization
 echo "<h2>Running Laravel Migrations</h2>";
 
 try {
-    // Bootstrap Laravel application
-    require_once __DIR__ . '/vendor/autoload.php';
-    $app = require_once __DIR__ . '/bootstrap/app.php';
-    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    // Properly bootstrap Laravel with facade support
+    require_once __DIR__ . '/bootstrap_laravel.php';
+    $app = bootstrapLaravel();
 
-    echo "✓ Laravel application bootstrapped<br>";
+    echo "✓ Laravel application fully bootstrapped<br>";
 
     // Test database connection
     try {
@@ -20,52 +19,38 @@ try {
         exit;
     }
 
-    // Get migration repository
-    $repository = $app->make('migrator');
-    $files = $repository->getMigrationFiles(__DIR__ . '/database/migrations');
+    // Get migration repository and run pending migrations
+    try {
+        $migrator = $app->make('migrator');
+        $migrator->run([$app->databasePath() . DIRECTORY_SEPARATOR . 'migrations']);
 
-    echo "Found " . count($files) . " migration files<br>";
-
-    // Run specific sessions migration if it exists
-    $sessionsMigration = '2026_05_07_070436_create_sessions_table';
-    if (isset($files[$sessionsMigration])) {
-        echo "Running sessions migration...<br>";
-        try {
-            $repository->run([__DIR__ . '/database/migrations/' . $files[$sessionsMigration]]);
-            echo "✓ Sessions migration completed successfully!<br>";
-        } catch (Exception $e) {
-            echo "❌ Sessions migration failed: " . $e->getMessage() . "<br>";
-        }
-    } else {
-        echo "⚠ Sessions migration not found<br>";
+        echo "✓ Migrations executed successfully<br>";
+    } catch (Exception $e) {
+        echo "⚠ Migration error: " . $e->getMessage() . "<br>";
     }
 
     // Check migration status
     echo "<br><h3>Migration Status</h3>";
-    $ran = $repository->getRepository()->getRan();
-    echo "Ran migrations: " . count($ran) . "<br>";
-    if (!empty($ran)) {
-        echo "<ul>";
-        foreach ($ran as $migration) {
-            echo "<li>$migration</li>";
+    try {
+        $repository = $app->make('migrator')->getRepository();
+        $ran = $repository->getRan();
+
+        echo "Completed migrations: " . count($ran) . "<br>";
+        if (!empty($ran)) {
+            echo "<ul>";
+            foreach (array_slice($ran, -5) as $migration) { // Show last 5
+                echo "<li>$migration</li>";
+            }
+            if (count($ran) > 5) {
+                echo "<li>... and " . (count($ran) - 5) . " more</li>";
+            }
+            echo "</ul>";
         }
-        echo "</ul>";
+    } catch (Exception $e) {
+        echo "⚠ Could not check migration status: " . $e->getMessage() . "<br>";
     }
 
-    // Get pending migrations
-    $pending = $repository->getPendingMigrations($files, $ran);
-    if (!empty($pending)) {
-        echo "<br>Pending migrations: " . count($pending) . "<br>";
-        echo "<ul>";
-        foreach ($pending as $migration) {
-            echo "<li>$migration</li>";
-        }
-        echo "</ul>";
-    } else {
-        echo "<br>✓ All migrations are up to date!<br>";
-    }
-
-    echo "<br><strong>Migration check completed!</strong><br>";
+    echo "<br><strong>Migration operations completed!</strong><br>";
     echo "<a href='../'>Back to Application</a>";
 
 } catch (Exception $e) {
