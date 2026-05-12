@@ -143,43 +143,71 @@
 
 <script>
 $(document).ready(function() {
+    console.log('Partal create page loaded');
+    console.log('jQuery version:', $.fn.jquery);
+    console.log('Tehsil select exists:', $('#tehsil_id').length > 0);
+
     // Handle tehsil change for admin users
     $('#tehsil_id').change(function() {
+        console.log('Tehsil changed');
         var tehsilId = $(this).val();
+        console.log('Selected tehsil ID:', tehsilId);
+
+        var apiUrl = '{{ url("api/partal-employees") }}';
+        console.log('API URL:', apiUrl);
+
         if (tehsilId) {
             // Load patwaris (ahalkar_type = 1)
-            $.get('{{ url("api/partal-employees") }}?tehsil_id=' + tehsilId + '&type=patwari')
+            var patwariUrl = apiUrl + '?tehsil_id=' + tehsilId + '&type=patwari';
+            console.log('Loading patwaris from:', patwariUrl);
+
+            $.get(patwariUrl)
                 .done(function(data) {
+                    console.log('Patwaris data received:', data);
                     var options = '<option value="">منتخب کریں</option>';
                     $.each(data, function(index, employee) {
                         options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
                     });
                     $('#patwari_nam').html(options);
+                    console.log('Patwaris dropdown updated');
                 })
                 .fail(function(xhr, status, error) {
                     console.log('Error loading patwaris:', error);
+                    console.log('Status:', status);
+                    console.log('XHR:', xhr);
                     console.log('Response:', xhr.responseText);
                 });
 
             // Load all employees for ahalkar
-            $.get('{{ url("api/partal-employees") }}?tehsil_id=' + tehsilId + '&type=all')
+            var employeeUrl = apiUrl + '?tehsil_id=' + tehsilId + '&type=all';
+            console.log('Loading employees from:', employeeUrl);
+
+            $.get(employeeUrl)
                 .done(function(data) {
+                    console.log('Employees data received:', data);
                     var options = '<option value="">منتخب کریں</option>';
                     $.each(data, function(index, employee) {
                         options += '<option value="' + employee.nam + '">' + employee.nam + '</option>';
                     });
                     $('#ahalkar_nam').html(options);
+                    console.log('Employees dropdown updated');
                 })
                 .fail(function(xhr, status, error) {
                     console.log('Error loading employees:', error);
+                    console.log('Status:', status);
+                    console.log('XHR:', xhr);
                     console.log('Response:', xhr.responseText);
                 });
         } else {
             // Clear selects if no tehsil selected
             $('#patwari_nam').html('<option value="">منتخب کریں</option>');
             $('#ahalkar_nam').html('<option value="">منتخب کریں</option>');
+            console.log('Dropdowns cleared');
         }
     });
+
+    // Test if change event is bound
+    console.log('Change event bound to tehsil_id');
 });
 </script>
 @endsection
