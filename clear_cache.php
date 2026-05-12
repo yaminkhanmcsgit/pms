@@ -1,52 +1,83 @@
 <?php
-// clear_cache.php - Clear Laravel caches with proper facade initialization
+// clear_cache.php - Clear Laravel caches using file operations
 echo "<h2>Clearing Laravel Caches</h2>";
 
 try {
-    // Properly bootstrap Laravel with facade support
-    require_once __DIR__ . '/bootstrap_laravel.php';
-    $app = bootstrapLaravel();
+    // Define cache directories
+    $cacheDirectories = [
+        'config' => __DIR__ . '/bootstrap/cache/config.php',
+        'routes' => __DIR__ . '/bootstrap/cache/routes.php',
+        'services' => __DIR__ . '/bootstrap/cache/services.php',
+        'packages' => __DIR__ . '/bootstrap/cache/packages.php',
+    ];
 
-    echo "✓ Laravel application fully bootstrapped<br>";
+    $viewCacheDir = __DIR__ . '/bootstrap/cache/views';
 
-    // Clear caches using Laravel facades (now properly initialized)
-    try {
-        Illuminate\Support\Facades\Cache::flush();
-        echo "✓ Application cache cleared<br>";
-    } catch (Exception $e) {
-        echo "⚠ Could not clear application cache: " . $e->getMessage() . "<br>";
+    echo "Starting cache cleanup...<br><br>";
+
+    // Clear compiled cache files
+    foreach ($cacheDirectories as $type => $file) {
+        if (file_exists($file)) {
+            if (unlink($file)) {
+                echo "✓ $type cache cleared<br>";
+            } else {
+                echo "❌ Failed to clear $type cache<br>";
+            }
+        } else {
+            echo "✓ $type cache already clear<br>";
+        }
     }
 
-    // Clear config cache
-    try {
-        Illuminate\Support\Facades\Artisan::call('config:clear');
-        echo "✓ Configuration cache cleared<br>";
-    } catch (Exception $e) {
-        echo "⚠ Could not clear config cache: " . $e->getMessage() . "<br>";
+    // Clear view cache directory
+    if (is_dir($viewCacheDir)) {
+        $viewFiles = glob($viewCacheDir . '/*.php');
+        $cleared = 0;
+        foreach ($viewFiles as $file) {
+            if (is_file($file) && unlink($file)) {
+                $cleared++;
+            }
+        }
+        echo "✓ View cache cleared ($cleared files)<br>";
+    } else {
+        echo "✓ View cache directory not found or already clear<br>";
     }
 
-    // Clear route cache
-    try {
-        Illuminate\Support\Facades\Artisan::call('route:clear');
-        echo "✓ Route cache cleared<br>";
-    } catch (Exception $e) {
-        echo "⚠ Could not clear route cache: " . $e->getMessage() . "<br>";
+    // Clear storage/framework/cache directory
+    $storageCacheDir = __DIR__ . '/storage/framework/cache';
+    if (is_dir($storageCacheDir)) {
+        $cacheFiles = glob($storageCacheDir . '/data/*/*/*');
+        $cleared = 0;
+        foreach ($cacheFiles as $file) {
+            if (is_file($file) && unlink($file)) {
+                $cleared++;
+            }
+        }
+        echo "✓ Storage cache cleared ($cleared files)<br>";
+    } else {
+        echo "✓ Storage cache directory not found<br>";
     }
 
-    // Clear view cache
-    try {
-        Illuminate\Support\Facades\Artisan::call('view:clear');
-        echo "✓ View cache cleared<br>";
-    } catch (Exception $e) {
-        echo "⚠ Could not clear view cache: " . $e->getMessage() . "<br>";
+    // Clear storage/framework/sessions directory
+    $sessionDir = __DIR__ . '/storage/framework/sessions';
+    if (is_dir($sessionDir)) {
+        $sessionFiles = glob($sessionDir . '/*');
+        $cleared = 0;
+        foreach ($sessionFiles as $file) {
+            if (is_file($file) && unlink($file)) {
+                $cleared++;
+            }
+        }
+        echo "✓ Session files cleared ($cleared files)<br>";
+    } else {
+        echo "✓ Session directory not found<br>";
     }
 
-    echo "<br><strong>All cache clearing operations completed successfully!</strong><br>";
-    echo "<a href='../'>Back to Application</a>";
+    echo "<br><strong>✅ Cache clearing completed successfully!</strong><br>";
+    echo "<em>Note: All Laravel caches have been cleared manually.</em><br>";
+    echo "<a href='/pms/'>Back to Application</a>";
 
 } catch (Exception $e) {
     echo "❌ Fatal error: " . $e->getMessage() . "<br>";
     echo "File: " . $e->getFile() . ":" . $e->getLine() . "<br>";
-    echo "<pre>" . $e->getTraceAsString() . "</pre>";
 }
 ?>

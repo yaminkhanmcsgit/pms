@@ -29,13 +29,13 @@ APP_DEBUG=false
 #### **4. Clear Laravel Caches**
 - Upload `clear_cache.php` to `public_html/admin/`
 - Visit `yoursite.com/admin/clear_cache.php` in browser
-- This uses Laravel facades (now properly initialized) to clear all caches
+- This manually deletes cache files (works on any server)
 - Delete the file after successful execution
 
 #### **5. Create Sessions Table**
 - Upload `create_sessions_table.php` to `public_html/admin/`
 - Visit `yoursite.com/admin/create_sessions_table.php` in browser
-- This creates the sessions table using Laravel Schema builder
+- This creates the sessions table using direct database connection
 - Delete the file after successful execution
 
 #### **Alternative: Simple Versions (No Facades)**
@@ -81,8 +81,13 @@ In cPanel → MultiPHP Manager:
 4. Clear browser cache
 
 ### **Files to Upload:**
-- `vendor_production.zip` → Extract in public_html/admin/ (CLEAN version without Ignition)
+- `vendor_production.zip` → Extract in public_html/admin/ (CLEAN version without Sanctum/Ignition)
 - `clear_cache.php` → Run once, then delete
 - `create_sessions_table.php` → Run once, then delete
 - Updated `.env` file
+
+### **Important Notes:**
+- Laravel Sanctum was removed to eliminate Ignition dependency issues
+- If you need API authentication, you can implement it differently or add Sanctum back after deployment
+- The application will work without Sanctum for basic web authentication
 - Updated `.htaccess` file
