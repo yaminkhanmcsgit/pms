@@ -96,6 +96,9 @@ class GrievanceController extends Controller
             'applicant_name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
             'cnic' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
+            'nature_of_grievance' => 'nullable|string|max:500',
+            'grievance_description' => 'nullable|string',
             'application_date' => 'required|date',
             'grievance_type_id' => 'required|integer',
             'status_id' => 'required|integer',
@@ -115,7 +118,7 @@ class GrievanceController extends Controller
             'grievance_description' => $request->grievance_description,
             'status_id' => $request->status_id,
             'application_date' => $request->application_date,
-            'operator_id' => session('operator_id'),
+            'operator_id' => session('operator_id') ?? null,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
