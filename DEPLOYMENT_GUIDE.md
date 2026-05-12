@@ -26,38 +26,17 @@ SESSION_DRIVER=database
 APP_DEBUG=false
 ```
 
-#### **4. Run Migration (Create this file)**
-Create `public_html/admin/run_migration.php`:
-```php
-<?php
-require_once __DIR__ . '/vendor/autoload.php';
-$app = require_once __DIR__ . '/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+#### **4. Clear Laravel Caches**
+- Upload `clear_cache.php` to `public_html/admin/`
+- Visit `yoursite.com/admin/clear_cache.php` in browser
+- This will clear all Laravel caches (config, route, view, etc.)
+- Delete the file after successful execution
 
-echo "<h2>Running Sessions Migration</h2>";
-try {
-    $migrationPath = __DIR__ . '/database/migrations/2026_05_07_070436_create_sessions_table.php';
-    if (file_exists($migrationPath)) {
-        echo "✓ Migration file found<br>";
-        exec("php artisan migrate --path=database/migrations/2026_05_07_070436_create_sessions_table.php 2>&1", $output, $exitCode);
-        if ($exitCode === 0) {
-            echo "✓ Migration completed successfully!<br>";
-            echo "<pre>" . implode("\n", $output) . "</pre>";
-        } else {
-            echo "❌ Migration failed with exit code: $exitCode<br>";
-            echo "<pre>" . implode("\n", $output) . "</pre>";
-        }
-    } else {
-        echo "❌ Migration file not found<br>";
-    }
-} catch (Exception $e) {
-    echo "❌ Error: " . $e->getMessage() . "<br>";
-}
-echo "<br><a href='../'>Back to Application</a>";
-```
-
-- Visit `yoursite.com/admin/run_migration.php` in browser
-- Delete the file after successful migration
+#### **5. Run Migrations**
+- Upload `run_migrations.php` to `public_html/admin/`
+- Visit `yoursite.com/admin/run_migrations.php` in browser
+- This will run the sessions migration and any other pending migrations
+- Delete the file after successful execution
 
 #### **5. Update .htaccess**
 Ensure `public_html/admin/.htaccess` contains:
