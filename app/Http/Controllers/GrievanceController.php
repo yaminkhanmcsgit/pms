@@ -612,13 +612,9 @@ class GrievanceController extends Controller
                     <li><a href="#" onclick="updateSignature(' . $record->id . ', \'' . $record->tehsildar_signature . '\')"><i class="fa fa-signature"></i> Tehsildar Signature</a></li>
                     <li class="divider"></li>
                     <li>
-                        <form action="' . route('grievances.destroy', $record->id) . '" method="POST" style="display:inline;">
-                             
-                            
-                            <button type="submit" class="btn btn-link" style="color: #d9534f; padding: 0; border: none; background: none;" onclick="return confirmDelete(event)">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
-                        </form>
+                        <button onclick="deleteGrievance(' . $record->id . ')" class="btn btn-link" style="color: #d9534f; padding: 0; border: none; background: none;">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
                     </li>
                 </ul>
             </div>';
@@ -643,7 +639,8 @@ class GrievanceController extends Controller
             'draw' => intval($request->draw),
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $totalRecords,
-            'data' => $data
+            'data' => $data,
+            'delete_route' => route('grievances.destroy', ':id')
         ]);
     }
 }

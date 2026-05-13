@@ -9,6 +9,11 @@
         <a href="{{ route('grievances.create') }}" class="btn btn-success pull-right">
             <i class="fa fa-plus"></i> Add New Grievance
         </a>
+        @if(config('app.debug'))
+        <button onclick="deleteGrievance(1)" class="btn btn-warning pull-right" style="margin-right: 10px;">
+            <i class="fa fa-trash"></i> Test Delete
+        </button>
+        @endif
     </div>
 
     <center><legend> <h3>Grievances List</h3></legend></center>
@@ -485,7 +490,8 @@ function confirmDelete(event) {
 }
 
 function deleteGrievance(grievanceId) {
-    console.log('Attempting to delete grievance ID:', grievanceId);
+    console.log('=== DELETE GRIEVANCE FUNCTION CALLED ===');
+    console.log('Grievance ID:', grievanceId);
 
     Swal.fire({
         title: 'Are you sure?',
@@ -505,6 +511,9 @@ function deleteGrievance(grievanceId) {
             const deleteUrl = baseUrl + '/' + appPath + '/grievances/' + grievanceId;
 
             console.log('Sending DELETE request to:', deleteUrl);
+            console.log('Grievance ID:', grievanceId);
+            console.log('Window location:', window.location);
+            console.log('Pathname:', window.location.pathname);
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]');
             if (!csrfToken) {
@@ -519,67 +528,46 @@ function deleteGrievance(grievanceId) {
 
             console.log('CSRF token found:', csrfToken.getAttribute('content').substring(0, 10) + '...');
 
-            fetch(deleteUrl, {
-                method: 'DELETE',
+            // Use jQuery AJAX instead of fetch for better compatibility
+            $.ajax({
+                url: deleteUrl,
+                type: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                console.log('Delete response status:', response.status);
-                console.log('Delete response ok:', response.ok);
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data, textStatus, jqXHR) {
+                    console.log('Delete success:', data);
 
-                return response.text().then(text => {
-                    console.log('Delete response text:', text);
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: data.message || 'Grievance has been deleted.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Delete error:', jqXHR.responseText);
+                    console.error('Status:', jqXHR.status);
+                    console.error('Error thrown:', errorThrown);
 
-                    if (response.ok) {
-                        try {
-                            const data = JSON.parse(text);
-                            console.log('Delete success data:', data);
-
-                            Swal.fire({
-                                title: 'Deleted!',
-                                text: data.message || 'Grievance has been deleted.',
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } catch (e) {
-                            // If not JSON, treat as success anyway
-                            console.log('Response not JSON, treating as success');
-                            Swal.fire({
-                                title: 'Deleted!',
-                                text: 'Grievance has been deleted.',
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                location.reload();
-                            });
-                        }
-                    } else {
-                        // Try to parse error
-                        try {
-                            const errorData = JSON.parse(text);
-                            throw new Error(errorData.message || 'Delete failed');
-                        } catch (e) {
-                            throw new Error('Delete failed with status ' + response.status + ': ' + text);
-                        }
+                    let errorMessage = 'Failed to delete grievance';
+                    try {
+                        const errorData = JSON.parse(jqXHR.responseText);
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (e) {
+                        errorMessage = jqXHR.responseText || errorMessage;
                     }
-                });
-            })
-            .catch(error => {
-                console.error('Delete error:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to delete grievance: ' + error.message,
-                    icon: 'error'
-                });
+
+                    Swal.fire({
+                        title: 'Error!',
+                        text: errorMessage,
+                        icon: 'error'
+                    });
+                }
             });
         }
     });
