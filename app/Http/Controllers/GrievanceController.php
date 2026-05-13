@@ -293,6 +293,15 @@ class GrievanceController extends Controller
         }
 
         DB::table('grievances')->where('id', $id)->delete();
+
+        // Check if it's an AJAX request
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Grievance deleted successfully.'
+            ]);
+        }
+
         return redirect()->route('grievances.index')->with('success', 'Grievance deleted successfully.');
     }
 

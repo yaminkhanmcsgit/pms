@@ -485,6 +485,8 @@ function confirmDelete(event) {
 }
 
 function deleteGrievance(grievanceId) {
+    console.log('Attempting to delete grievance ID:', grievanceId);
+
     Swal.fire({
         title: 'Are you sure?',
         text: 'You want to delete this grievance?',
@@ -494,26 +496,91 @@ function deleteGrievance(grievanceId) {
         confirmButtonText: 'Yes, delete it!',
         cancelButtonText: 'Cancel'
     }).then((result) => {
+        console.log('User confirmed deletion:', result.value);
         if (result.value) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `{{ url('grievances') }}/${grievanceId}`;
-            form.style.display = 'none';
+            // Use AJAX DELETE request instead of form spoofing
+            const baseUrl = window.location.origin;
+            const pathParts = window.location.pathname.split('/');
+            const appPath = pathParts[1]; // Get the app path (e.g., 'pms' or 'admin')
+            const deleteUrl = baseUrl + '/' + appPath + '/grievances/' + grievanceId;
 
-            const methodInput = document.createElement('input');
-            methodInput.type = 'hidden';
-            methodInput.name = '_method';
-            methodInput.value = 'DELETE';
+            console.log('Sending DELETE request to:', deleteUrl);
 
-            const tokenInput = document.createElement('input');
-            tokenInput.type = 'hidden';
-            tokenInput.name = '_token';
-            tokenInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('CSRF token meta tag not found');
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'CSRF token not found. Please refresh the page.',
+                    icon: 'error'
+                });
+                return;
+            }
 
-            form.appendChild(methodInput);
-            form.appendChild(tokenInput);
-            document.body.appendChild(form);
-            form.submit();
+            console.log('CSRF token found:', csrfToken.getAttribute('content').substring(0, 10) + '...');
+
+            fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                console.log('Delete response status:', response.status);
+                console.log('Delete response ok:', response.ok);
+
+                return response.text().then(text => {
+                    console.log('Delete response text:', text);
+
+                    if (response.ok) {
+                        try {
+                            const data = JSON.parse(text);
+                            console.log('Delete success data:', data);
+
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: data.message || 'Grievance has been deleted.',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } catch (e) {
+                            // If not JSON, treat as success anyway
+                            console.log('Response not JSON, treating as success');
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Grievance has been deleted.',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        }
+                    } else {
+                        // Try to parse error
+                        try {
+                            const errorData = JSON.parse(text);
+                            throw new Error(errorData.message || 'Delete failed');
+                        } catch (e) {
+                            throw new Error('Delete failed with status ' + response.status + ': ' + text);
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to delete grievance: ' + error.message,
+                    icon: 'error'
+                });
+            });
         }
     });
 }
