@@ -22,8 +22,9 @@ class PartalController extends Controller
             ->leftJoin('mozas', 'partal.moza_nam', '=', 'mozas.mozaId');
 
         if (session('role_id') == 2) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
             $query->where('districts.districtId', session('zila_id'))
-                  ->whereRaw("FIND_IN_SET(tehsils.tehsilId, ?)", [session('tehsil_id')]);
+                  ->whereIn('tehsils.tehsilId', $assignedTehsils);
         }
 
         $records = $query->select(
@@ -248,9 +249,10 @@ class PartalController extends Controller
             ->leftJoin('mozas', 'partal.moza_nam', '=', 'mozas.mozaId');
 
         // Role-based filtering
-        if (session('role_id') == 2) {
+        if (session('role_id') != 1) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
             $query->where('districts.districtId', session('zila_id'))
-                  ->where('tehsils.tehsilId', session('tehsil_id'));
+                  ->whereIn('tehsils.tehsilId', $assignedTehsils);
         }
 
         // Search functionality
