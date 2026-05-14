@@ -9,11 +9,7 @@
         <a href="{{ route('grievances.create') }}" class="btn btn-success pull-right">
             <i class="fa fa-plus"></i> Add New Grievance
         </a>
-        @if(config('app.debug'))
-        <button onclick="deleteGrievance(1)" class="btn btn-warning pull-right" style="margin-right: 10px;">
-            <i class="fa fa-trash"></i> Test Delete
-        </button>
-        @endif
+      
     </div>
 
     <center><legend> <h3>Grievances List</h3></legend></center>

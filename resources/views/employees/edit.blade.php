@@ -9,7 +9,7 @@
             <h3 class="panel-title">ملازم میں ترمیم کریں</h3>
         </div>
         <div class="panel-body">
-            <form action="{{ route('employees.update', $employee->id) }}" method="POST" class="form-modern">
+            <form action="{{ route('employees.update', $employee->id) }}" method="POST" class="form-modern" accept-charset="UTF-8">
                 @csrf
                 @method('PUT')
 

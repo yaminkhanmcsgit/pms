@@ -9,7 +9,7 @@
             <h3 class="panel-title">تکمیلی عمل ترمیم کریں</h3>
         </div>
         <div class="panel-body">
-            <form action="{{ route('completion_process.update', $record->id) }}" method="POST" class="form-modern">
+            <form action="{{ route('completion_process.update', $record->id) }}" method="POST" class="form-modern" accept-charset="UTF-8">
                 @csrf
                 @method('PUT')
         <div class="row">

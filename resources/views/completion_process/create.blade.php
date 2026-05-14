@@ -9,7 +9,7 @@
             <h3 class="panel-title">نیا تکمیلی عمل شامل کریں</h3>
         </div>
         <div class="panel-body">
-            <form action="{{ route('completion_process.store') }}" method="POST" class="form-modern">
+            <form action="{{ route('completion_process.store') }}" method="POST" class="form-modern" accept-charset="UTF-8">
                 @csrf
         <div class="row">
             <div class="form-group col-md-4 col-xs-12">

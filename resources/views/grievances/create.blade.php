@@ -33,7 +33,7 @@
                 <h5>SETTLEMENT OF LAND RECORDS DIR/KALAM PROJECT</h5>
             </div>
 
-            <form action="{{ route('grievances.store') }}" method="POST" class="form-modern">
+            <form action="{{ route('grievances.store') }}" method="POST" class="form-modern" accept-charset="UTF-8">
                 @csrf
 
         <div class="row" style="margin-bottom:20px;">

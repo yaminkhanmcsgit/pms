@@ -9,7 +9,7 @@
             <h3 class="panel-title">نیا ملازم شامل کریں</h3>
         </div>
         <div class="panel-body">
-            <form action="{{ route('employees.store') }}" method="POST" class="form-modern">
+            <form action="{{ route('employees.store') }}" method="POST" class="form-modern" accept-charset="UTF-8">
                 @csrf
 
                 <div class="row mb-3" >
