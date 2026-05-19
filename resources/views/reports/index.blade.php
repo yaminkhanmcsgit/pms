@@ -481,6 +481,13 @@ function getGrievancesFilters() {
 function loadPartalReports() {
     $.get('{{ route("reports.partal") }}', getPartalFilters(), function(data) {
         let html = '<table><thead><tr><th rowspan="2">سیریل نمبر</th><th colspan="7">بنیادی معلومات</th><th colspan="2">پڑتال پیمائش موقع</th><th colspan="2">تصدیق آخیر ملکیت وغیرہ بر موقع</th><th colspan="2">تصدیق آخیر شجرہ نسب</th><th colspan="2">تصدیق ملکیت و قبضہ کاشت وغیرہ</th><th rowspan="2">تبصرہ</th></tr><tr><th>ضلع نام</th><th>تحصیل نام</th><th>موضع نام</th><th>پٹواری نام</th><th>اہلکار نام</th><th>از تاریخ</th><th>تا تاریخ</th><th>تصدیق ملکیت/پیمود شدہ نمبرات خسرہ</th><th>تعداد برامدہ بدرات</th><th>تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ</th><th>تعداد برامدہ بدرات</th><th>تعداد گھری</th><th>تعداد برامدہ بدرات</th><th>مقابلہ کھتونی ہمراہ کاپی چومنڈہ</th><th>تعداد برامدہ بدرات</th></tr></thead><tbody>';
+        function formatDateDMY(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            return parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+
         data.forEach(function(item, index) {
             html += '<tr><td>' + (index + 1) + '</td>' +
                 '<td>' + (item.districtNameUrdu || '-') + '</td>' +
@@ -488,8 +495,8 @@ function loadPartalReports() {
                 '<td>' + (item.mozaNameUrdu || '-') + '</td>' +
                 '<td>' + (item.patwari_nam || '-') + '</td>' +
                 '<td>' + (item.ahalkar_nam || '-') + '</td>' +
-                '<td>' + ($('#partal_from_date').val() || '-') + '</td>' +
-                '<td>' + ($('#partal_to_date').val() || '-') + '</td>' +
+                '<td>' + formatDateDMY($('#partal_from_date').val()) + '</td>' +
+                '<td>' + formatDateDMY($('#partal_to_date').val()) + '</td>' +
                 '<td class="' + (item.tasdeeq_milkiat_pemuda_khasra > 0 ? 'value-cell' : '') + '">' + (!item.tasdeeq_milkiat_pemuda_khasra ? '-' : item.tasdeeq_milkiat_pemuda_khasra) + '</td>' +
                 '<td class="' + (item.tasdeeq_milkiat_pemuda_khasra_badrat > 0 ? 'value-cell' : '') + '">' + (!item.tasdeeq_milkiat_pemuda_khasra_badrat ? '-' : item.tasdeeq_milkiat_pemuda_khasra_badrat) + '</td>' +
                 '<td class="' + (item.tasdeeq_milkiat_qabza_kasht_khasra > 0 ? 'value-cell' : '') + '">' + (!item.tasdeeq_milkiat_qabza_kasht_khasra ? '-' : item.tasdeeq_milkiat_qabza_kasht_khasra) + '</td>' +
