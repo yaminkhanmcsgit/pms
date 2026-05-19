@@ -251,9 +251,10 @@ class CompletionProcessController extends Controller
             ->leftJoin('completion_process_types', $this->table.'.completion_process_type_id', '=', 'completion_process_types.id');
 
         // Role-based filtering
-        if (session('role_id') == 2) {
+        if (session('role_id') != 1) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
             $query->where($this->table.'.zila_id', session('zila_id'))
-                  ->where($this->table.'.tehsil_id', session('tehsil_id'));
+                  ->whereIn($this->table.'.tehsil_id', $assignedTehsils);
         }
 
         // Search functionality
