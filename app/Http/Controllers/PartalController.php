@@ -55,8 +55,9 @@ class PartalController extends Controller
             ->leftJoin('mozas', 'partal.moza_nam', '=', 'mozas.mozaId');
 
         if (session('role_id') == 2) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
             $query->where('districts.districtId', session('zila_id'))
-                  ->where('tehsils.tehsilId', session('tehsil_id'));
+                  ->whereIn('tehsils.tehsilId', $assignedTehsils);
         }
 
         $records = $query->select(
@@ -167,7 +168,8 @@ class PartalController extends Controller
             $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
             $assignedTehsils = explode(',', session('tehsil_id'));
         $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
-            $mozas = DB::table('mozas')->where('tehsilId', session('tehsil_id'))->get();
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
+            $mozas = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
         }
         $employees = DB::table('employees')->orderBy('nam')->get();
         return view('partal.edit', compact('record', 'districts', 'tehsils', 'mozas', 'employees', 'role_id'));

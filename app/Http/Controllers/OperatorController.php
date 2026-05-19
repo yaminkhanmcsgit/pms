@@ -14,8 +14,9 @@ class OperatorController extends Controller
             ->leftJoin('districts', 'operators.zila_id', '=', 'districts.districtId');
 
         if (session('role_id') == 2) {
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
             $query->where('operators.zila_id', session('zila_id'))
-                  ->whereRaw("FIND_IN_SET(?, operators.tehsil_id)", [session('tehsil_id')]);
+                  ->whereIn('operators.tehsil_id', $assignedTehsils);
         }
 
         $operators = $query->select(
@@ -72,7 +73,8 @@ class OperatorController extends Controller
         $tehsils   = collect(); // Will be loaded via AJAX on district change
     } else {
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-        $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
+        $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
     }
     return view('operators.create', compact('districts', 'tehsils', 'role_id'));
     }
@@ -117,7 +119,8 @@ class OperatorController extends Controller
         $tehsils   = collect();
     } else {
         $districts = DB::table('districts')->where('districtId', session('zila_id'))->get();
-        $tehsils   = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->get();
+        $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
+        $tehsils   = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->get();
     }
     return view('operators.edit', compact('operator', 'districts', 'tehsils', 'role_id'));
     }

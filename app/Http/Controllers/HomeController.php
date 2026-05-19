@@ -185,7 +185,8 @@ class HomeController extends Controller
         $assigned_tehsil_name = '';
         if ($role_id == 2) {
             $assigned_district_name = DB::table('districts')->where('districtId', session('zila_id'))->value('districtNameUrdu');
-            $assigned_tehsil_name = DB::table('tehsils')->where('tehsilId', session('tehsil_id'))->value('tehsilNameUrdu');
+            $assignedTehsils = array_values(array_filter(array_map('trim', explode(',', (string) session('tehsil_id')))));
+            $assigned_tehsil_name = DB::table('tehsils')->whereIn('tehsilId', $assignedTehsils)->value('tehsilNameUrdu');
         }
         return view('dashboard', compact('district', 'report_date', 'records', 'completion_process', 'grievances', 'districts', 'tehsils', 'selected_district', 'selected_tehsil', 'from_date', 'to_date', 'role_id', 'assigned_district_name', 'assigned_tehsil_name', 'operators_count', 'employees_count', 'completion_process_count', 'partal_count', 'grievances_count'));
     }
