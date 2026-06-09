@@ -53,8 +53,8 @@
                 <td>{{ $item->districtNameUrdu }}</td>
                 <td>{{ $item->tehsilNameUrdu }}</td>
                 <td>{{ $item->mozaNameUrdu }}</td>
-                <td>{{ $item->patwari_nam }}</td>
-                <td>{{ $item->ahalkar_nam }}</td>
+                <td>{{ $item->patwari_nam }}{{ $item->patwari_title ? ' (' . $item->patwari_title . ')' : '' }}</td>
+                <td>{{ $item->ahalkar_nam }}{{ $item->ahalkar_title ? ' (' . $item->ahalkar_title . ')' : '' }}</td>
                 <td>{{ $from_date }}</td>
                 <td>{{ $to_date }}</td>
                 <td>{{ $item->tasdeeq_milkiat_pemuda_khasra }}</td>

@@ -371,6 +371,10 @@ class HomeController extends Controller
         }
 
         $query = DB::table('partal')
+            ->leftJoin('employees as emp_ahalkar', 'partal.ahalkar_nam', '=', 'emp_ahalkar.nam')
+            ->leftJoin('employee_type as et_ahalkar', 'emp_ahalkar.ahalkar_type', '=', 'et_ahalkar.ahalkar_type_id')
+            ->leftJoin('employees as emp_patwari', 'partal.patwari_nam', '=', 'emp_patwari.nam')
+            ->leftJoin('employee_type as et_patwari', 'emp_patwari.ahalkar_type', '=', 'et_patwari.ahalkar_type_id')
             ->leftJoin('districts', 'partal.zila_nam', '=', 'districts.districtId')
             ->leftJoin('tehsils', 'partal.tehsil_nam', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'partal.moza_nam', '=', 'mozas.mozaId')
@@ -382,6 +386,8 @@ class HomeController extends Controller
             })
             ->select(
                 'partal.*',
+                'et_ahalkar.ahalkar_title as ahalkar_title',
+                'et_patwari.ahalkar_title as patwari_title',
                 'districts.districtNameUrdu',
                 'tehsils.tehsilNameUrdu',
                 'mozas.mozaNameUrdu'

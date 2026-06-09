@@ -493,8 +493,8 @@ function loadPartalReports() {
                 '<td>' + (item.districtNameUrdu || '-') + '</td>' +
                 '<td>' + (item.tehsilNameUrdu || '-') + '</td>' +
                 '<td>' + (item.mozaNameUrdu || '-') + '</td>' +
-                '<td>' + (item.patwari_nam || '-') + '</td>' +
-                '<td>' + (item.ahalkar_nam || '-') + '</td>' +
+                '<td>' + (item.patwari_nam || '-') + (item.patwari_title ? ' <small>(' + item.patwari_title + ')</small>' : '') + '</td>' +
+                '<td>' + (item.ahalkar_nam || '-') + (item.ahalkar_title ? ' <small>(' + item.ahalkar_title + ')</small>' : '') + '</td>' +
                 '<td>' + formatDateDMY($('#partal_from_date').val()) + '</td>' +
                 '<td>' + formatDateDMY($('#partal_to_date').val()) + '</td>' +
                 '<td class="' + (item.tasdeeq_milkiat_pemuda_khasra > 0 ? 'value-cell' : '') + '">' + (!item.tasdeeq_milkiat_pemuda_khasra ? '-' : item.tasdeeq_milkiat_pemuda_khasra) + '</td>' +
