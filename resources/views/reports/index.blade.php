@@ -60,21 +60,18 @@ $('#grievances_pdf').click(function() {
 @section('content')
 <style>
 @media print {
-    .header-menu-area, .footer-copyright-area, .container { padding: 0; }
-    .nav-tabs, .row.mb-3 { display: none !important; }
-    .tab-content > div > h4 { display: block !important; text-align: center; margin-bottom: 20px; }
-    #partal_table_container, #completion_table_container { display: block !important; margin: 0; }
-    table { font-size: 12px; }
+    .header-menu-area, .footer-copyright-area, .mobile-menu-area { display: none !important; }
+    body { margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; }
+    html, body { height: auto !important; }
+    .container { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+    .nav-tabs, .row.mb-3, .btn, .form-control, .col-md-2 { display: none !important; }
+    .tab-content > div > h4 { display: block !important; text-align: center; margin-bottom: 5px; margin-top: 0; font-size: 16pt !important; }
+    #partal_content, #completion_content, #grievances_content { display: block !important; margin: 0; padding: 0; }
+    #partal_table_container, #completion_table_container, #grievances_table_container { display: block !important; margin: 0; padding: 0; }
+    table { font-size: 9pt; page-break-inside: auto; width: 100% !important; margin: 0 !important; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    .content { padding: 0 !important; margin: 0 !important; }
 }
-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
-table th, table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-table th { background-color: #e9ecef; color: #333; font-weight: bold; }
-tr:nth-child(even) { background-color: #f9f9f9; }
-tr:nth-child(odd) { background-color: #fff; }
-tr:hover { background-color: #f1f1f1; }
-.value-cell { background-color: #d4edda !important; }
-
-.tab-content .col-md-2{float:right;}
 </style>
 <div class="container" dir="rtl">
     <center><legend><h3>رپورٹس</h3></legend></center>
@@ -249,21 +246,16 @@ tr:hover { background-color: #f1f1f1; }
                         <option value="">تمام</option>
                     </select>
                 </div>
-                <div class="col-md-2" style="padding-left:0;padding-right:0">
-                    <br>
+<div class="col-md-2" style="padding-left:0;padding-right:0">
                     <button id="completion_filter" class="btn btn-primary btn-sm">فلٹر</button>
                     <button id="completion_pdf" type="button" class="btn btn-danger btn-sm">PDF</button>
                     <button id="completion_excel" type="button" class="btn btn-success btn-sm">Excel</button>
                     <button id="completion_print" type="button" class="btn btn-info btn-sm">Print</button>
                 </div>
             </div>
-           
+            
             <div id="completion_content">
-              
-                
-            <div class="clearfix"></div>
-             <br>
-              <center><h4>تکمیلی کام رپورٹ</h4></center>
+               <center><h4>تکمیلی کام رپورٹ</h4></center>
             <div id="completion_table_container">
                 <table>
                     <thead>
@@ -370,13 +362,9 @@ tr:hover { background-color: #f1f1f1; }
                     </div>
                 </div>
     
-                <div id="grievances_content">
-    
-    
-                <div class="clearfix"></div>
-                 <br>
-                  <center><h4>شکایات رپورٹ</h4></center>
-                <div id="grievances_table_container">
+<div id="grievances_content">
+            <center><h4>شکایات رپورٹ</h4></center>
+            <div id="grievances_table_container">
                     <table>
                         <thead>
                             <tr>
