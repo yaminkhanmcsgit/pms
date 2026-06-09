@@ -121,7 +121,6 @@ tr:hover { background-color: #f1f1f1; }
                     </select>
                 </div>
                 <div class="col-md-2" style="padding-left:0;padding-right:0">
-                    <br>
                     <button id="partal_filter" class="btn btn-primary btn-sm">فلٹر</button>
                     <button id="partal_pdf" type="button" class="btn btn-danger btn-sm">PDF</button>
                     <button id="partal_excel" type="button" class="btn btn-success btn-sm">Excel</button>
