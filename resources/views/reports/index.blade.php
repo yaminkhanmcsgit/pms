@@ -8,6 +8,17 @@
     .header-menu-area, .footer-copyright-area, .nav, .navbar, .mobile-menu-area { display: none !important; }
     body { margin: 0; padding: 0; }
     .container { width: 100%; max-width: none; padding: 0; margin: 0; }
+    .page-header { display: none !important; }
+    .tab-content > div { page-break-inside: auto; }
+    .tab-content > div > h4 { display: block !important; text-align: center; margin-bottom: 10px; margin-top: 0; }
+    #partal_table_container, #completion_table_container { display: block !important; margin: 0; }
+    table { font-size: 10pt; page-break-inside: auto; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    .btn { display: none !important; }
+    .clearfix { display: none !important; }
+    .row.mb-3 { display: none !important; }
+    .nav-tabs { display: none !important; }
+}
 }
 </style>
 @endpush
@@ -352,7 +363,6 @@ tr:hover { background-color: #f1f1f1; }
                         </select>
                     </div>
                     <div class="col-md-2" style="padding-left:0;padding-right:0">
-                        <br>
                         <button id="grievances_filter" class="btn btn-primary btn-sm">فلٹر</button>
                         <button id="grievances_pdf" type="button" class="btn btn-danger btn-sm">PDF</button>
                         <button id="grievances_excel" type="button" class="btn btn-success btn-sm">Excel</button>

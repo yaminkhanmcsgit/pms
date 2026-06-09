@@ -430,8 +430,7 @@ ul.notika-menu-wrap li a {
     <!-- Main Menu area End-->
     
         <!-- Main Content -->
-        <div class="content">
-            <br><br>
+        <div class="content" style="margin-top:20px;">
                 @yield('content')
         </div>
         <!-- Main Content End -->
