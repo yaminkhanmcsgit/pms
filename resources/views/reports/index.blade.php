@@ -128,12 +128,10 @@ tr:hover { background-color: #f1f1f1; }
                     <button id="partal_print" type="button" class="btn btn-info btn-sm">Print</button>
                 </div>
             </div>
-            <div class="clearfix"></div>
+<div class="clearfix"></div>
             <div id="partal_content">
-               <br>
-                
              <center><h4>پڑتال رپورٹ</h4></center>
-            <div id="partal_table_container">
+             <div id="partal_table_container" style="margin-top:15px;">
                 <table>
                     <thead>
                         <tr>
