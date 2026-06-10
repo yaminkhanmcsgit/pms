@@ -417,12 +417,11 @@
                     return response.json();
                 })
                 .then(data => {
+                    const labels = Object.keys(data);
+                    const values = Object.values(data);
+                    const colors = generateColors(labels.length);
                     if (!completionProcessChart) {
-                        completionProcessChart = createDoughnutChart('completionProcessChart', 'تکمیلی کام', Object.keys(data), Object.values(data), [
-                            'rgba(45, 125, 45, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)', 'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)', 'rgba(99, 255, 132, 0.8)'
-                        ], [
-                            'rgba(45, 125, 45, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(199, 199, 199, 1)', 'rgba(83, 102, 255, 1)', 'rgba(255, 99, 255, 1)', 'rgba(99, 255, 132, 1)'
-                        ]);
+                        completionProcessChart = createDoughnutChart('completionProcessChart', 'تکمیلی کام', labels, values, colors.bg, colors.border);
                     } else {
                         updateDoughnutChart(completionProcessChart, data);
                     }
@@ -508,6 +507,23 @@
                 chart.data.labels = Object.keys(data);
                 chart.data.datasets[0].data = Object.values(data);
                 chart.update();
+            }
+
+            function generateColors(count) {
+                const baseColors = [
+                    [45, 125, 45], [54, 162, 235], [255, 205, 86], [75, 192, 192],
+                    [153, 102, 255], [255, 159, 64], [199, 199, 199], [83, 102, 255],
+                    [255, 99, 255], [99, 255, 132], [255, 87, 34], [156, 39, 176],
+                    [0, 150, 136], [255, 193, 7], [33, 150, 243], [96, 125, 139]
+                ];
+                const bg = [];
+                const border = [];
+                for (let i = 0; i < count; i++) {
+                    const color = baseColors[i % baseColors.length];
+                    bg.push(`rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.8)`);
+                    border.push(`rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`);
+                }
+                return { bg, border };
             }
 
             function createBarChart(canvasId, title, data) {

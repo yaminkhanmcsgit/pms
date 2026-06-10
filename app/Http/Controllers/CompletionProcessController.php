@@ -293,15 +293,23 @@ class CompletionProcessController extends Controller
             'districts.districtNameUrdu as districtNameUrdu',
             'tehsils.tehsilNameUrdu as tehsilNameUrdu',
             'mozas.mozaNameUrdu as mozaNameUrdu',
-            'completion_process_types.title_ur as completion_process_type_title'
+            'completion_process_types.title_ur as completion_process_type_title',
+            'completion_process_types.field_name'
         )->get();
+
+        // Get all known field names from types table for dynamic initialization
+        $knownFields = DB::table('completion_process_types')
+            ->whereNotNull('field_name')
+            ->pluck('field_name')
+            ->unique()
+            ->toArray();
 
         // Group records by id to aggregate the type values
         $groupedRecords = [];
         foreach ($records as $record) {
             $id = $record->id;
             if (!isset($groupedRecords[$id])) {
-                $groupedRecords[$id] = [
+                $initialState = [
                     'id' => $record->id,
                     'districtNameUrdu' => $record->districtNameUrdu,
                     'tehsilNameUrdu' => $record->tehsilNameUrdu,
@@ -309,60 +317,18 @@ class CompletionProcessController extends Controller
                     'employee_name' => $record->employee_name,
                     'employee_type_title' => $record->employee_type_title,
                     'tareekh' => $record->tareekh ? date('d-m-Y', strtotime($record->tareekh)) : '',
-                    'mizan_khata_dar_khatoni' => '',
-                    'pukhta_khatoni_drandkas_khasra' => '',
-                    'durusti_badrat' => '',
-                    'tehreer_naqal_shajra_nasab' => '',
-                    'tehreer_shajra_nasab_malkan_qabza' => '',
-                    'pukhta_khatajat' => '',
-                    'kham_khatajat_dar_shajra_nasab' => '',
-                    'tehreer_mushtarka_khata' => '',
-                    'pukhta_numberwan_dar_khatoni' => '',
-                    'kham_numberwan_dar_khatoni' => '',
-                    'tasdeeq_akhir' => '',
-                    'mutafarriq_kaam' => '',
-                    'actions' => ($record->operator_id == session('operator_id')) ? '<a href="' . route('completion_process.edit', $record->id) . '" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> ترمیم</a>' : ''
                 ];
+                
+                foreach ($knownFields as $field) {
+                    $initialState[$field] = '';
+                }
+                $initialState['actions'] = ($record->operator_id == session('operator_id')) ? '<a href="' . route('completion_process.edit', $record->id) . '" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> ترمیم</a>' : '';
+                $groupedRecords[$id] = $initialState;
             }
 
-            // Set the appropriate field based on completion_process_type_id
-            switch ($record->completion_process_type_id) {
-                case 1:
-                    $groupedRecords[$id]['mizan_khata_dar_khatoni'] = $record->type_value ?: '-';
-                    break;
-                case 2:
-                    $groupedRecords[$id]['pukhta_khatoni_drandkas_khasra'] = $record->type_value ?: '-';
-                    break;
-                case 3:
-                    $groupedRecords[$id]['durusti_badrat'] = $record->type_value ?: '-';
-                    break;
-                case 4:
-                    $groupedRecords[$id]['tehreer_naqal_shajra_nasab'] = $record->type_value ?: '-';
-                    break;
-                case 5:
-                    $groupedRecords[$id]['tehreer_shajra_nasab_malkan_qabza'] = $record->type_value ?: '-';
-                    break;
-                case 6:
-                    $groupedRecords[$id]['pukhta_khatajat'] = $record->type_value ?: '-';
-                    break;
-                case 7:
-                    $groupedRecords[$id]['kham_khatajat_dar_shajra_nasab'] = $record->type_value ?: '-';
-                    break;
-                case 8:
-                    $groupedRecords[$id]['tehreer_mushtarka_khata'] = $record->type_value ?: '-';
-                    break;
-                case 9:
-                    $groupedRecords[$id]['pukhta_numberwan_dar_khatoni'] = $record->type_value ?: '-';
-                    break;
-                case 10:
-                    $groupedRecords[$id]['kham_numberwan_dar_khatoni'] = $record->type_value ?: '-';
-                    break;
-                case 11:
-                    $groupedRecords[$id]['tasdeeq_akhir'] = $record->type_value ?: '-';
-                    break;
-                case 12:
-                    $groupedRecords[$id]['mutafarriq_kaam'] = $record->type_value ?: '-';
-                    break;
+            // Set the appropriate field dynamically based on field_name from types table
+            if (!empty($record->field_name)) {
+                $groupedRecords[$id][$record->field_name] = $record->type_value ?: '-';
             }
         }
 

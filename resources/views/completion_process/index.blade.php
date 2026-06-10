@@ -44,7 +44,7 @@
                 </a>
             </div>
 
-            <div class="table-responsive">
+<div class="table-responsive">
                 <table id="completion_process_table" class="table table-striped table-hover table-bordered text-center" style="width: 100%;">
                     <thead class="thead-dark">
                         <tr>
@@ -54,18 +54,6 @@
                             <th>نام موضع</th>
                             <th>نام اہلکار</th>
                             <th>اہلکار کی قسم</th>
-                            <th>میزان کھاتہ دار/کھتونی</th>
-                            <th>پختہ کھتونی درانڈکس خسرہ</th>
-                            <th>درستی بدرات</th>
-                            <th>تحریر نقل شجرہ نسب</th>
-                            <th>تحریر شجرہ نسب مالکان قبضہ</th>
-                            <th>پختہ کھاتاجات</th>
-                            <th>خام کھاتہ جات در شجرہ نسب</th>
-                            <th>تحریر مشترکہ کھاتہ</th>
-                            <th>پختہ نمبرواں در کھتونی</th>
-                            <th>خام نمبرواں در کھتونی</th>
-                            <th>تصدیق آخیر</th>
-                            <th>متفرق کام</th>
                             <th>تاریخ</th>
                             <th class="no-print">عمل</th>
                         </tr>
@@ -195,52 +183,63 @@
 $(document).ready(function() {
     loadTargetValues();
     loadModalDropdowns();
-
-    $('#completion_process_table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: "{{ route('completion_process.datatable') }}",
-            type: "POST",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        },
-        columns: [
+    
+    // Fetch types for dynamic columns
+    $.get('{{ url("api/completion-process-types") }}', function(types) {
+        let columns = [
             { data: 'id', orderable: false },
             { data: 'districtNameUrdu', orderable: false },
             { data: 'tehsilNameUrdu', orderable: false },
             { data: 'mozaNameUrdu', orderable: false },
             { data: 'employee_name', orderable: false },
             { data: 'employee_type_title', orderable: false },
-            { data: 'mizan_khata_dar_khatoni', orderable: false, className: 'text-center' },
-            { data: 'pukhta_khatoni_drandkas_khasra', orderable: false, className: 'text-center' },
-            { data: 'durusti_badrat', orderable: false, className: 'text-center' },
-            { data: 'tehreer_naqal_shajra_nasab', orderable: false, className: 'text-center' },
-            { data: 'tehreer_shajra_nasab_malkan_qabza', orderable: false, className: 'text-center' },
-            { data: 'pukhta_khatajat', orderable: false, className: 'text-center' },
-            { data: 'kham_khatajat_dar_shajra_nasab', orderable: false, className: 'text-center' },
-            { data: 'tehreer_mushtarka_khata', orderable: false, className: 'text-center' },
-            { data: 'pukhta_numberwan_dar_khatoni', orderable: false, className: 'text-center' },
-            { data: 'kham_numberwan_dar_khatoni', orderable: false, className: 'text-center' },
-            { data: 'tasdeeq_akhir', orderable: false, className: 'text-center' },
-            { data: 'mutafarriq_kaam', orderable: false, className: 'text-center' },
-            { data: 'tareekh', orderable: true },
-            { data: 'actions', orderable: false }
-        ],
-        columnDefs: [
-            {
-                targets: [6,7,8,9,10,11,12,13,14,15,16,17],
-                createdCell: function (td, cellData, rowData, row, col) {
-                    if (cellData > 0) {
-                        $(td).addClass('value-cell');
+        ];
+        
+        let valueColumnIndices = [];
+        let index = 6;
+        types.forEach(function(type) {
+            if (type.field_name) {
+                columns.push({ data: type.field_name, orderable: false, className: 'text-center' });
+                valueColumnIndices.push(index);
+                index++;
+            }
+        });
+        
+        columns.push({ data: 'tareekh', orderable: true });
+        columns.push({ data: 'actions', orderable: false });
+
+        // Insert dynamic type headers into the table head (in reverse order for correct LTR display)
+        let headerRow = $('#completion_process_table thead tr');
+        for (let i = types.length - 1; i >= 0; i--) {
+            if (types[i].field_name) {
+                headerRow.find('th:eq(5)').after('<th>' + types[i].title_ur + '</th>');
+            }
+        }
+
+        $('#completion_process_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('completion_process.datatable') }}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            },
+            columns: columns,
+            columnDefs: [
+                {
+                    targets: valueColumnIndices,
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        if (cellData > 0) {
+                            $(td).addClass('value-cell');
+                        }
                     }
                 }
-            }
-        ],
-        order: [[0, 'desc']],
-        pageLength: 25
-        
+            ],
+            order: [[0, 'desc']],
+            pageLength: 25
+        });
     });
 });
 

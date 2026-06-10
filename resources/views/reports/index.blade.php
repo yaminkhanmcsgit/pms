@@ -59,19 +59,28 @@ $('#grievances_pdf').click(function() {
 
 @section('content')
 <style>
+table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+table th, table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+table th { background-color: #e9ecef; color: #333; font-weight: bold; }
+tr:nth-child(even) { background-color: #f9f9f9; }
+tr:nth-child(odd) { background-color: #fff; }
+tr:hover { background-color: #f1f1f1; }
+.value-cell { background-color: #d4edda !important; }
+
 @media print {
     .header-menu-area, .footer-copyright-area, .mobile-menu-area { display: none !important; }
     body { margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; }
     html, body { height: auto !important; }
     .container { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
     .nav-tabs, .row.mb-3, .btn, .form-control, .col-md-2 { display: none !important; }
-    .tab-content > div > h4 { display: block !important; text-align: center; margin-bottom: 5px; margin-top: 0; font-size: 16pt !important; }
+    .tab-content > div > h4 { display: block !important; text-align: center; margin-bottom: 5px; margin-top: 0; font-size: 14pt !important; }
     #partal_content, #completion_content, #grievances_content { display: block !important; margin: 0; padding: 0; }
     #partal_table_container, #completion_table_container, #grievances_table_container { display: block !important; margin: 0; padding: 0; }
     table { font-size: 9pt; page-break-inside: auto; width: 100% !important; margin: 0 !important; }
     tr { page-break-inside: avoid; page-break-after: auto; }
     .content { padding: 0 !important; margin: 0 !important; }
 }
+.tab-content .col-md-2{float:right;}
 </style>
 <div class="container" dir="rtl">
     <center><legend><h3>رپورٹس</h3></legend></center>
@@ -134,11 +143,10 @@ $('#grievances_pdf').click(function() {
                     <button id="partal_excel" type="button" class="btn btn-success btn-sm">Excel</button>
                     <button id="partal_print" type="button" class="btn btn-info btn-sm">Print</button>
                 </div>
-            </div>
-<div class="clearfix"></div>
+</div>
             <div id="partal_content">
-             <center><h4>پڑتال رپورٹ</h4></center>
-             <div id="partal_table_container" style="margin-top:15px;">
+                <center><h4>پڑتال رپورٹ</h4></center>
+                <div id="partal_table_container">
                 <table>
                     <thead>
                         <tr>
@@ -175,8 +183,8 @@ $('#grievances_pdf').click(function() {
                             <td>{{ $item->districtNameUrdu }}</td>
                             <td>{{ $item->tehsilNameUrdu }}</td>
                             <td>{{ $item->mozaNameUrdu }}</td>
-                            <td>{{ $item->patwari_nam }}</td>
-                            <td>{{ $item->ahalkar_nam }}</td>
+                            <td>{{ $item->patwari_nam }}@if(!empty($item->patwari_title)) <small>({{ $item->patwari_title }})</small>@endif</td>
+                            <td>{{ $item->ahalkar_nam }}@if(!empty($item->ahalkar_title)) <small>({{ $item->ahalkar_title }})</small>@endif</td>
                             <td>{{ $from_date }}</td>
                             <td>{{ $to_date }}</td>
                             <td class="{{ $item->tasdeeq_milkiat_pemuda_khasra > 0 ? 'value-cell' : '' }}">{{ $item->tasdeeq_milkiat_pemuda_khasra == 0 ? '-' : $item->tasdeeq_milkiat_pemuda_khasra }}</td>
@@ -509,44 +517,46 @@ function loadPartalReports() {
 
 function loadCompletionReports() {
     $.get('{{ route("reports.completion_process") }}', getCompletionFilters(), function(data) {
-        let html = '<table><thead><tr><th>نمبر شمار</th><th>نام ضلع</th><th>نام تحصیل</th><th>نام موضع</th><th>نام اہلکار</th><th>میزان کھاتہ دار/کھتونی</th><th>پختہ کھتونی درانڈکس خسرہ</th><th>درستی بدرات</th><th>تحریر نقل شجرہ نسب</th><th>تحریر شجرہ نسب مالکان قبضہ</th><th>پختہ کھاتاجات</th><th>خام کھاتہ جات در شجرہ نسب</th><th>تحریر مشترکہ کھاتہ</th><th>پختہ نمبرواں در کھتونی</th><th>خام نمبرواں در کھتونی</th><th>تصدیق آخیر</th><th>متفرق کام</th><th>از تاریخ</th><th>تا تاریخ</th></tr></thead><tbody>';
-        data.forEach(function(item, index) {
-            function getCell(value, target) {
-                if (value == 0) return '<td>-</td>';
-
-                console.log('Value:', value, 'Target:', target);
-                var targetVal = target || 0;
-                var text = targetVal + ' / ' + value;
-                var cls = '';
-                if (targetVal==0) {
-                    cls += 'bg-warning';
+        $.get('{{ url("api/completion-process-types") }}', function(types) {
+            let headers = '<tr><th>نمبر شمار</th><th>نام ضلع</th><th>نام تحصیل</th><th>نام موضع</th><th>نام اہلکار</th>';
+            let headerKeys = [];
+            types.forEach(function(type) {
+                if (type.field_name) {
+                    headers += '<th>' + type.title_ur + '</th>';
+                    headerKeys.push(type.field_name);
                 }
-                else  if (value >= targetVal) {
-                    cls += 'bg-success';
+            });
+            headers += '<th>از تاریخ</th><th>تا تاریخ</th></tr>';
+            
+            let html = '<table><thead>' + headers + '</thead><tbody>';
+            data.forEach(function(item, index) {
+                function getCell(value, target) {
+                    if (value == null || value == 0) return '<td>-</td>';
+                    var targetVal = target || 0;
+                    var text = targetVal + ' / ' + value;
+                    var cls = '';
+                    if (targetVal==0) {
+                        cls += 'bg-warning';
+                    } else  if (value >= targetVal) {
+                        cls += 'bg-success';
+                    } else {
+                        cls += 'bg-danger';
+                    }
+                    return '<td class="' + cls + '">' + text + '</td>';
                 }
                 
-                 else {
-                    cls += 'bg-danger';
-                }
-                return '<td class="' + cls + '">' + text + '</td>';
-            }
-            html += '<tr><td>' + (index + 1) + '</td><td>' + item.districtNameUrdu + '</td><td>' + item.tehsilNameUrdu + '</td><td>' + item.mozaNameUrdu + '</td><td>' + item.employee_name + (item.employee_type_title ? ' <small>(' + item.employee_type_title + ')</small>' : '') + '</td>' +
-                getCell(item.mizan_khata_dar_khatoni, item.target_mizan_khata_dar_khatoni) +
-                getCell(item.pukhta_khatoni_drandkas_khasra, item.target_pukhta_khatoni_drandkas_khasra) +
-                getCell(item.durusti_badrat, item.target_durusti_badrat) +
-                getCell(item.tehreer_naqal_shajra_nasab, item.target_tehreer_naqal_shajra_nasab) +
-                getCell(item.tehreer_shajra_nasab_malkan_qabza, item.target_tehreer_shajra_nasab_malkan_qabza) +
-                getCell(item.pukhta_khatajat, item.target_pukhta_khatajat) +
-                getCell(item.kham_khatajat_dar_shajra_nasab, item.target_kham_khatajat_dar_shajra_nasab) +
-                getCell(item.tehreer_mushtarka_khata, item.target_tehreer_mushtarka_khata) +
-                getCell(item.pukhta_numberwan_dar_khatoni, item.target_pukhta_numberwan_dar_khatoni) +
-                getCell(item.kham_numberwan_dar_khatoni, item.target_kham_numberwan_dar_khatoni) +
-                getCell(item.tasdeeq_akhir, item.target_tasdeeq_akhir) +
-                getCell(item.mutafarriq_kaam, item.target_mutafarriq_kaam) +
-                '<td>' + $('#completion_from_date').val() + '</td><td>' + $('#completion_to_date').val() + '</td></tr>';
+                let row = '<tr><td>' + (index + 1) + '</td><td>' + item.districtNameUrdu + '</td><td>' + item.tehsilNameUrdu + '</td><td>' + item.mozaNameUrdu + '</td><td>' + item.employee_name + (item.employee_type_title ? ' <small>(' + item.employee_type_title + ')</small>' : '') + '</td>';
+                headerKeys.forEach(function(key) {
+                    let value = item[key] != null ? item[key] : 0;
+                    let target = item['target_' + key] != null ? item['target_' + key] : 0;
+                    row += getCell(value, target);
+                });
+                row += '<td>' + $('#completion_from_date').val() + '</td><td>' + $('#completion_to_date').val() + '</td></tr>';
+                html += row;
+            });
+            html += '</tbody></table>';
+            $('#completion_table_container').html(html);
         });
-        html += '</tbody></table>';
-        $('#completion_table_container').html(html);
     });
 }
 

@@ -87,6 +87,25 @@ class HomeController extends Controller
         $records = $partal_query;
 
         // Grouped completion_process records by district, tehsil, moza, employee, type
+        $types = DB::table('completion_process_types')
+            ->whereNotNull('field_name')
+            ->orderBy('id')
+            ->get(['id', 'field_name', 'title_ur']);
+        
+        $selectStatements = [
+            'completion_process.zila_id', 'districts.districtNameUrdu as districtNameUrdu',
+            'completion_process.tehsil_id', 'tehsils.tehsilNameUrdu as tehsilNameUrdu',
+            'completion_process.moza_id', 'mozas.mozaNameUrdu as mozaNameUrdu',
+            'completion_process.employee_id', 'employees.nam as employee_name',
+            'employee_type.ahalkar_title as employee_type_title',
+            'completion_process.completion_process_type_id', 'completion_process_types.title_ur as completion_process_type_title',
+        ];
+        
+        foreach ($types as $type) {
+            $selectStatements[] = DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = {$type->id} AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS {$type->field_name}");
+            $selectStatements[] = DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = {$type->id}) AS target_{$type->field_name}");
+        }
+        
         $cp_query = DB::table('completion_process')
             ->leftJoin('employees', 'completion_process.employee_id', '=', 'employees.id')
             ->leftJoin('employee_type', 'employees.ahalkar_type', '=', 'employee_type.ahalkar_type_id')
@@ -110,38 +129,7 @@ class HomeController extends Controller
                 'completion_process.completion_process_type_id',
                 'completion_process_types.title_ur'
             )
-            ->select(
-                'completion_process.zila_id', 'districts.districtNameUrdu as districtNameUrdu',
-                'completion_process.tehsil_id', 'tehsils.tehsilNameUrdu as tehsilNameUrdu',
-                'completion_process.moza_id', 'mozas.mozaNameUrdu as mozaNameUrdu',
-                'completion_process.employee_id', 'employees.nam as employee_name',
-                'employee_type.ahalkar_title as employee_type_title',
-                'completion_process.completion_process_type_id', 'completion_process_types.title_ur as completion_process_type_title',
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 1 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS mizan_khata_dar_khatoni"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 2 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS pukhta_khatoni_drandkas_khasra"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 3 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS durusti_badrat"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 4 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS tehreer_naqal_shajra_nasab"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 5 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS tehreer_shajra_nasab_malkan_qabza"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 6 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS pukhta_khatajat"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 7 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS kham_khatajat_dar_shajra_nasab"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 8 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS tehreer_mushtarka_khata"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 9 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS pukhta_numberwan_dar_khatoni"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 10 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS kham_numberwan_dar_khatoni"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 11 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS tasdeeq_akhir"),
-                DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 12 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS mutafarriq_kaam"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 1) AS target_mizan_khata_dar_khatoni"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 2) AS target_pukhta_khatoni_drandkas_khasra"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 3) AS target_durusti_badrat"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 4) AS target_tehreer_naqal_shajra_nasab"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 5) AS target_tehreer_shajra_nasab_malkan_qabza"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 6) AS target_pukhta_khatajat"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 7) AS target_kham_khatajat_dar_shajra_nasab"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 8) AS target_tehreer_mushtarka_khata"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 9) AS target_pukhta_numberwan_dar_khatoni"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 10) AS target_kham_numberwan_dar_khatoni"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 11) AS target_tasdeeq_akhir"),
-                DB::raw("(SELECT COALESCE(target_value, 0) FROM completion_process_target_values_to_achieve WHERE moza_id = completion_process.moza_id AND completion_process_type_id = 12) AS target_mutafarriq_kaam")
-            )
+            ->select($selectStatements)
             ->orderBy('completion_process.zila_id')
             ->orderBy('completion_process.tehsil_id')
             ->orderBy('completion_process.moza_id')
@@ -234,6 +222,10 @@ class HomeController extends Controller
     private function getPartalReportsData($district, $tehsil, $moza, $from_date, $to_date)
     {
         return DB::table('partal')
+            ->leftJoin('employees as emp_ahalkar', 'partal.ahalkar_nam', '=', 'emp_ahalkar.nam')
+            ->leftJoin('employee_type as et_ahalkar', 'emp_ahalkar.ahalkar_type', '=', 'et_ahalkar.ahalkar_type_id')
+            ->leftJoin('employees as emp_patwari', 'partal.patwari_nam', '=', 'emp_patwari.nam')
+            ->leftJoin('employee_type as et_patwari', 'emp_patwari.ahalkar_type', '=', 'et_patwari.ahalkar_type_id')
             ->leftJoin('districts', 'partal.zila_nam', '=', 'districts.districtId')
             ->leftJoin('tehsils', 'partal.tehsil_nam', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'partal.moza_nam', '=', 'mozas.mozaId')
@@ -243,7 +235,7 @@ class HomeController extends Controller
             ->when($from_date && $to_date, function($q) use ($from_date, $to_date) {
                 $q->whereBetween('partal.tareekh_partal', [$from_date, $to_date]);
             })
-            ->groupBy('districts.districtId', 'districts.districtNameUrdu', 'tehsils.tehsilId', 'tehsils.tehsilNameUrdu', 'mozas.mozaId', 'mozas.mozaNameUrdu', 'partal.patwari_nam', 'partal.ahalkar_nam')
+            ->groupBy('districts.districtId', 'districts.districtNameUrdu', 'tehsils.tehsilId', 'tehsils.tehsilNameUrdu', 'mozas.mozaId', 'mozas.mozaNameUrdu', 'partal.patwari_nam', 'partal.ahalkar_nam', 'et_ahalkar.ahalkar_title', 'et_patwari.ahalkar_title')
             ->select(
                 'districts.districtId',
                 'districts.districtNameUrdu',
@@ -253,6 +245,8 @@ class HomeController extends Controller
                 'mozas.mozaNameUrdu',
                 'partal.patwari_nam',
                 'partal.ahalkar_nam',
+                'et_ahalkar.ahalkar_title as ahalkar_title',
+                'et_patwari.ahalkar_title as patwari_title',
                 DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_pemuda_khasra,0)) AS tasdeeq_milkiat_pemuda_khasra'),
                 DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_pemuda_khasra_badrat,0)) AS tasdeeq_milkiat_pemuda_khasra_badrat'),
                 DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_qabza_kasht_khasra,0)) AS tasdeeq_milkiat_qabza_kasht_khasra'),
@@ -441,20 +435,38 @@ class HomeController extends Controller
         $query = $this->getCompletionProcessReportsData($selected_district, $selected_tehsil, $selected_moza, $selected_employee, $from_date, $to_date);
 
         if ($request->has('pdf')) {
-            return PDF::loadView('reports.completion_pdf', compact('query', 'from_date', 'to_date'))->download('completion_report.pdf');
+            $types = DB::table('completion_process_types')
+                ->whereNotNull('field_name')
+                ->orderBy('id')
+                ->get(['id', 'field_name', 'title_ur']);
+            return PDF::loadView('reports.completion_pdf', compact('query', 'from_date', 'to_date', 'types'))->download('completion_report.pdf');
         }
 
         if ($request->has('excel')) {
+            $types = DB::table('completion_process_types')
+                ->whereNotNull('field_name')
+                ->orderBy('id')
+                ->get(['id', 'field_name', 'title_ur']);
             $filename = 'completion_process_report_' . date('Y-m-d') . '.csv';
             $headers = [
                 'Content-Type' => 'text/csv',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ];
-            $callback = function() use ($query, $from_date, $to_date) {
+            $callback = function() use ($query, $from_date, $to_date, $types) {
                 $file = fopen('php://output', 'w');
-                fputcsv($file, ['نمبر شمار', 'نام ضلع', 'نام تحصیل', 'نام موضع', 'نام اہلکار', 'میزان کھاتہ دار/کھتونی', 'پختہ کھتونی درانڈکس خسرہ', 'درستی بدرات', 'تحریر نقل شجرہ نسب', 'تحریر شجرہ نسب مالکان قبضہ', 'پختہ کھاتاجات', 'خام کھاتہ جات در شجرہ نسب', 'تحریر مشترکہ کھاتہ', 'پختہ نمبرواں در کھتونی', 'خام نمبرواں در کھتونی', 'تصدیق آخیر', 'متفرق کام', 'از تاریخ', 'تا تاریخ']);
+                $headers = ['نمبر شمار', 'نام ضلع', 'نام تحصیل', 'نام موضع', 'نام اہلکار'];
+                foreach ($types as $type) {
+                    $headers[] = $type->title_ur;
+                }
+                $headers = array_merge($headers, ['از تاریخ', 'تا تاریخ']);
+                fputcsv($file, $headers);
                 foreach ($query as $index => $row) {
-                    fputcsv($file, [$index + 1, $row->districtNameUrdu, $row->tehsilNameUrdu, $row->mozaNameUrdu, $row->employee_name, $row->mizan_khata_dar_khatoni, $row->pukhta_khatoni_drandkas_khasra, $row->durusti_badrat, $row->tehreer_naqal_shajra_nasab, $row->tehreer_shajra_nasab_malkan_qabza, $row->pukhta_khatajat, $row->kham_khatajat_dar_shajra_nasab, $row->tehreer_mushtarka_khata, $row->pukhta_numberwan_dar_khatoni, $row->kham_numberwan_dar_khatoni, $row->tasdeeq_akhir, $row->mutafarriq_kaam, $from_date, $to_date]);
+                    $values = [$index + 1, $row->districtNameUrdu, $row->tehsilNameUrdu, $row->mozaNameUrdu, $row->employee_name];
+                    foreach ($types as $type) {
+                        $values[] = $row->{$type->field_name};
+                    }
+                    $values = array_merge($values, [$from_date, $to_date]);
+                    fputcsv($file, $values);
                 }
                 fclose($file);
             };
@@ -587,7 +599,21 @@ class HomeController extends Controller
         $range = $this->getDateRange($period);
         if (!$range) return response()->json([]);
 
+        $types = DB::table('completion_process_types')
+            ->whereNotNull('field_name')
+            ->orderBy('id')
+            ->get(['id', 'field_name', 'title_ur']);
+
         $data = ['Total' => DB::table('completion_process')->whereBetween('created_at', [$range['start'], $range['end']])->count()];
+        
+        foreach ($types as $type) {
+            $count = DB::table('completion_process')
+                ->where('completion_process_type_id', $type->id)
+                ->whereBetween('created_at', [$range['start'], $range['end']])
+                ->count();
+            $data[$type->title_ur] = $count;
+        }
+        
         return response()->json($data);
     }
 
@@ -617,39 +643,26 @@ class HomeController extends Controller
         $range = $this->getDateRange($period);
         if (!$range) return response()->json([]);
 
+        $types = DB::table('completion_process_types')
+            ->whereNotNull('field_name')
+            ->orderBy('id')
+            ->get(['id', 'field_name', 'title_ur']);
+
+        $sumCases = [];
+        foreach ($types as $type) {
+            $sumCases[] = "SUM(CASE WHEN completion_process_type_id = {$type->id} THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS {$type->field_name}";
+        }
+
         $query = DB::table('completion_process')
             ->whereBetween('created_at', [$range['start'], $range['end']])
-            ->selectRaw("
-                SUM(CASE WHEN completion_process_type_id = 1 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS mizan_khata_dar_khatoni,
-                SUM(CASE WHEN completion_process_type_id = 2 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS pukhta_khatoni_drandkas_khasra,
-                SUM(CASE WHEN completion_process_type_id = 3 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS durusti_badrat,
-                SUM(CASE WHEN completion_process_type_id = 4 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS tehreer_naqal_shajra_nasab,
-                SUM(CASE WHEN completion_process_type_id = 5 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS tehreer_shajra_nasab_malkan_qabza,
-                SUM(CASE WHEN completion_process_type_id = 6 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS pukhta_khatajat,
-                SUM(CASE WHEN completion_process_type_id = 7 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS kham_khatajat_dar_shajra_nasab,
-                SUM(CASE WHEN completion_process_type_id = 8 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS tehreer_mushtarka_khata,
-                SUM(CASE WHEN completion_process_type_id = 9 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS pukhta_numberwan_dar_khatoni,
-                SUM(CASE WHEN completion_process_type_id = 10 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS kham_numberwan_dar_khatoni,
-                SUM(CASE WHEN completion_process_type_id = 11 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS tasdeeq_akhir,
-                SUM(CASE WHEN completion_process_type_id = 12 THEN CAST(type_value AS UNSIGNED) ELSE 0 END) AS mutafarriq_kaam
-            ");
+            ->selectRaw(implode(",\n                ", $sumCases));
 
         $result = $query->first();
 
-        $data = [
-            'میزان کھاتہ دار/کھتونی' => $result->mizan_khata_dar_khatoni ?? 0,
-            'پختہ کھتونی درانڈکس خسرہ' => $result->pukhta_khatoni_drandkas_khasra ?? 0,
-            'درستی بدرات' => $result->durusti_badrat ?? 0,
-            'تحریر نقل شجرہ نسب' => $result->tehreer_naqal_shajra_nasab ?? 0,
-            'تحریر شجرہ نسب مالکان قبضہ' => $result->tehreer_shajra_nasab_malkan_qabza ?? 0,
-            'پختہ کھاتاجات' => $result->pukhta_khatajat ?? 0,
-            'خام کھاتہ جات در شجرہ نسب' => $result->kham_khatajat_dar_shajra_nasab ?? 0,
-            'تحریر مشترکہ کھاتہ' => $result->tehreer_mushtarka_khata ?? 0,
-            'پختہ نمبرواں در کھتونی' => $result->pukhta_numberwan_dar_khatoni ?? 0,
-            'خام نمبرواں در کھتونی' => $result->kham_numberwan_dar_khatoni ?? 0,
-            'تصدیق آخیر' => $result->tasdeeq_akhir ?? 0,
-            'متفرق کام' => $result->mutafarriq_kaam ?? 0,
-        ];
+        $data = [];
+        foreach ($types as $type) {
+            $data[$type->title_ur] = $result->{$type->field_name} ?? 0;
+        }
 
         return response()->json($data);
     }
