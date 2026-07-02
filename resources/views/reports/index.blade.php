@@ -157,6 +157,7 @@ tr:hover { background-color: #f1f1f1; }
                             <th colspan="2">تصدیق آخیر شجرہ نسب</th>
                             <th colspan="2">تصدیق ملکیت و قبضہ کاشت وغیرہ</th>
                             <th rowspan="2">تبصرہ</th>
+                            <th rowspan="2">ٹوٹل</th>
                         </tr>
                         <tr>
                             <th>ضلع نام</th>
@@ -179,7 +180,7 @@ tr:hover { background-color: #f1f1f1; }
                     <tbody>
                         @foreach($partal_data as $index => $item)
                         <tr>
-                            <td>{{ $index + 1 }}</td>
+                            <td>{{ (int) $index + 1 }}</td>
                             <td>{{ $item->districtNameUrdu }}</td>
                             <td>{{ $item->tehsilNameUrdu }}</td>
                             <td>{{ $item->mozaNameUrdu }}</td>
@@ -196,6 +197,7 @@ tr:hover { background-color: #f1f1f1; }
                             <td class="{{ $item->muqabala_khatoni_chomanda > 0 ? 'value-cell' : '' }}">{{ $item->muqabala_khatoni_chomanda == 0 ? '-' : $item->muqabala_khatoni_chomanda }}</td>
                             <td class="{{ $item->muqabala_khatoni_chomanda_badrat > 0 ? 'value-cell' : '' }}">{{ $item->muqabala_khatoni_chomanda_badrat == 0 ? '-' : $item->muqabala_khatoni_chomanda_badrat }}</td>
                             <td>{{ $item->tabsara }}</td>
+                            <td><strong>{{ $item->total_count > 0 ? $item->total_count : '-' }}</strong></td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -285,6 +287,7 @@ tr:hover { background-color: #f1f1f1; }
                             <th>خام نمبرواں در کھتونی</th>
                             <th>تصدیق آخیر</th>
                             <th>متفرق کام</th>
+                            <th>ٹوٹل</th>
                             <th>از تاریخ</th>
                             <th>تا تاریخ</th>
                         </tr>
@@ -309,6 +312,7 @@ tr:hover { background-color: #f1f1f1; }
                             <td class="{{ $item->kham_numberwan_dar_khatoni > 0 ? 'value-cell' : '' }}">{{ $item->kham_numberwan_dar_khatoni == 0 ? '-' : $item->kham_numberwan_dar_khatoni }}</td>
                             <td class="{{ $item->tasdeeq_akhir > 0 ? 'value-cell' : '' }}">{{ $item->tasdeeq_akhir == 0 ? '-' : $item->tasdeeq_akhir }}</td>
                             <td class="{{ $item->mutafarriq_kaam > 0 ? 'value-cell' : '' }}">{{ $item->mutafarriq_kaam == 0 ? '-' : $item->mutafarriq_kaam }}</td>
+                            <td><strong>{{ $item->total_count > 0 ? $item->total_count : '-' }}</strong></td>
                             <td>{{ $from_date }}</td>
                             <td>{{ $to_date }}</td>
                         </tr>
@@ -391,7 +395,7 @@ tr:hover { background-color: #f1f1f1; }
                         <tbody>
                             @foreach($grievances_data ?? [] as $index => $item)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
+                            <td>{{ (int) $index + 1 }}</td>
                                 <td>{{ $item->district_name }}</td>
                                 <td>{{ $item->tehsil_name }}</td>
                                 <td>{{ $item->moza_name }}</td>
@@ -483,7 +487,7 @@ function getGrievancesFilters() {
 
 function loadPartalReports() {
     $.get('{{ route("reports.partal") }}', getPartalFilters(), function(data) {
-        let html = '<table><thead><tr><th rowspan="2">سیریل نمبر</th><th colspan="7">بنیادی معلومات</th><th colspan="2">پڑتال پیمائش موقع</th><th colspan="2">تصدیق آخیر ملکیت وغیرہ بر موقع</th><th colspan="2">تصدیق آخیر شجرہ نسب</th><th colspan="2">تصدیق ملکیت و قبضہ کاشت وغیرہ</th><th rowspan="2">تبصرہ</th></tr><tr><th>ضلع نام</th><th>تحصیل نام</th><th>موضع نام</th><th>پٹواری نام</th><th>اہلکار نام</th><th>از تاریخ</th><th>تا تاریخ</th><th>تصدیق ملکیت/پیمود شدہ نمبرات خسرہ</th><th>تعداد برامدہ بدرات</th><th>تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ</th><th>تعداد برامدہ بدرات</th><th>تعداد گھری</th><th>تعداد برامدہ بدرات</th><th>مقابلہ کھتونی ہمراہ کاپی چومنڈہ</th><th>تعداد برامدہ بدرات</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th rowspan="2">سیریل نمبر</th><th colspan="7">بنیادی معلومات</th><th colspan="2">پڑتال پیمائش موقع</th><th colspan="2">تصدیق آخیر ملکیت وغیرہ بر موقع</th><th colspan="2">تصدیق آخیر شجرہ نسب</th><th colspan="2">تصدیق ملکیت و قبضہ کاشت وغیرہ</th><th rowspan="2">تبصرہ</th><th rowspan="2">ٹوٹل</th></tr><tr><th>ضلع نام</th><th>تحصیل نام</th><th>موضع نام</th><th>پٹواری نام</th><th>اہلکار نام</th><th>از تاریخ</th><th>تا تاریخ</th><th>تصدیق ملکیت/پیمود شدہ نمبرات خسرہ</th><th>تعداد برامدہ بدرات</th><th>تصدیق ملکیت و قبضہ کاشت نمبرات خسرہ</th><th>تعداد برامدہ بدرات</th><th>تعداد گھری</th><th>تعداد برامدہ بدرات</th><th>مقابلہ کھتونی ہمراہ کاپی چومنڈہ</th><th>تعداد برامدہ بدرات</th></tr></thead><tbody>';
         function formatDateDMY(dateStr) {
             if (!dateStr) return '-';
             const parts = dateStr.split('-');
@@ -508,7 +512,8 @@ function loadPartalReports() {
                 '<td class="' + (item.tasdeeq_shajra_nasab_badrat > 0 ? 'value-cell' : '') + '">' + (!item.tasdeeq_shajra_nasab_badrat ? '-' : item.tasdeeq_shajra_nasab_badrat) + '</td>' +
                 '<td class="' + (item.muqabala_khatoni_chomanda > 0 ? 'value-cell' : '') + '">' + (!item.muqabala_khatoni_chomanda ? '-' : item.muqabala_khatoni_chomanda) + '</td>' +
                 '<td class="' + (item.muqabala_khatoni_chomanda_badrat > 0 ? 'value-cell' : '') + '">' + (!item.muqabala_khatoni_chomanda_badrat ? '-' : item.muqabala_khatoni_chomanda_badrat) + '</td>' +
-                '<td>' + (item.tabsara || '-') + '</td></tr>';
+                '<td>' + (item.tabsara || '-') + '</td>' +
+                '<td><strong>' + (item.total_count > 0 ? item.total_count : '-') + '</strong></td></tr>';
         });
         html += '</tbody></table>';
         $('#partal_table_container').html(html);
@@ -526,7 +531,7 @@ function loadCompletionReports() {
                     headerKeys.push(type.field_name);
                 }
             });
-            headers += '<th>از تاریخ</th><th>تا تاریخ</th></tr>';
+            headers += '<th>ٹوٹل</th><th>از تاریخ</th><th>تا تاریخ</th></tr>';
             
             let html = '<table><thead>' + headers + '</thead><tbody>';
             data.forEach(function(item, index) {
@@ -551,7 +556,7 @@ function loadCompletionReports() {
                     let target = item['target_' + key] != null ? item['target_' + key] : 0;
                     row += getCell(value, target);
                 });
-                row += '<td>' + $('#completion_from_date').val() + '</td><td>' + $('#completion_to_date').val() + '</td></tr>';
+                row += '<td><strong>' + (item.total_count > 0 ? item.total_count : '-') + '</strong></td>' + '<td>' + $('#completion_from_date').val() + '</td><td>' + $('#completion_to_date').val() + '</td></tr>';
                 html += row;
             });
             html += '</tbody></table>';

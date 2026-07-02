@@ -191,12 +191,17 @@ $(document).ready(function() {
             { data: 'districtNameUrdu', orderable: false },
             { data: 'tehsilNameUrdu', orderable: false },
             { data: 'mozaNameUrdu', orderable: false },
-            { data: 'employee_name', orderable: false },
-            { data: 'employee_type_title', orderable: false },
+            { 
+                data: null, 
+                orderable: false,
+                render: function(data, type, row) {
+                    return row.employee_name + (row.employee_type_title ? ' <small>(' + row.employee_type_title + ')</small>' : '');
+                }
+            },
         ];
         
         let valueColumnIndices = [];
-        let index = 6;
+        let index = 5;
         types.forEach(function(type) {
             if (type.field_name) {
                 columns.push({ data: type.field_name, orderable: false, className: 'text-center' });
@@ -212,7 +217,7 @@ $(document).ready(function() {
         let headerRow = $('#completion_process_table thead tr');
         for (let i = types.length - 1; i >= 0; i--) {
             if (types[i].field_name) {
-                headerRow.find('th:eq(5)').after('<th>' + types[i].title_ur + '</th>');
+                headerRow.find('th:eq(4)').after('<th>' + types[i].title_ur + '</th>');
             }
         }
 

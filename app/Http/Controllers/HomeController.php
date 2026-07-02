@@ -221,7 +221,7 @@ class HomeController extends Controller
 
     private function getPartalReportsData($district, $tehsil, $moza, $from_date, $to_date)
     {
-        return DB::table('partal')
+        $records = DB::table('partal')
             ->leftJoin('employees as emp_ahalkar', 'partal.ahalkar_nam', '=', 'emp_ahalkar.nam')
             ->leftJoin('employee_type as et_ahalkar', 'emp_ahalkar.ahalkar_type', '=', 'et_ahalkar.ahalkar_type_id')
             ->leftJoin('employees as emp_patwari', 'partal.patwari_nam', '=', 'emp_patwari.nam')
@@ -235,7 +235,21 @@ class HomeController extends Controller
             ->when($from_date && $to_date, function($q) use ($from_date, $to_date) {
                 $q->whereBetween('partal.tareekh_partal', [$from_date, $to_date]);
             })
-            ->groupBy('districts.districtId', 'districts.districtNameUrdu', 'tehsils.tehsilId', 'tehsils.tehsilNameUrdu', 'mozas.mozaId', 'mozas.mozaNameUrdu', 'partal.patwari_nam', 'partal.ahalkar_nam', 'et_ahalkar.ahalkar_title', 'et_patwari.ahalkar_title')
+            ->select(
+                DB::raw('COUNT(*) AS total_count'),
+                DB::raw('COUNT(DISTINCT partal.id) AS valid_count'),
+                DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_pemuda_khasra,0)) AS total_tasdeeq_milkiat_pemuda_khasra'),
+                DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_pemuda_khasra_badrat,0)) AS total_tasdeeq_milkiat_pemuda_khasra_badrat'),
+                DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_qabza_kasht_khasra,0)) AS total_tasdeeq_milkiat_qabza_kasht_khasra'),
+                DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_qabza_kasht_badrat,0)) AS total_tasdeeq_milkiat_qabza_kasht_badrat'),
+                DB::raw('SUM(COALESCE(partal.tasdeeq_shajra_nasab_guri,0)) AS total_tasdeeq_shajra_nasab_guri'),
+                DB::raw('SUM(COALESCE(partal.tasdeeq_shajra_nasab_badrat,0)) AS total_tasdeeq_shajra_nasab_badrat'),
+                DB::raw('SUM(COALESCE(partal.muqabala_khatoni_chomanda,0)) AS total_muqabala_khatoni_chomanda'),
+                DB::raw('SUM(COALESCE(partal.muqabala_khatoni_chomanda_badrat,0)) AS total_muqabala_khatoni_chomanda_badrat'),
+                DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_pemuda_khasra,0) + COALESCE(partal.tasdeeq_milkiat_pemuda_khasra_badrat,0)) AS grand_total')
+            );
+            
+        $records = $records->groupBy('districts.districtId', 'districts.districtNameUrdu', 'tehsils.tehsilId', 'tehsils.tehsilNameUrdu', 'mozas.mozaId', 'mozas.mozaNameUrdu', 'partal.patwari_nam', 'partal.ahalkar_nam', 'et_ahalkar.ahalkar_title', 'et_patwari.ahalkar_title')
             ->select(
                 'districts.districtId',
                 'districts.districtNameUrdu',
@@ -247,6 +261,8 @@ class HomeController extends Controller
                 'partal.ahalkar_nam',
                 'et_ahalkar.ahalkar_title as ahalkar_title',
                 'et_patwari.ahalkar_title as patwari_title',
+                DB::raw('COUNT(*) AS total_count'),
+                DB::raw('COUNT(DISTINCT partal.id) AS valid_count'),
                 DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_pemuda_khasra,0)) AS tasdeeq_milkiat_pemuda_khasra'),
                 DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_pemuda_khasra_badrat,0)) AS tasdeeq_milkiat_pemuda_khasra_badrat'),
                 DB::raw('SUM(COALESCE(partal.tasdeeq_milkiat_qabza_kasht_khasra,0)) AS tasdeeq_milkiat_qabza_kasht_khasra'),
@@ -261,6 +277,8 @@ class HomeController extends Controller
             ->orderBy('tehsils.tehsilId')
             ->orderBy('mozas.mozaId')
             ->get();
+            
+        return $records;
     }
 
     private function getCompletionProcessReportsData($district, $tehsil, $moza, $employee, $from_date, $to_date)
@@ -286,6 +304,7 @@ class HomeController extends Controller
                 'completion_process.moza_id', 'mozas.mozaNameUrdu as mozaNameUrdu',
                 'completion_process.employee_id', 'employees.nam as employee_name',
                 'employee_type.ahalkar_title as employee_type_title',
+                DB::raw('COUNT(*) AS total_count'),
                 DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 1 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS mizan_khata_dar_khatoni"),
                 DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 2 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS pukhta_khatoni_drandkas_khasra"),
                 DB::raw("SUM(CASE WHEN completion_process.completion_process_type_id = 3 AND COALESCE(TRIM(completion_process.type_value), '') <> '' AND completion_process.type_value REGEXP '^-?[0-9]+(\\\\.[0-9]+)?$' THEN CAST(completion_process.type_value AS UNSIGNED) ELSE 0 END) AS durusti_badrat"),
@@ -364,36 +383,32 @@ class HomeController extends Controller
             }
         }
 
-        $query = DB::table('partal')
-            ->leftJoin('employees as emp_ahalkar', 'partal.ahalkar_nam', '=', 'emp_ahalkar.nam')
-            ->leftJoin('employee_type as et_ahalkar', 'emp_ahalkar.ahalkar_type', '=', 'et_ahalkar.ahalkar_type_id')
-            ->leftJoin('employees as emp_patwari', 'partal.patwari_nam', '=', 'emp_patwari.nam')
-            ->leftJoin('employee_type as et_patwari', 'emp_patwari.ahalkar_type', '=', 'et_patwari.ahalkar_type_id')
-            ->leftJoin('districts', 'partal.zila_nam', '=', 'districts.districtId')
-            ->leftJoin('tehsils', 'partal.tehsil_nam', '=', 'tehsils.tehsilId')
-            ->leftJoin('mozas', 'partal.moza_nam', '=', 'mozas.mozaId')
-            ->when($selected_district, function($q) use ($selected_district) { $q->where('districts.districtId', $selected_district); })
-            ->when($selected_tehsil, function($q) use ($selected_tehsil) { $q->where('tehsils.tehsilId', $selected_tehsil); })
-            ->when($selected_moza, function($q) use ($selected_moza) { $q->where('mozas.mozaId', $selected_moza); })
-            ->when($from_date && $to_date, function($q) use ($from_date, $to_date) {
-                $q->whereBetween('partal.tareekh_partal', [$from_date, $to_date]);
-            })
-            ->select(
-                'partal.*',
-                'et_ahalkar.ahalkar_title as ahalkar_title',
-                'et_patwari.ahalkar_title as patwari_title',
-                'districts.districtNameUrdu',
-                'tehsils.tehsilNameUrdu',
-                'mozas.mozaNameUrdu'
-            )
-            ->orderBy('partal.tareekh_partal', 'desc')
-            ->get();
-
+        $reportData = $this->getPartalReportsData($selected_district, $selected_tehsil, $selected_moza, $from_date, $to_date);
+        
         if ($request->has('pdf')) {
-            return PDF::loadView('reports.partal_pdf', compact('query', 'from_date', 'to_date'))->download('partal_report.pdf');
+            $query = collect($reportData);
+            $query->each(function(&$item) {
+                $item->districtNameUrdu = $item->districtNameUrdu ?? ($item->districtNameUrdu ?? '');
+                $item->tehsilNameUrdu = $item->tehsilNameUrdu ?? ($item->tehsilNameUrdu ?? '');
+                $item->mozaNameUrdu = $item->mozaNameUrdu ?? ($item->mozaNameUrdu ?? '');
+                $item->patwari_nam = $item->patwari_nam ?? '';
+                $item->ahalkar_nam = $item->ahalkar_nam ?? '';
+                $item->tasdeeq_milkiat_pemuda_khasra = $item->tasdeeq_milkiat_pemuda_khasra ?? 0;
+                $item->tasdeeq_milkiat_pemuda_khasra_badrat = $item->tasdeeq_milkiat_pemuda_khasra_badrat ?? 0;
+                $item->tasdeeq_milkiat_qabza_kasht_khasra = $item->tasdeeq_milkiat_qabza_kasht_khasra ?? 0;
+                $item->tasdeeq_milkiat_qabza_kasht_badrat = $item->tasdeeq_milkiat_qabza_kasht_badrat ?? 0;
+                $item->tasdeeq_shajra_nasab_guri = $item->tasdeeq_shajra_nasab_guri ?? 0;
+                $item->tasdeeq_shajra_nasab_badrat = $item->tasdeeq_shajra_nasab_badrat ?? 0;
+                $item->muqabala_khatoni_chomanda = $item->muqabala_khatoni_chomanda ?? 0;
+                $item->muqabala_khatoni_chomanda_badrat = $item->muqabala_khatoni_chomanda_badrat ?? 0;
+                $item->tabsara = $item->tabsara ?? '';
+                $item->total_count = $item->total_count ?? 0;
+            });
+            return PDF::loadView('reports.partal_pdf', compact('query', 'from_date', 'to_date', 'reportData'))->download('partal_report.pdf');
         }
 
         if ($request->has('excel')) {
+            $query = collect($reportData);
             $filename = 'partal_report_' . date('Y-m-d') . '.csv';
             $headers = [
                 'Content-Type' => 'text/csv',
@@ -410,7 +425,7 @@ class HomeController extends Controller
             return response()->stream($callback, 200, $headers);
         }
 
-        return response()->json($query);
+        return response()->json($reportData);
     }
 
     public function getCompletionProcessReports(Request $request)
