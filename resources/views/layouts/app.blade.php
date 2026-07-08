@@ -220,6 +220,11 @@ ul.notika-menu-wrap li a {
                                         <i class="notika-icon notika-bar-chart"></i> رپورٹس
                                     </a>
                                 </li>
+                                <li class="{{ request()->routeIs('mis_changes.*') ? 'active' : '' }}">
+                                    <a href="{{ route('mis_changes.index') }}">
+                                        <i class="notika-icon notika-form"></i> ایم آئی ایس تبدیلیاں
+                                    </a>
+                                </li>
                                 @if(session('role_id') == 1)
                                 <li class="{{ request()->routeIs('contactus.*') ? 'active' : '' }}">
                                     <a href="{{ route('contactus.index') }}">
@@ -338,6 +343,11 @@ ul.notika-menu-wrap li a {
                         <li class="{{ request()->routeIs('reports') ? 'active' : '' }}">
                             <a href="{{ route('reports') }}">
                                 <i class="notika-icon notika-bar-chart"></i> رپورٹس
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('mis_changes.*') ? 'active' : '' }}">
+                            <a href="{{ route('mis_changes.index') }}">
+                                <i class="notika-icon notika-form"></i> ایم آئی ایس تبدیلیاں
                             </a>
                         </li>
                         @if(session('role_id') == 1)

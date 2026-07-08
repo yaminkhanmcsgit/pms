@@ -208,7 +208,7 @@ tr:hover { background-color: #f1f1f1; }
 
         <div id="completion" class="tab-pane fade">
 
-            <div id="">
+            <div id="" style="overflow: hidden;">
                 <div class="col-md-2">
                     <label>تاریخ سے</label>
                     <input type="date" id="completion_from_date" class="form-control" value="{{ $from_date }}">
@@ -256,17 +256,17 @@ tr:hover { background-color: #f1f1f1; }
                         <option value="">تمام</option>
                     </select>
                 </div>
-<div class="col-md-2" style="padding-left:0;padding-right:0">
-                    <button id="completion_filter" class="btn btn-primary btn-sm">فلٹر</button>
+<div class="col-md-12" style="padding-left:0;padding-right:0">
+                   <center style="margin-top: 20px;"><button id="completion_filter" class="btn btn-primary btn-sm">فلٹر</button>
                     <button id="completion_pdf" type="button" class="btn btn-danger btn-sm">PDF</button>
                     <button id="completion_excel" type="button" class="btn btn-success btn-sm">Excel</button>
-                    <button id="completion_print" type="button" class="btn btn-info btn-sm">Print</button>
+                    <button id="completion_print" type="button" class="btn btn-info btn-sm">Print</button></center>
                 </div>
             </div>
             
-            <div id="completion_content">
+            <div id="completion_content" style="margin-top: 20px;">
                <center><h4>تکمیلی کام رپورٹ</h4></center>
-            <div id="completion_table_container">
+            <div id="completion_table_container" >
                 <table>
                     <thead>
                         <tr>

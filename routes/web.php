@@ -12,6 +12,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\GrievanceController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\MisChangeController;
 
 // Auth routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -69,6 +70,15 @@ Route::middleware(['operator'])->group(function () {
     Route::get('/reports/partal', [HomeController::class, 'getPartalReports'])->name('reports.partal');
     Route::get('/reports/completion-process', [HomeController::class, 'getCompletionProcessReports'])->name('reports.completion_process');
     Route::get('/reports/grievances', [HomeController::class, 'getGrievancesReports'])->name('reports.grievances');
+
+    // MIS Changes
+    Route::get('/mis-changes', [MisChangeController::class, 'index'])->name('mis_changes.index');
+    Route::post('/mis-changes/datatable', [MisChangeController::class, 'datatable'])->name('mis_changes.datatable');
+    Route::get('/mis-changes/create', [MisChangeController::class, 'create'])->name('mis_changes.create');
+    Route::post('/mis-changes', [MisChangeController::class, 'store'])->name('mis_changes.store');
+    Route::get('/mis-changes/{id}/edit', [MisChangeController::class, 'edit'])->name('mis_changes.edit');
+    Route::put('/mis-changes/{id}', [MisChangeController::class, 'update'])->name('mis_changes.update');
+    Route::delete('/mis-changes/{id}', [MisChangeController::class, 'destroy'])->name('mis_changes.destroy');
 
     // Grievances
     Route::get('/grievances', [GrievanceController::class, 'index'])->name('grievances.index');
