@@ -269,16 +269,7 @@ class CompletionProcessController extends Controller
             });
         }
 
-        // Ordering
-        if ($request->has('order')) {
-            $orderColumn = $request->order[0]['column'];
-            $orderDirection = $request->order[0]['dir'];
-            if (isset($columns[$orderColumn])) {
-                $query->orderBy($columns[$orderColumn], $orderDirection);
-            }
-        } else {
-            $query->orderBy('completion_process.tareekh', 'desc');
-        }
+        $query->orderBy('completion_process.tareekh', 'desc');
 
         // Pagination
         $totalRecords = $query->count();
