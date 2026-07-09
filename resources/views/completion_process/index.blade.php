@@ -213,7 +213,9 @@ $(document).ready(function() {
         columns.push({ data: 'tareekh', orderable: true });
         columns.push({ data: 'actions', orderable: false });
 
-        // Insert dynamic type headers into the table head (in reverse order for correct LTR display)
+        let tareekhIndex = columns.findIndex(col => col.data === 'tareekh');
+
+        // Insert dynamic type headers into the table head (reverse order for correct LTR display)
         let headerRow = $('#completion_process_table thead tr');
         for (let i = types.length - 1; i >= 0; i--) {
             if (types[i].field_name) {
@@ -224,13 +226,7 @@ $(document).ready(function() {
         $('#completion_process_table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: {
-                url: "{{ route('completion_process.datatable') }}",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            },
+            ajax: '{{ route("completion_process.data") }}',
             columns: columns,
             columnDefs: [
                 {
@@ -242,7 +238,7 @@ $(document).ready(function() {
                     }
                 }
             ],
-            order: [[0, 'desc']],
+            order: [[tareekhIndex, 'desc']],
             pageLength: 25
         });
     });
