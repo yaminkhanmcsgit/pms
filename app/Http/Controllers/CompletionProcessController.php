@@ -277,7 +277,7 @@ class CompletionProcessController extends Controller
                 $query->orderBy($columns[$orderColumn], $orderDirection);
             }
         } else {
-            $query->orderBy('completion_process.id', 'desc');
+            $query->orderBy('completion_process.tareekh', 'desc');
         }
 
         // Pagination
