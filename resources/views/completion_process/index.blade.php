@@ -226,7 +226,13 @@ $(document).ready(function() {
         $('#completion_process_table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route("completion_process.datatable") }}',
+            ajax: {
+                url: '{{ route("completion_process.datatable") }}',
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            },
             columns: columns,
             columnDefs: [
                 {
