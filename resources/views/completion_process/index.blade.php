@@ -66,7 +66,7 @@
             <br>
             <div class="d-flex justify-content-end mb-3">
                 <button class="btn btn-primary" onclick="openTargetModal()">
-                    <i class="fa fa-plus"></i> ہدف کی قیمت شامل کریں
+                    <i class="fa fa-plus"></i> ہدف   شامل کریں
                 </button>
             </div>
 
@@ -98,7 +98,7 @@
                 @csrf
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="targetModalLabel">ہدف کی قیمت شامل/ترمیم کریں</h4>
+                    <h4 class="modal-title" id="targetModalLabel">ہدف   شامل/ترمیم کریں</h4>
                 </div>
                 <div class="modal-body">
                     <div id="targetMsg"></div>
@@ -164,7 +164,7 @@
                 <div class="row">
                      <div class="col-md-6 pull-right">
                     <div class="form-group">
-                        <label for="target_value">ہدف کی قیمت</label>
+                        <label for="target_value">ہدف  </label>
                         <input type="number" step="0.01" name="target_value" id="target_value" class="form-control" required>
                         <input type="hidden" name="target_value_id" id="target_value_id">
                     </div>
@@ -187,7 +187,14 @@ $(document).ready(function() {
     // Fetch types for dynamic columns
     $.get('{{ url("api/completion-process-types") }}', function(types) {
         let columns = [
-            { data: 'id', orderable: false },
+            { 
+                data: null, 
+                orderable: false,
+                render: function(data, type, row, meta) {
+                    var info = $('#completion_process_table').DataTable().page.info();
+                    return info.recordsTotal - info.start - meta.row;
+                }
+            },
             { data: 'districtNameUrdu', orderable: false },
             { data: 'tehsilNameUrdu', orderable: false },
             { data: 'mozaNameUrdu', orderable: false },
