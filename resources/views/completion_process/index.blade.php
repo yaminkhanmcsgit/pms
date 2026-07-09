@@ -226,7 +226,7 @@ $(document).ready(function() {
         $('#completion_process_table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route("completion_process.data") }}',
+            ajax: '{{ route("completion_process.datatable") }}',
             columns: columns,
             columnDefs: [
                 {
