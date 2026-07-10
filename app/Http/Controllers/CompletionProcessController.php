@@ -68,7 +68,7 @@ class CompletionProcessController extends Controller
     }
     
     $employees = DB::table('employees')->orderBy('nam')->get();
-    $completion_process_types = DB::table('completion_process_types')->orderBy('id')->get();
+    $completion_process_types = DB::table('completion_process_types')->orderBy('order_by', 'asc')->get();
     return view('completion_process.create', compact('districts', 'tehsils', 'mozas', 'employees', 'completion_process_types', 'role_id'));
     }
 
@@ -116,7 +116,7 @@ class CompletionProcessController extends Controller
         $mozas = DB::table('mozas')->whereIn('tehsilId', $assignedTehsils)->get();
     }
     $employees = DB::table('employees')->orderBy('nam')->get();
-    $completion_process_types = DB::table('completion_process_types')->orderBy('id')->get();
+    $completion_process_types = DB::table('completion_process_types')->orderBy('order_by', 'asc')->get();
     return view('completion_process.edit', compact('record', 'districts', 'tehsils', 'mozas', 'employees', 'completion_process_types', 'role_id'));
     }
 
@@ -291,6 +291,7 @@ class CompletionProcessController extends Controller
         // Get all known field names from types table for dynamic initialization
         $knownFields = DB::table('completion_process_types')
             ->whereNotNull('field_name')
+            ->orderBy('order_by', 'asc')
             ->pluck('field_name')
             ->unique()
             ->toArray();

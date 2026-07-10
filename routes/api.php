@@ -93,7 +93,7 @@ Route::get('/mozas', function (Request $request) {
 // Get completion process types
 Route::get('/completion-process-types', function () {
     $types = DB::table('completion_process_types')
-        ->orderBy('id')
+        ->orderBy('order_by', 'asc')
         ->get(['id', 'title_ur', 'field_name']);
     return response()->json($types);
 });

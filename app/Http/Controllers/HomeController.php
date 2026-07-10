@@ -452,7 +452,7 @@ class HomeController extends Controller
         if ($request->has('pdf')) {
             $types = DB::table('completion_process_types')
                 ->whereNotNull('field_name')
-                ->orderBy('id')
+                ->orderBy('order_by', 'asc')
                 ->get(['id', 'field_name', 'title_ur']);
             return PDF::loadView('reports.completion_pdf', compact('query', 'from_date', 'to_date', 'types'))->download('completion_report.pdf');
         }
@@ -460,7 +460,7 @@ class HomeController extends Controller
         if ($request->has('excel')) {
             $types = DB::table('completion_process_types')
                 ->whereNotNull('field_name')
-                ->orderBy('id')
+                ->orderBy('order_by', 'asc')
                 ->get(['id', 'field_name', 'title_ur']);
             $filename = 'completion_process_report_' . date('Y-m-d') . '.csv';
             $headers = [
@@ -660,7 +660,7 @@ class HomeController extends Controller
 
         $types = DB::table('completion_process_types')
             ->whereNotNull('field_name')
-            ->orderBy('id')
+            ->orderBy('order_by', 'asc')
             ->get(['id', 'field_name', 'title_ur']);
 
         $sumCases = [];
