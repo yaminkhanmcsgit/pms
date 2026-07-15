@@ -89,7 +89,7 @@ class HomeController extends Controller
         // Grouped completion_process records by district, tehsil, moza, employee, type
         $types = DB::table('completion_process_types')
             ->whereNotNull('field_name')
-            ->orderBy('id')
+            ->orderBy('order_by', 'asc')
             ->get(['id', 'field_name', 'title_ur']);
         
         $selectStatements = [
@@ -616,7 +616,7 @@ class HomeController extends Controller
 
         $types = DB::table('completion_process_types')
             ->whereNotNull('field_name')
-            ->orderBy('id')
+            ->orderBy('order_by', 'asc')
             ->get(['id', 'field_name', 'title_ur']);
 
         $data = ['Total' => DB::table('completion_process')->whereBetween('created_at', [$range['start'], $range['end']])->count()];

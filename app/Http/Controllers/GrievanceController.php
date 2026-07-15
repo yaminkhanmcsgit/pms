@@ -82,9 +82,10 @@ class GrievanceController extends Controller
         }
 
         $types = DB::table('grievance_types')->get();
-        $statuses = DB::table('grievance_statuses')->get();
+        $mainStatuses = DB::table('grievance_statuses')->where('parent_id', null)->orderBy('id')->get();
+        $statuses = DB::table('grievance_statuses')->orderByRaw('parent_id IS NULL DESC, parent_id ASC, id ASC')->get();
 
-        return view('grievances.create', compact('types', 'statuses', 'districts', 'tehsils', 'mozas', 'role_id'));
+        return view('grievances.create', compact('types', 'mainStatuses', 'statuses', 'districts', 'tehsils', 'mozas', 'role_id'));
     }
 
     public function store(Request $request)
@@ -131,6 +132,7 @@ class GrievanceController extends Controller
         $grievance = DB::table('grievances')
             ->leftJoin('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
             ->leftJoin('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+            ->leftJoin('grievance_statuses as parent_statuses', 'grievance_statuses.parent_id', '=', 'parent_statuses.id')
             ->leftJoin('districts', 'grievances.district', '=', 'districts.districtId')
             ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId')
@@ -139,6 +141,7 @@ class GrievanceController extends Controller
                 'grievance_types.name as grievance_type_name',
                 'grievance_statuses.name as status_name',
                 'grievance_statuses.color_class as status_color',
+                'parent_statuses.name as parent_status_name',
                 'districts.districtNameUrdu as district_name',
                 'tehsils.tehsilNameUrdu as tehsil_name',
                 'mozas.mozaNameUrdu as moza_name'
@@ -159,11 +162,16 @@ class GrievanceController extends Controller
             ->leftJoin('districts', 'grievances.district', '=', 'districts.districtId')
             ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId')
+            ->leftJoin('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+            ->leftJoin('grievance_statuses as parent_statuses', 'grievance_statuses.parent_id', '=', 'parent_statuses.id')
             ->select(
                 'grievances.*',
                 'districts.districtNameUrdu as district_name',
                 'tehsils.tehsilNameUrdu as tehsil_name',
-                'mozas.mozaNameUrdu as moza_name'
+                'mozas.mozaNameUrdu as moza_name',
+                'grievance_statuses.name as status_name',
+                'grievance_statuses.color_class as status_color',
+                'parent_statuses.name as parent_status_name'
             )
             ->where('grievances.id', $id)
             ->first();
@@ -185,9 +193,10 @@ class GrievanceController extends Controller
         }
 
         $types = DB::table('grievance_types')->get();
-        $statuses = DB::table('grievance_statuses')->get();
+        $mainStatuses = DB::table('grievance_statuses')->where('parent_id', null)->orderBy('id')->get();
+        $statuses = DB::table('grievance_statuses')->orderByRaw('parent_id IS NULL DESC, parent_id ASC, id ASC')->get();
 
-        return view('grievances.edit', compact('grievance', 'types', 'statuses', 'districts', 'tehsils', 'mozas', 'role_id'));
+        return view('grievances.edit', compact('grievance', 'types', 'mainStatuses', 'statuses', 'districts', 'tehsils', 'mozas', 'role_id'));
     }
 
     public function update(Request $request, $id)
@@ -313,7 +322,7 @@ class GrievanceController extends Controller
 
     public function getStatuses()
     {
-        $statuses = DB::table('grievance_statuses')->get();
+        $statuses = DB::table('grievance_statuses')->orderByRaw('parent_id IS NULL DESC, parent_id ASC, id ASC')->get();
         return response()->json(['statuses' => $statuses]);
     }
 
@@ -467,6 +476,7 @@ class GrievanceController extends Controller
         $grievance = DB::table('grievances')
             ->leftJoin('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
             ->leftJoin('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+            ->leftJoin('grievance_statuses as parent_statuses', 'grievance_statuses.parent_id', '=', 'parent_statuses.id')
             ->leftJoin('districts', 'grievances.district', '=', 'districts.districtId')
             ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId')
@@ -475,6 +485,7 @@ class GrievanceController extends Controller
                 'grievance_types.name as grievance_type_name',
                 'grievance_statuses.name as status_name',
                 'grievance_statuses.color_class as status_color',
+                'parent_statuses.name as parent_status_name',
                 'districts.districtNameUrdu as district_name',
                 'tehsils.tehsilNameUrdu as tehsil_name',
                 'mozas.mozaNameUrdu as moza_name'
@@ -519,6 +530,7 @@ class GrievanceController extends Controller
         $query = DB::table('grievances')
             ->leftJoin('grievance_types', 'grievances.grievance_type_id', '=', 'grievance_types.id')
             ->leftJoin('grievance_statuses', 'grievances.status_id', '=', 'grievance_statuses.id')
+            ->leftJoin('grievance_statuses as parent_statuses', 'grievance_statuses.parent_id', '=', 'parent_statuses.id')
             ->leftJoin('districts', 'grievances.district', '=', 'districts.districtId')
             ->leftJoin('tehsils', 'grievances.tehsil', '=', 'tehsils.tehsilId')
             ->leftJoin('mozas', 'grievances.village_name', '=', 'mozas.mozaId');
@@ -568,6 +580,7 @@ class GrievanceController extends Controller
             'grievance_types.name as grievance_type_name',
             'grievance_statuses.name as status_name',
             'grievance_statuses.color_class as status_color',
+            'parent_statuses.name as parent_status_name',
             'districts.districtNameUrdu as district_name',
             'tehsils.tehsilNameUrdu as tehsil_name',
             'mozas.mozaNameUrdu as moza_name'
@@ -629,7 +642,7 @@ class GrievanceController extends Controller
                 'moza_name' => $record->moza_name,
                 'grievance_type_name' => $record->grievance_type_name,
                 'attachments' => $attachmentsBtn,
-                'status_name' => '<span class="label label-' . $record->status_color . '">' . $record->status_name . '</span>',
+                'status_name' => '<span class="label label-' . $record->status_color . '">' . ($record->parent_status_name ? $record->parent_status_name . ' > ' . $record->status_name : $record->status_name) . '</span>',
                 'application_date' => $record->application_date ? date('d-m-Y', strtotime($record->application_date)) : '',
                 'actions' => $actions
             ];

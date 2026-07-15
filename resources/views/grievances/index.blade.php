@@ -235,6 +235,42 @@ $(document).ready(function(){
             { data: 'application_date', orderable: true },
             { data: 'actions', orderable: false }
         ],
+        columnDefs: [
+            {
+                targets: 10,
+                render: function(data, type, row) {
+                    if (!data) return data;
+                    var parts = data.split('-');
+                    var date = new Date(parts[2], parts[1] - 1, parts[0]);
+                    var now = new Date();
+                    now.setHours(0, 0, 0, 0);
+                    var diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+                    var colorClass = 'text-danger';
+                    if (diff < 7) {
+                        colorClass = 'text-success';
+                    } else if (diff < 15) {
+                        colorClass = 'text-info';
+                    } else if (diff < 30) {
+                        colorClass = 'text-warning';
+                    }
+                    var text = 'Today';
+                    if (diff === 1) {
+                        text = '1 day ago';
+                    } else if (diff > 1 && diff < 7) {
+                        text = diff + ' days ago';
+                    } else if (diff >= 7 && diff < 14) {
+                        text = '1 week ago';
+                    } else if (diff >= 14 && diff < 30) {
+                        text = Math.floor(diff / 7) + ' weeks ago';
+                    } else if (diff >= 30 && diff < 60) {
+                        text = '1 month ago';
+                    } else if (diff >= 60) {
+                        text = Math.floor(diff / 30) + ' months ago';
+                    }
+                    return '<small class="' + colorClass + '" style="display:block; line-height:1.1;">' + data + '</small><small style="display:block; line-height:1.1;"><i class="fa fa-clock-o"></i> ' + text + '</small>';
+                }
+            }
+        ],
         order: [[0, 'desc']],
         pageLength: 25
     });

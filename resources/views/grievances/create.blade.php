@@ -95,7 +95,7 @@
             </tr>
             <tr>
                 <td>4. Address / Contact No. <span style="color: red;">*</span>:</td>
-                <td><input type="number" name="address" class="form-control" required tabindex="6"></td>
+                <td><input type="text" name="address" class="form-control" required tabindex="6"></td>
             </tr>
             <tr>
                 <td>5. Mouza / Village Name <span style="color: red;">*</span>:</td>
@@ -143,12 +143,74 @@
 
         <div class="form-group">
             <label>Status <span style="color: red;">*</span>:</label>
-            <select name="status_id" class="form-control" required tabindex="12">
-                @foreach($statuses as $status)
+            <select name="main_status_id" id="main_status_id" class="form-control" required tabindex="12">
+                <option value="">Select Status</option>
+                @foreach($mainStatuses as $status)
                     <option value="{{ $status->id }}">{{ $status->name }}</option>
                 @endforeach
             </select>
         </div>
+
+        <div class="form-group" id="sub_status_group" style="display: none;">
+            <label>Priority:</label>
+            <select name="sub_status_id" id="sub_status_id" class="form-control">
+                <option value="">Select Priority</option>
+            </select>
+        </div>
+
+        <input type="hidden" name="status_id" id="status_id" value="">
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var mainStatusSelect = document.getElementById('main_status_id');
+            var subStatusGroup = document.getElementById('sub_status_group');
+            var subStatusSelect = document.getElementById('sub_status_id');
+            var hiddenStatusId = document.getElementById('status_id');
+            
+            var statuses = @json($statuses);
+            
+            function updateStatusId() {
+                if (subStatusSelect.value) {
+                    hiddenStatusId.value = subStatusSelect.value;
+                } else {
+                    hiddenStatusId.value = mainStatusSelect.value;
+                }
+            }
+            
+            mainStatusSelect.addEventListener('change', function() {
+                var selectedId = this.value;
+                        subStatusSelect.innerHTML = '<option value="">Select Priority</option>';
+                
+                if (selectedId) {
+                    var subStatuses = statuses.filter(function(s) { return s.parent_id == selectedId; });
+                    if (subStatuses.length > 0) {
+                        subStatuses.forEach(function(s) {
+                            var option = document.createElement('option');
+                            option.value = s.id;
+                            option.textContent = s.name;
+                            subStatusSelect.appendChild(option);
+                        });
+                        subStatusGroup.style.display = 'block';
+                        subStatusSelect.required = true;
+                    } else {
+                        subStatusGroup.style.display = 'none';
+                        subStatusSelect.required = false;
+                        subStatusSelect.value = '';
+                    }
+                } else {
+                    subStatusGroup.style.display = 'none';
+                    subStatusSelect.required = false;
+                    subStatusSelect.value = '';
+                }
+                
+                updateStatusId();
+            });
+            
+            subStatusSelect.addEventListener('change', function() {
+                updateStatusId();
+            });
+        });
+        </script>
 
             <div class="text-center">
                 <button type="submit" class="btn btn-success btn-lg" tabindex="13">Submit Grievance</button>
