@@ -199,7 +199,10 @@ class CompletionProcessController extends Controller
                 ->first();
 
             if ($existing) {
-                return response()->json(['success' => false, 'message' => 'Target value already exists for this location and type.']);exit;
+                DB::table('completion_process_target_values_to_achieve')
+                    ->where('target_value_id', $existing->target_value_id)
+                    ->update(['target_value' => $request->target_value]);
+                return response()->json(['success' => true, 'message' => 'Target value updated successfully.']);
             }
 
             DB::table('completion_process_target_values_to_achieve')->insert($validated);
@@ -288,6 +291,21 @@ class CompletionProcessController extends Controller
             'completion_process_types.field_name'
         )->get();
 
+        $mozaIds = $records->pluck('moza_id')->unique()->toArray();
+        $typeIds = $records->pluck('completion_process_type_id')->unique()->filter()->toArray();
+
+        $targets = [];
+        if (!empty($mozaIds) && !empty($typeIds)) {
+            $targets = DB::table('completion_process_target_values_to_achieve')
+                ->whereIn('moza_id', $mozaIds)
+                ->whereIn('completion_process_type_id', $typeIds)
+                ->get()
+                ->keyBy(function ($item) {
+                    return $item->moza_id . '-' . $item->completion_process_type_id;
+                })
+                ->toArray();
+        }
+
         // Get all known field names from types table for dynamic initialization
         $knownFields = DB::table('completion_process_types')
             ->whereNotNull('field_name')
@@ -309,14 +327,20 @@ class CompletionProcessController extends Controller
                     'employee_name' => $record->employee_name,
                     'employee_type_title' => $record->employee_type_title,
                     'tareekh' => $record->tareekh ? date('d-m-Y', strtotime($record->tareekh)) : '',
+                    'moza_id' => $record->moza_id,
+                    'completion_process_type_id' => $record->completion_process_type_id,
                 ];
-                
+
                 foreach ($knownFields as $field) {
                     $initialState[$field] = '';
                 }
                 $initialState['actions'] = ($record->operator_id == session('operator_id')) ? '<a href="' . route('completion_process.edit', $record->id) . '" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> ترمیم</a>' : '';
                 $groupedRecords[$id] = $initialState;
             }
+
+            $key = $record->moza_id . '-' . $record->completion_process_type_id;
+            $groupedRecords[$id]['has_target'] = isset($targets[$key]);
+            $groupedRecords[$id]['target_value'] = isset($targets[$key]) ? $targets[$key]->target_value : null;
 
             // Set the appropriate field dynamically based on field_name from types table
             if (!empty($record->field_name)) {

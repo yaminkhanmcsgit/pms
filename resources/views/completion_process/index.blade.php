@@ -62,6 +62,33 @@
             </div>
         </div>
 
+        <!-- Add Target Modal -->
+        <div class="modal fade" id="addTargetModal" tabindex="-1" role="dialog" aria-labelledby="addTargetModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="addTargetForm">
+                        @csrf
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="addTargetModalLabel">Add Target Value</h4>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="moza_id" id="target_moza_id">
+                            <input type="hidden" name="completion_process_type_id" id="target_type_id">
+                            <div class="form-group">
+                                <label for="target_value">Target Value:</label>
+                                <input type="number" name="target_value" id="target_value" class="form-control" required min="0">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Target</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div role="tabpanel" class="tab-pane" id="target-values">
             <br>
             <div class="d-flex justify-content-end mb-3">
@@ -183,6 +210,7 @@
 $(document).ready(function() {
     loadTargetValues();
     loadModalDropdowns();
+    var completionProcessTable;
     
     // Fetch types for dynamic columns
     $.get('{{ url("api/completion-process-types") }}', function(types) {
@@ -190,10 +218,10 @@ $(document).ready(function() {
             { 
                 data: null, 
                 orderable: false,
-                render: function(data, type, row, meta) {
-                    var info = $('#completion_process_table').DataTable().page.info();
-                    return info.recordsTotal - info.start - meta.row;
-                }
+                    render: function(data, type, row, meta) {
+                        var info = completionProcessTable.page.info();
+                        return info.recordsTotal - info.start - meta.row;
+                    }
             },
             { data: 'districtNameUrdu', orderable: false },
             { data: 'tehsilNameUrdu', orderable: false },
@@ -211,7 +239,19 @@ $(document).ready(function() {
         let index = 5;
         types.forEach(function(type) {
             if (type.field_name) {
-                columns.push({ data: type.field_name, orderable: false, className: 'text-center' });
+                var typeId = type.id;
+                columns.push({
+                    data: type.field_name,
+                    orderable: false,
+                    className: 'text-center',
+                    render: function(data, cellType, row) {
+                        if (!data || data === '-' || data === '') return data;
+                        if (row.has_target && row.target_value != null) {
+                            return data + '/' + row.target_value;
+                        }
+                        return data + ' <a href="#" onclick="openQuickTargetModal(' + row.moza_id + ', ' + typeId + ')" style="color:#007bff; text-decoration:underline; font-size:0.9em;">Add Target</a>';
+                    }
+                });
                 valueColumnIndices.push(index);
                 index++;
             }
@@ -230,7 +270,7 @@ $(document).ready(function() {
             }
         }
 
-        $('#completion_process_table').DataTable({
+        completionProcessTable = $('#completion_process_table').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
@@ -421,6 +461,38 @@ $('#targetForm').on('submit', function(e) {
         }
     }).fail(function() {
         $('#targetMsg').html('<div class="alert alert-danger">سرور کی خرابی</div>');
+    });
+});
+
+function openQuickTargetModal(mozaId, typeId) {
+    document.getElementById('target_moza_id').value = mozaId;
+    document.getElementById('target_type_id').value = typeId;
+    document.getElementById('target_value').value = '';
+    $('#addTargetModal').modal('show');
+}
+
+document.getElementById('addTargetForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    fetch('{{ route("completion_process.store_target_value") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            $('#addTargetModal').modal('hide');
+            $('#completion_process_table').DataTable().ajax.reload();
+        } else {
+            alert(data.message || 'Error saving target value');
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+        alert('Error saving target value');
     });
 });
 </script>
