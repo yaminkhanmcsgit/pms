@@ -267,58 +267,7 @@ tr:hover { background-color: #f1f1f1; }
             <div id="completion_content" style="margin-top: 20px;">
                <center><h4>تکمیلی کام رپورٹ</h4></center>
             <div id="completion_table_container" >
-                <table>
-                    <thead>
-                        <tr>
-                            <th>نمبر شمار</th>
-                            <th>نام ضلع</th>
-                            <th>نام تحصیل</th>
-                            <th>نام موضع</th>
-                            <th>نام اہلکار</th>
-                            <th>میزان کھاتہ دار/کھتونی</th>
-                            <th>پختہ کھتونی درانڈکس خسرہ</th>
-                            <th>درستی بدرات</th>
-                            <th>تحریر نقل شجرہ نسب</th>
-                            <th>تحریر شجرہ نسب مالکان قبضہ</th>
-                            <th>پختہ کھاتاجات</th>
-                            <th>خام کھاتہ جات در شجرہ نسب</th>
-                            <th>تحریر مشترکہ کھاتہ</th>
-                            <th>پختہ نمبرواں در کھتونی</th>
-                            <th>خام نمبرواں در کھتونی</th>
-                            <th>تصدیق آخیر</th>
-                            <th>متفرق کام</th>
-                            <th>ٹوٹل</th>
-                            <th>از تاریخ</th>
-                            <th>تا تاریخ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($completion_data as $index => $item)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $item->districtNameUrdu }}</td>
-                            <td>{{ $item->tehsilNameUrdu }}</td>
-                            <td>{{ $item->mozaNameUrdu }}</td>
-                            <td>{{ $item->employee_name }} @if(!empty($item->employee_type_title))<small>({{ $item->employee_type_title }})</small>@endif</td>
-                            <td class="{{ $item->mizan_khata_dar_khatoni > 0 ? 'value-cell' : '' }}">{{ $item->mizan_khata_dar_khatoni == 0 ? '-' : $item->mizan_khata_dar_khatoni }}</td>
-                            <td class="{{ $item->pukhta_khatoni_drandkas_khasra > 0 ? 'value-cell' : '' }}">{{ $item->pukhta_khatoni_drandkas_khasra == 0 ? '-' : $item->pukhta_khatoni_drandkas_khasra }}</td>
-                            <td class="{{ $item->durusti_badrat > 0 ? 'value-cell' : '' }}">{{ $item->durusti_badrat == 0 ? '-' : $item->durusti_badrat }}</td>
-                            <td class="{{ $item->tehreer_naqal_shajra_nasab > 0 ? 'value-cell' : '' }}">{{ $item->tehreer_naqal_shajra_nasab == 0 ? '-' : $item->tehreer_naqal_shajra_nasab }}</td>
-                            <td class="{{ $item->tehreer_shajra_nasab_malkan_qabza > 0 ? 'value-cell' : '' }}">{{ $item->tehreer_shajra_nasab_malkan_qabza == 0 ? '-' : $item->tehreer_shajra_nasab_malkan_qabza }}</td>
-                            <td class="{{ $item->pukhta_khatajat > 0 ? 'value-cell' : '' }}">{{ $item->pukhta_khatajat == 0 ? '-' : $item->pukhta_khatajat }}</td>
-                            <td class="{{ $item->kham_khatajat_dar_shajra_nasab > 0 ? 'value-cell' : '' }}">{{ $item->kham_khatajat_dar_shajra_nasab == 0 ? '-' : $item->kham_khatajat_dar_shajra_nasab }}</td>
-                            <td class="{{ $item->tehreer_mushtarka_khata > 0 ? 'value-cell' : '' }}">{{ $item->tehreer_mushtarka_khata == 0 ? '-' : $item->tehreer_mushtarka_khata }}</td>
-                            <td class="{{ $item->pukhta_numberwan_dar_khatoni > 0 ? 'value-cell' : '' }}">{{ $item->pukhta_numberwan_dar_khatoni == 0 ? '-' : $item->pukhta_numberwan_dar_khatoni }}</td>
-                            <td class="{{ $item->kham_numberwan_dar_khatoni > 0 ? 'value-cell' : '' }}">{{ $item->kham_numberwan_dar_khatoni == 0 ? '-' : $item->kham_numberwan_dar_khatoni }}</td>
-                            <td class="{{ $item->tasdeeq_akhir > 0 ? 'value-cell' : '' }}">{{ $item->tasdeeq_akhir == 0 ? '-' : $item->tasdeeq_akhir }}</td>
-                            <td class="{{ $item->mutafarriq_kaam > 0 ? 'value-cell' : '' }}">{{ $item->mutafarriq_kaam == 0 ? '-' : $item->mutafarriq_kaam }}</td>
-                            <td><strong>{{ $item->total_count > 0 ? $item->total_count : '-' }}</strong></td>
-                            <td>{{ $from_date }}</td>
-                            <td>{{ $to_date }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+               
             </div>
         </div>
             </div>
@@ -377,38 +326,7 @@ tr:hover { background-color: #f1f1f1; }
 <div id="grievances_content">
             <center><h4>شکایات رپورٹ</h4></center>
             <div id="grievances_table_container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>نمبر شمار</th>
-                                <th>نام ضلع</th>
-                                <th>نام تحصیل</th>
-                                <th>نام موضع</th>
-                                <th>شکایت کنندہ کا نام</th>
-                                <th>والد کا نام</th>
-                                <th>شناختی کارڈ نمبر</th>
-                                <th>شکایت کی قسم</th>
-                                <th>حیثیت</th>
-                                <th>تاریخ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($grievances_data ?? [] as $index => $item)
-                            <tr>
-                            <td>{{ (int) $index + 1 }}</td>
-                                <td>{{ $item->district_name }}</td>
-                                <td>{{ $item->tehsil_name }}</td>
-                                <td>{{ $item->moza_name }}</td>
-                                <td>{{ $item->applicant_name }}</td>
-                                <td>{{ $item->father_name }}</td>
-                                <td>{{ $item->cnic }}</td>
-                                <td>{{ $item->grievance_type_name }}</td>
-                                <td><span class="label label-{{ $item->status_color }}">{{ $item->status_name }}</span></td>
-                                <td>{{ $item->application_date ? date('d-m-Y', strtotime($item->application_date)) : '' }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                   
                 </div>
             </div>
         </div>
